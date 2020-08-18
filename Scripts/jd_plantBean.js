@@ -26,7 +26,8 @@ let jdNotify = $.getdata('jdPlantBeanNotify');
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
 var plantUuids = [ // 这个列表填入你要助力的好友的plantUuid
-    '4npkonnsy7xi2bhmcrgudl4ts6zsps6lbhs3g3a'
+    '4npkonnsy7xi2bhmcrgudl4ts6zsps6lbhs3g3a',
+    'olmijoxgmjutyyefekkdxoehv3thvkthfd6sv6i'
 ]
 let currentRoundId = null; //本期活动id
 let lastRoundId = null; //上期id
