@@ -31,7 +31,7 @@ let jdNotify = $.getdata('jdFruitNotify');
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
     'baabc1ce0c2549ed858cd31f1501a5da',
-    'f92cb56c6a1349f5a35f0372aa041ea0'
+    '7eaa88f952684ac8955138e1a5855748'
 ]
 
 // 添加box功能
