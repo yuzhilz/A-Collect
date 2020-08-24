@@ -1,6 +1,7 @@
 /*
 jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d9785748014fc6cca821e58427162e9336/fruit/fruit.js
-更新时间:2020-08-15
+更新时间:2020-08-24
+脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 // quantumultx
 [task_local]
 #jd免费水果
@@ -8,15 +9,15 @@ jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d978574
 // Loon
 [Script]
 cron "5 6-18/6 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js,tag=东东农场
-兼容surge和Loon等软件功能 by@iepngs
-新增和维护功能 by@lxk0301
+// Surge
+// 宠汪汪偷好友积分与狗粮 = type=cron,cronexp=5 6-18/6 * * *,wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_steal.js
 互助码shareCode请先手动运行脚本查看打印可看到
 一天只能帮助4个人。多出的助力码无效
 注：如果使用Node.js, 需自行安装'crypto-js,got,http-server,tough-cookie'模块. 例: npm install crypto-js http-server tough-cookie got --save
 */
 
 let name = '东东农场';
-const retainWater = 50; //保留水滴大于多少g,默认50g;
+const retainWater = 100; //保留水滴大于多少g,默认100g;
 const $ = new Env(name);
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -30,14 +31,13 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let jdNotify = $.getdata('jdFruitNotify');
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
-    'baabc1ce0c2549ed858cd31f1501a5da',
-    '7eaa88f952684ac8955138e1a5855748'
-]
-
-// 添加box功能
-// 【用box订阅的好处】
-// 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
-// 2️⃣所有脚本的cookie都可以备份，方便你迁移到其他支持box的软件。
+        'baabc1ce0c2549ed858cd31f1501a5da',
+        '7eaa88f952684ac8955138e1a5855748'
+    ]
+    // 添加box功能
+    // 【用box订阅的好处】
+    // 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
+    // 2️⃣所有脚本的cookie都可以备份，方便你迁移到其他支持box的软件。
 let isBox = false //默认没有使用box
 const boxShareCodeArr = ['jd_fruit1', 'jd_fruit2', 'jd_fruit3', 'jd_fruit4'];
 isBox = boxShareCodeArr.some((item) => {
@@ -62,17 +62,19 @@ let farmTask = null,
 
 function* step() {
     let message = '';
-    let subTitle = '';
+    let subTitle = '',
+        UserName = '';
     let option = {};
     if (!cookie) {
         $.msg(name, '【提示】请先获取cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
         $.done();
         return
     }
+    UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
     let farmInfo = yield initForFarm();
     if (farmInfo.farmUserPro) {
         option['media-url'] = farmInfo.farmUserPro.goodsImage;
-        subTitle = `【${farmInfo.farmUserPro.nickName}】${farmInfo.farmUserPro.name}`;
+        subTitle = `【${UserName}】${farmInfo.farmUserPro.name}`;
         console.log(`\n【您的互助码shareCode】 ${farmInfo.farmUserPro.shareCode}\n`);
         console.log(`\n【已成功兑换水果】${farmInfo.farmUserPro.winTimes}次\n`)
         if (farmInfo.treeState === 0) {
@@ -323,7 +325,7 @@ function* step() {
                     if (index === (masterHelpResult.masterHelpPeoples.length - 1)) {
                         str += item.nickName || "匿名用户";
                     } else {
-                        str += (item.nickName || "匿名用户") + '，';
+                        str += (item.nickName || "匿名用户") + ',';
                     }
                     let date = new Date(item.time);
                     let time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getMinutes();
@@ -375,7 +377,7 @@ function* step() {
         }
         if (helpSuccessPeoples) {
             if ($.getdata(helpSuccessPeoplesKey)) {
-                $.setdata($.getdata(helpSuccessPeoplesKey) + helpSuccessPeoples, helpSuccessPeoplesKey);
+                $.setdata($.getdata(helpSuccessPeoplesKey) + ',' + helpSuccessPeoples, helpSuccessPeoplesKey);
             } else {
                 $.setdata(helpSuccessPeoples, helpSuccessPeoplesKey);
             }
@@ -938,6 +940,10 @@ function clockInFollowForFarm(id, type, step) {
 // 领取连续签到7天的惊喜礼包
 function gotClockInGift() {
     request('clockInForFarm', { "type": 2 })
+}
+//获取好友列表
+function friendListInitForFarm() {
+    request('friendListInitForFarm')
 }
 
 function request(function_id, body = {}) {
