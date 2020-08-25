@@ -1867,4 +1867,473 @@ function JingDongGetCash(s) {
               merge.JDGetCash.fail = 1
               if (data.match(/\"bizCode\":201|已经签过/)) {
                 merge.JDGetCash.notify = "京东商城-现金: 失败, 原因: 已签过 ⚠️"
-              } else if (data.match(/\"code\":
+              } else if (data.match(/\"code\":300|退出登录/)) {
+                merge.JDGetCash.notify = "京东商城-现金: 失败, 原因: Cookie失效‼️"
+              } else {
+                merge.JDGetCash.notify = "京东商城-现金: 失败, 原因: 未知 ⚠️"
+              }
+            }
+          }
+        } catch (eor) {
+          $nobyda.AnError("京东商城-现金", "JDGetCash", eor)
+        } finally {
+          resolve()
+        }
+      })
+    }, s)
+    if (out) setTimeout(resolve, out + s)
+  });
+}
+
+function TotalSteel() {
+  return new Promise(resolve => {
+    if (disable("TSteel")) return resolve()
+    const SteelUrl = {
+      url: 'https://coin.jd.com/m/gb/getBaseInfo.html',
+      headers: {
+        Cookie: KEY,
+      }
+    };
+    $nobyda.get(SteelUrl, function(error, response, data) {
+      try {
+        if (!error) {
+          const Details = LogDetails ? "response:\n" + data : '';
+          if (data.match(/(\"gbBalance\":\d+)/)) {
+            console.log("\n" + "京东-总钢镚查询成功 " + Details)
+            const cc = JSON.parse(data)
+            merge.JRSteel.TSteel = cc.gbBalance
+          } else {
+            console.log("\n" + "京东-总钢镚查询失败 " + Details)
+          }
+        } else {
+          throw new Error(error)
+        }
+      } catch (eor) {
+        $nobyda.AnError("账户钢镚-查询", "JRSteel", eor)
+      } finally {
+        resolve()
+      }
+    })
+    if (out) setTimeout(resolve, out)
+  });
+}
+
+function TotalBean() {
+  return new Promise(resolve => {
+    if (disable("Qbear")) return resolve()
+    const BeanUrl = {
+      url: 'https://wq.jd.com/user/info/QueryJDUserInfo?sceneval=2',
+      headers: {
+        Cookie: KEY,
+        Referer: "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2"
+      }
+    };
+    $nobyda.post(BeanUrl, function(error, response, data) {
+      try {
+        if (!error) {
+          const Details = LogDetails ? "response:\n" + data : '';
+          const cc = JSON.parse(data)
+          if (cc.base.jdNum != 0) {
+            console.log("\n" + "京东-总京豆查询成功 " + Details)
+            merge.JDShake.Qbear = cc.base.jdNum
+          } else {
+            console.log("\n" + "京东-总京豆查询失败 " + Details)
+          }
+          if (data.match(/\"nickname\" ?: ?\"(.+?)\",/)) {
+            merge.JDShake.nickname = cc.base.nickname
+          } else if (data.match(/\"no ?login\.?\"/)) {
+            merge.JDShake.nickname = "Cookie失效 ‼️"
+          } else {
+            merge.JDShake.nickname = '';
+          }
+        } else {
+          throw new Error(error)
+        }
+      } catch (eor) {
+        $nobyda.AnError("账户京豆-查询", "JDShake", eor)
+      } finally {
+        resolve()
+      }
+    })
+    if (out) setTimeout(resolve, out)
+  });
+}
+
+function TotalCash() {
+  return new Promise(resolve => {
+    if (disable("TCash")) return resolve()
+    const CashUrl = {
+      url: 'https://api.m.jd.com/client.action?functionId=myhongbao_balance',
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Cookie: KEY,
+      },
+      body: "body=%7B%22fp%22%3A%22-1%22%2C%22appToken%22%3A%22apphongbao_token%22%2C%22childActivityUrl%22%3A%22-1%22%2C%22country%22%3A%22cn%22%2C%22openId%22%3A%22-1%22%2C%22childActivityId%22%3A%22-1%22%2C%22applicantErp%22%3A%22-1%22%2C%22platformId%22%3A%22appHongBao%22%2C%22isRvc%22%3A%22-1%22%2C%22orgType%22%3A%222%22%2C%22activityType%22%3A%221%22%2C%22shshshfpb%22%3A%22-1%22%2C%22platformToken%22%3A%22apphongbao_token%22%2C%22organization%22%3A%22JD%22%2C%22pageClickKey%22%3A%22-1%22%2C%22platform%22%3A%221%22%2C%22eid%22%3A%22-1%22%2C%22appId%22%3A%22appHongBao%22%2C%22childActiveName%22%3A%22-1%22%2C%22shshshfp%22%3A%22-1%22%2C%22jda%22%3A%22-1%22%2C%22extend%22%3A%22-1%22%2C%22shshshfpa%22%3A%22-1%22%2C%22activityArea%22%3A%22-1%22%2C%22childActivityTime%22%3A%22-1%22%7D&client=apple&clientVersion=8.5.0&d_brand=apple&networklibtype=JDNetworkBaseAF&openudid=1fce88cd05c42fe2b054e846f11bdf33f016d676&sign=fdc04c3ab0ee9148f947d24fb087b55d&st=1581245397648&sv=120"
+    };
+    $nobyda.post(CashUrl, function(error, response, data) {
+      try {
+        if (!error) {
+          const Details = LogDetails ? "response:\n" + data : '';
+          if (data.match(/(\"totalBalance\":\d+)/)) {
+            console.log("\n" + "京东-总红包查询成功 " + Details)
+            const cc = JSON.parse(data)
+            merge.JDCash.TCash = cc.totalBalance
+          } else {
+            console.log("\n" + "京东-总红包查询失败 " + Details)
+          }
+        } else {
+          throw new Error(error)
+        }
+      } catch (eor) {
+        $nobyda.AnError("账户红包-查询", "JDCash", eor)
+      } finally {
+        resolve()
+      }
+    })
+    if (out) setTimeout(resolve, out)
+  });
+}
+
+function disable(Val, name, way) {
+  const read = $nobyda.read("JD_DailyBonusDisables")
+  const annal = $nobyda.read("JD_Crash_" + Val)
+  if (annal && way == 1 && boxdis) {
+    var Crash = $nobyda.write("", "JD_Crash_" + Val)
+    if (read) {
+      if (read.indexOf(Val) == -1) {
+        var Crash = $nobyda.write(`${read},${Val}`, "JD_DailyBonusDisables")
+        console.log(`\n${name}-触发自动禁用 ‼️`)
+        merge[Val].notify = `${name}: 崩溃, 触发自动禁用 ‼️`
+        merge[Val].error = 1
+        $nobyda.disable = 1
+      }
+    } else {
+      var Crash = $nobyda.write(Val, "JD_DailyBonusDisables")
+      console.log(`\n${name}-触发自动禁用 ‼️`)
+      merge[Val].notify = `${name}: 崩溃, 触发自动禁用 ‼️`
+      merge[Val].error = 1
+      $nobyda.disable = 1
+    }
+    return true
+  } else if (way == 1 && boxdis) {
+    var Crash = $nobyda.write(name, "JD_Crash_" + Val)
+  } else if (way == 2 && annal) {
+    var Crash = $nobyda.write("", "JD_Crash_" + Val)
+  }
+  if (read && read.indexOf(Val) != -1) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function initial() {
+
+  acData = {
+    // 京东商城-夺宝
+    JDTreasure: '29xMZdGiiGYmMZ5CQcGmb7iPhN7n',
+    // 京东商城-母婴
+    JDBaby: '3BbAVGQPDd6vTyHYjmAutXrKAos6',
+    // 京东商城-数码
+    JD3C: '4SWjnZSCTHPYjE5T7j35rxxuMTb6',
+    // 京东晚市-补贴
+    JDSubsidy: 'xK148m4kWj5hBcTPuJUNNXH3AkJ',
+    // 京东商城-钟表
+    JDClocks: '2BcJPCVVzMEtMUynXkPscCSsx68W',
+    // 京东商城-医药
+    JDDrug: '3tqTG5sF1xCUyC6vgEF5CLCxGn7w',
+    // 京东商城-超市
+    JDGStore: 'aNCM6yrzD6qp1Vvh5YTzeJtk7cM',
+    // 京东商城-宠物
+    JDPet: '37ta5sh5ocrMZF3Fz5UMJbTsL42',
+    // 京东商城-图书
+    JDBook: '3SC6rw5iBg66qrXPGmZMqFDwcyXi',
+    // 京东拍拍-二手
+    JDShand: '3S28janPLYmtFxypu37AYAGgivfp',
+    // 京东商城-美妆
+    JDMakeup: '2smCxzLNuam5L14zNJHYu43ovbAP',
+    // 京东商城-清洁
+    JDClean: '2Tjm6ay1ZbZ3v7UbriTj6kHy9dn6',
+    // 京东商城-女装
+    JDWomen: 'DpSh7ma8JV7QAxSE2gJNro8Q2h9',
+    // 京东商城-个护
+    JDCare: 'NJ1kd1PJWhwvhtim73VPsD1HwY3',
+    // 京东商城-美食
+    JDFood: '4PzvVmLSBq5K63oq4oxKcDtFtzJo',
+    // 京东商城-珠宝
+    JDJewels: 'zHUHpTHNTaztSRfNBFNVZscyFZU',
+    // 京东商城-菜场
+    JDVege: 'Wcu2LVCFMkBP3HraRvb7pgSpt64'
+  };
+
+  merge = {
+    SpeedUp: {},
+    JDBean: {},
+    JDTurn: {},
+    JRDoll: {},
+    JRDSign: {},
+    Overseas: {},
+    JDFSale: {},
+    JDPet: {},
+    JD3C: {},
+    JDTreasure: {},
+    JDBaby: {},
+    JDSubsidy: {},
+    JDDrug: {},
+    JDClocks: {},
+    JDBook: {},
+    JDGStore: {},
+    JDShand: {},
+    JDMakeup: {},
+    JDWomen: {},
+    JDCare: {},
+    JDFood: {},
+    JDClean: {},
+    JDVege: {},
+    JDJewels: {},
+    JDCube: {},
+    JDPrize: {},
+    JRSteel: {},
+    JRBean: {},
+    subsidy: {},
+    JDCash: {},
+    JDGetCash: {},
+    JDShake: {}
+  }
+  for (var i in merge) {
+    merge[i].success = 0;
+    merge[i].fail = 0;
+    merge[i].error = 0;
+    merge[i].bean = 0;
+    merge[i].steel = 0;
+    merge[i].notify = '';
+    merge[i].key = 0;
+    merge[i].TSteel = 0;
+    merge[i].Cash = 0;
+    merge[i].TCash = 0;
+    merge[i].Qbear = 0;
+    merge[i].nickname = '';
+  }
+}
+
+function GetCookie() {
+  try {
+    if ($request.headers && $request.url.match(/api\.m\.jd\.com.*=signBean/)) {
+      var CV = $request.headers['Cookie']
+      if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
+        var CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/)
+        var CK1 = $nobyda.read("CookieJD")
+        var CK2 = $nobyda.read("CookieJD2")
+        var AccountOne = CK1 ? CK1.match(/pt_pin=.+?;/) ? CK1.match(/pt_pin=(.+?);/)[1] : null : null
+        var AccountTwo = CK2 ? CK2.match(/pt_pin=.+?;/) ? CK2.match(/pt_pin=(.+?);/)[1] : null : null
+        var UserName = CookieValue.match(/pt_pin=(.+?);/)[1]
+        var DecodeName = decodeURIComponent(UserName)
+        if (!AccountOne || UserName == AccountOne) {
+          var CookieName = " [账号一] ";
+          var CookieKey = "CookieJD";
+        } else if (!AccountTwo || UserName == AccountTwo) {
+          var CookieName = " [账号二] ";
+          var CookieKey = "CookieJD2";
+        } else {
+          $nobyda.notify("更新京东Cookie失败", "非历史写入账号 ‼️", '请开启脚本内"DeleteCookie"以清空Cookie ‼️')
+          $nobyda.done()
+          return
+        }
+      } else {
+        $nobyda.notify("写入京东Cookie失败", "", "请查看脚本内说明, 登录网页获取 ‼️")
+        $nobyda.done()
+        return
+      }
+      if ($nobyda.read(CookieKey)) {
+        if ($nobyda.read(CookieKey) != CookieValue) {
+          var cookie = $nobyda.write(CookieValue, CookieKey);
+          if (!cookie) {
+            $nobyda.notify("用户名: " + DecodeName, "", "更新京东" + CookieName + "Cookie失败 ‼️");
+          } else {
+            $nobyda.notify("用户名: " + DecodeName, "", "更新京东" + CookieName + "Cookie成功 🎉");
+          }
+        } else {
+          console.log("京东: \n与历史Cookie相同, 跳过写入")
+        }
+      } else {
+        var cookie = $nobyda.write(CookieValue, CookieKey);
+        if (!cookie) {
+          $nobyda.notify("用户名: " + DecodeName, "", "首次写入京东" + CookieName + "Cookie失败 ‼️");
+        } else {
+          $nobyda.notify("用户名: " + DecodeName, "", "首次写入京东" + CookieName + "Cookie成功 🎉");
+        }
+      }
+    } else {
+      $nobyda.notify("写入京东Cookie失败", "", "请检查匹配URL或配置内脚本类型 ‼️");
+    }
+  } catch (eor) {
+    $nobyda.write("", "CookieJD")
+    $nobyda.write("", "CookieJD2")
+    $nobyda.notify("写入京东Cookie失败", "", '已尝试清空历史Cookie, 请重试 ⚠️')
+    console.log(`\n写入京东Cookie出现错误 ‼️\n${JSON.stringify(eor)}\n\n${eor}\n\n${JSON.stringify($request.headers)}\n`)
+  }
+  $nobyda.done()
+}
+// Modified from yichahucha
+function nobyda() {
+  const start = Date.now()
+  const isRequest = typeof $request != "undefined"
+  const isSurge = typeof $httpClient != "undefined"
+  const isQuanX = typeof $task != "undefined"
+  const isLoon = typeof $loon != "undefined"
+  const isJSBox = typeof $app != "undefined" && typeof $http != "undefined"
+  const isNode = typeof require == "function" && !isJSBox;
+  const node = (() => {
+    if (isNode) {
+      const request = require('request');
+      return ({
+        request
+      })
+    } else {
+      return (null)
+    }
+  })()
+  const notify = (title, subtitle, message) => {
+    if (isQuanX) $notify(title, subtitle, message)
+    if (isSurge) $notification.post(title, subtitle, message)
+    if (isNode) log(title + subtitle + message)
+    if (isJSBox) $push.schedule({
+      title: title,
+      body: subtitle ? subtitle + "\n" + message : message
+    })
+  }
+  const write = (value, key) => {
+    if (isQuanX) return $prefs.setValueForKey(value, key)
+    if (isSurge) return $persistentStore.write(value, key)
+  }
+  const read = (key) => {
+    if (isQuanX) return $prefs.valueForKey(key)
+    if (isSurge) return $persistentStore.read(key)
+  }
+  const adapterStatus = (response) => {
+    if (response) {
+      if (response.status) {
+        response["statusCode"] = response.status
+      } else if (response.statusCode) {
+        response["status"] = response.statusCode
+      }
+    }
+    return response
+  }
+  const get = (options, callback) => {
+    options.headers['User-Agent'] = 'JD4iPhone/167169 (iPhone; iOS 13.4.1; Scale/3.00)'
+    if (isQuanX) {
+      if (typeof options == "string") options = {
+        url: options
+      }
+      options["method"] = "GET"
+      options["opts"] = {
+        "hints": false
+      }
+      $task.fetch(options).then(response => {
+        callback(null, adapterStatus(response), response.body)
+      }, reason => callback(reason.error, null, null))
+    }
+    if (isSurge) {
+      options.headers['X-Surge-Skip-Scripting'] = false
+      $httpClient.get(options, (error, response, body) => {
+        callback(error, adapterStatus(response), body)
+      })
+    }
+    if (isNode) {
+      node.request(options, (error, response, body) => {
+        callback(error, adapterStatus(response), body)
+      })
+    }
+    if (isJSBox) {
+      if (typeof options == "string") options = {
+        url: options
+      }
+      options["header"] = options["headers"]
+      options["handler"] = function(resp) {
+        let error = resp.error;
+        if (error) error = JSON.stringify(resp.error)
+        let body = resp.data;
+        if (typeof body == "object") body = JSON.stringify(resp.data);
+        callback(error, adapterStatus(resp.response), body)
+      };
+      $http.get(options);
+    }
+  }
+  const post = (options, callback) => {
+    options.headers['User-Agent'] = 'JD4iPhone/167169 (iPhone; iOS 13.4.1; Scale/3.00)'
+    if (isQuanX) {
+      if (typeof options == "string") options = {
+        url: options
+      }
+      options["method"] = "POST"
+      options["opts"] = {
+        "hints": false
+      }
+      $task.fetch(options).then(response => {
+        callback(null, adapterStatus(response), response.body)
+      }, reason => callback(reason.error, null, null))
+    }
+    if (isSurge) {
+      options.headers['X-Surge-Skip-Scripting'] = false
+      $httpClient.post(options, (error, response, body) => {
+        callback(error, adapterStatus(response), body)
+      })
+    }
+    if (isNode) {
+      node.request.post(options, (error, response, body) => {
+        callback(error, adapterStatus(response), body)
+      })
+    }
+    if (isJSBox) {
+      if (typeof options == "string") options = {
+        url: options
+      }
+      options["header"] = options["headers"]
+      options["handler"] = function(resp) {
+        let error = resp.error;
+        if (error) error = JSON.stringify(resp.error)
+        let body = resp.data;
+        if (typeof body == "object") body = JSON.stringify(resp.data)
+        callback(error, adapterStatus(resp.response), body)
+      }
+      $http.post(options);
+    }
+  }
+  const log = (message) => console.log(message)
+  const AnError = (name, key, er) => {
+    if (!merge[key].notify) {
+      merge[key].notify = `${name}: 异常, 已输出日志 ‼️`
+    } else {
+      merge[key].notify += `\n${name}: 异常, 已输出日志 ‼️ (2)`
+    }
+    merge[key].error = 1
+    return console.log(`\n‼️${name}发生错误\n‼️名称: ${er.name}\n‼️描述: ${er.message}${JSON.stringify(er).match(/\"line\"/) ? `\n‼️行列: ${JSON.stringify(er)}` : ``}`)
+  }
+  const time = () => {
+    const end = ((Date.now() - start) / 1000).toFixed(2)
+    return console.log('\n签到用时: ' + end + ' 秒')
+  }
+  const done = (value = {}) => {
+    if (isQuanX) return $done(value)
+    if (isSurge) isRequest ? $done(value) : $done()
+  }
+  return {
+    AnError,
+    isRequest,
+    isJSBox,
+    isSurge,
+    isQuanX,
+    isLoon,
+    isNode,
+    notify,
+    write,
+    read,
+    get,
+    post,
+    log,
+    time,
+    done
+  }
+};
+ReadCookie();
