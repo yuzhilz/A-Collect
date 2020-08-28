@@ -14,13 +14,13 @@
 [Script]
 cron "11 5 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_blueCoin.js,tag=京小超领蓝币
 // Surge
-京小超领蓝币 = type=cron,cronexp=11 5 * * *,wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_blueCoin.js
+京小超领蓝币 = type=cron,cronexp="11 5 * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_blueCoin.js
  */
 const $ = new Env('京小超领蓝币');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-const coinToBeans = $.getdata('coinToBeans') * 1 || 20; //兑换多少数量的京豆（1-20，目前最多20），0默认兑换不兑换
+const coinToBeans = $.getdata('coinToBeans') * 1 || 0; //兑换多少数量的京豆（1-20，目前最多20），0默认兑换不兑换
 
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [],
