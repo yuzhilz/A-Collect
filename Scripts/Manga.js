@@ -1,109 +1,112 @@
 /*
-Bilibili Manga Daily Bonus
+哔哩哔哩漫画签到
 
-About the author:
-If reproduced, indicate the source
-Telegram channel: @NobyDa
-Telegram bots: @NobyDa_bot
+脚本兼容: QuantumultX, Surge, Loon
+电报频道：@NobyDa
+问题反馈：@NobyDa_bot
+如果转载，请注明出处
 
-Description :
-When Bilibili Manga app is opened, click "My", If notification gets cookie success, you can use the check in script. because script will automatically judgment whether the cookie is updated, so you dont need to disable it manually.
+说明：
+打开哔哩哔哩漫画后 (AppStore中国区)，单击"我的", 如果通知获取cookie成功, 则可以使用此脚本. 
 
-script will be performed every day at 9 am. You can modify the execution time.
+脚本将在每天上午9点执行。 您可以修改执行时间。
 
 ~~~~~~~~~~~~~~~~
-Surge 4.0 :
+Surge 4.2.0+ :
+
 [Script]
-cron "0 9 * * *" script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/Manga.js
+Bili漫画签到 = type=cron,cronexp=0 9 * * *,wake-system=1,script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/Manga.js
 
-# Get bilibili cookie.
-http-request https:\/\/manga\.bilibili\.com\/.*\.User\/GetWallet max-size=0,script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/Manga.js
+Bili漫画Cookie = type=http-request,pattern=^https:\/\/passport\.biligame\.com\/api\/login\/sso.+?version%22%3A%22(3|4|5),script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/Manga.js
+
+[MITM]
+hostname = passport.biligame.com
 ~~~~~~~~~~~~~~~~
-QX 1.0.5 :
+QX 1.0.10+ :
+
 [task_local]
-0 9 * * * Manga.js
+0 9 * * * https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/Manga.js, tag=Bili漫画签到
 
 [rewrite_local]
-# Get bilibili cookie. QX 1.0.5(188+):
-https:\/\/manga\.bilibili\.com\/.*\.User\/GetWallet url script-request-header Manga.js
-~~~~~~~~~~~~~~~~
-QX or Surge MITM = manga.bilibili.com
-~~~~~~~~~~~~~~~~
+#获取Bili漫画Cookie
+^https:\/\/passport\.biligame\.com\/api\/login\/sso.+?version%22%3A%22(3|4|5) url script-request-header https://raw.githubusercontent.com/NobyDa/Script/master/Bilibili-DailyBonus/Manga.js
 
-
+[mitm]
+hostname = passport.biligame.com
+~~~~~~~~~~~~~~~~
 */
 
 
 const $nobyda = nobyda();
 
 if ($nobyda.isRequest) {
-  GetCookie()
-  $nobyda.end()
+    GetCookie()
+    $nobyda.end()
 } else {
-  checkin()
-  $nobyda.end()
+    checkin()
+    $nobyda.end()
 }
 
 function checkin() {
-  const bilibili = {
-    url: 'https://manga.bilibili.com/twirp/activity.v1.Activity/ClockIn',
-    headers: {
-      Cookie: $nobyda.read("CookieBM"),
-    },
-    body: "platform=ios"
-  };
-  $nobyda.post(bilibili, function(error, response, data) {
-    if (!error) {
-      if (response.status == 200) {
-        console.log("bilibili success response : \n" + data)
-        $nobyda.notify("哔哩哔哩漫画 - 签到成功！🎉", "", "")
-      } else {
-        console.log("bilibili failed response : \n" + data)
-        if (data.match(/duplicate/)) {
-          $nobyda.notify("哔哩哔哩漫画 - 今日已签过 ⚠️", "", "")
-        } else if (data.match(/uid must/)) {
-          $nobyda.notify("哔哩哔哩漫画 - Cookie无效 ‼️‼️", "", "")
+    const bilibili = {
+        url: 'https://manga.bilibili.com/twirp/activity.v1.Activity/ClockIn',
+        headers: {
+            Cookie: $nobyda.read("CookieBM"),
+        },
+        body: "platform=ios"
+    };
+    $nobyda.post(bilibili, function(error, response, data) {
+        if (!error) {
+            if (response.status == 200) {
+                console.log("bilibili success response : \n" + data)
+                $nobyda.notify("哔哩哔哩漫画 - 签到成功！🎉", "", "")
+            } else {
+                console.log("bilibili failed response : \n" + data)
+                if (data.match(/duplicate/)) {
+                    $nobyda.notify("哔哩哔哩漫画 - 今日已签过 ⚠️", "", "")
+                } else if (data.match(/uid must/)) {
+                    $nobyda.notify("哔哩哔哩漫画 - Cookie无效 ‼️‼️", "", "")
+                } else {
+                    $nobyda.notify("哔哩哔哩漫画 - 签到失败 ‼️", "", data)
+                }
+            }
         } else {
-          $nobyda.notify("哔哩哔哩漫画 - 签到失败 ‼️", "", data)
+            $nobyda.notify("哔哩哔哩漫画 - 签到接口请求失败", "", error)
         }
-      }
-    } else {
-      $nobyda.notify("哔哩哔哩漫画 - 签到接口请求失败", "", error)
-    }
-  })
+    })
 }
 
 function GetCookie() {
-  var CookieName = "B站漫画";
-  var CookieKey = "CookieBM";
-  var regex = /SESSDATA=.+?;/;
-  if ($request.headers) {
-    var header = $request.headers['Cookie'] ? $request.headers['Cookie'] : "";
-    if (header.indexOf("SESSDATA=") != -1) {
-      var CookieValue = regex.exec(header)[0];
-      if ($nobyda.read(CookieKey)) {
-        if ($nobyda.read(CookieKey) != CookieValue) {
-          var cookie = $nobyda.write(CookieValue, CookieKey);
-          if (!cookie) {
-            $nobyda.notify("更新" + CookieName + "Cookie失败‼️", "", "");
-          } else {
-            $nobyda.notify("更新" + CookieName + "Cookie成功 🎉", "", "");
-          }
-        }
-      } else {
-        var cookie = $nobyda.write(CookieValue, CookieKey);
-        if (!cookie) {
-          $nobyda.notify("首次写入" + CookieName + "Cookie失败‼️", "", "");
+    var CookieName = "B站漫画";
+    var CookieKey = "CookieBM";
+    var regex = /SESSDATA=.+?;/;
+    if ($request.headers) {
+        var header = $request.headers['Cookie'] ? $request.headers['Cookie'] : "";
+        if (header.indexOf("SESSDATA=") != -1) {
+            var CookieValue = regex.exec(header)[0];
+            if ($nobyda.read(CookieKey)) {
+                if ($nobyda.read(CookieKey) != CookieValue) {
+                    var cookie = $nobyda.write(CookieValue, CookieKey);
+                    if (!cookie) {
+                        $nobyda.notify("更新" + CookieName + "Cookie失败‼️", "", "");
+                    } else {
+                        $nobyda.notify("更新" + CookieName + "Cookie成功 🎉", "", "");
+                    }
+                }
+            } else {
+                var cookie = $nobyda.write(CookieValue, CookieKey);
+                if (!cookie) {
+                    $nobyda.notify("首次写入" + CookieName + "Cookie失败‼️", "", "");
+                } else {
+                    $nobyda.notify("首次写入" + CookieName + "Cookie成功 🎉", "", "");
+                }
+            }
         } else {
-          $nobyda.notify("首次写入" + CookieName + "Cookie成功 🎉", "", "");
+            $nobyda.notify("写入" + CookieName + "Cookie失败‼️", "", "Cookie关键值缺失");
         }
-      }
     } else {
-      $nobyda.notify("写入" + CookieName + "Cookie失败‼️", "", "Cookie关键值缺失");
+        $nobyda.notify("写入" + CookieName + "Cookie失败‼️", "", "配置错误, 无法读取请求头,");
     }
-  } else {
-    $nobyda.notify("写入" + CookieName + "Cookie失败‼️", "", "配置错误, 无法读取请求头,");
-  }
 }
 
 function nobyda() {
