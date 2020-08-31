@@ -1,6 +1,6 @@
 /*
 京东萌宠助手 搬得https://github.com/liuxiaoyucc/jd-helper/blob/master/pet/pet.js
-更新时间:2020-08-17
+更新时间:2020-08-28
 // quantumultx
 [task_local]
 #东东萌宠
@@ -8,6 +8,8 @@
 // Loon
 [Script]
 cron "5 6-18/6 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_pet.js,tag=东东萌宠
+// Surge
+东东萌宠 = type=cron,cronexp="5 6-18/6 * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_pet.js
 互助码shareCode请先手动运行脚本查看打印可看到
 一天只能帮助5个人。多出的助力码无效
 注：如果使用Node.js, 需自行安装'crypto-js,got,http-server,tough-cookie'模块. 例: npm install crypto-js http-server tough-cookie got --save
@@ -25,14 +27,13 @@ const cookie = jdCookieNode.CookieJD ? jdCookieNode.CookieJD : $.getdata('Cookie
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let jdNotify = $.getdata('jdPetNotify');
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode, 最多可能是5个
-    'MTAxODc2NTEzMDAwMDAwMDAyNDcyNTYzOQ==',
-    'MTAxODc2NTEzNTAwMDAwMDAzMjY2MDU1OQ=='
-]
-
-// 添加box功能
-// 【用box订阅的好处】
-// 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
-// 2️⃣所有脚本的cookie都可以备份，方便你迁移到其他支持box的软件。
+        'MTAxODc2NTEzMDAwMDAwMDAyNDcyNTYzOQ==',
+        'MTAxODc2NTEzNTAwMDAwMDAzMjY2MDU1OQ=='
+    ]
+    // 添加box功能
+    // 【用box订阅的好处】
+    // 1️⃣脚本也可以远程挂载了。助力功能只需在box里面设置助力码。
+    // 2️⃣所有脚本的cookie都可以备份，方便你迁移到其他支持box的软件。
 let isBox = false //默认没有使用box
 const boxShareCodeArr = ['jd_pet1', 'jd_pet2', 'jd_pet3', 'jd_pet4', 'jd_pet5'];
 isBox = boxShareCodeArr.some((item) => {
