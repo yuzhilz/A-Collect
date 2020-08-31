@@ -38,27 +38,28 @@ const retainWater = 100; //保留水滴大于多少g,默认100g;
 const doFriendsWaterLimit = 3; //每天为多少个好友浇水，默认3个
 let jdNotify = $.getdata('jdFruitNotify'); //是否关闭通知，false打开，true通知
 let jdServerNotify = true; //是否每次运行脚本后，都发送server酱微信通知提醒,默认是true【true:发送，false:不发送】
-const JD_API_HOST = 'https://api.m.jd.com/client.action'!(async() => {
-        await requireConfig();
-        if (!cookiesArr[0]) {
-            $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
-            return;
+const JD_API_HOST = 'https://api.m.jd.com/client.action';
+!(async() => {
+    await requireConfig();
+    if (!cookiesArr[0]) {
+        $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
+        return;
+    }
+    for (let i = 0; i < cookiesArr.length; i++) {
+        if (cookiesArr[i]) {
+            cookie = cookiesArr[i];
+            UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+            $.index = i + 1;
+            console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
+            message = '';
+            subTitle = '';
+            option = {};
+            await shareCodesFormat();
+            await jdFruit();
         }
-        for (let i = 0; i < cookiesArr.length; i++) {
-            if (cookiesArr[i]) {
-                cookie = cookiesArr[i];
-                UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
-                $.index = i + 1;
-                console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
-                message = '';
-                subTitle = '';
-                option = {};
-                await shareCodesFormat();
-                await jdFruit();
-            }
-        }
-    })()
-    .catch((e) => {
+    }
+})()
+.catch((e) => {
         $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
     })
     .finally(() => {
