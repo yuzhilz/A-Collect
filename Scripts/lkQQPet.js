@@ -1,6 +1,7 @@
 /*
 QQ萌宠-lowking-v1.0
 
+本想另外写一个一条龙服务的脚本，奈何token有效期半天都没有，只能放弃了
 按下面配置完之后，手机qq进入左侧会员，再点击右侧qq宠物(如果没弹出获取成功通知，点击右上角3个点，重启小程序)
 
 ************************
@@ -21,7 +22,7 @@ QuantumultX 本地脚本配置:
 
 [rewrite_local]
 #QQ萌宠获取cookie
-https:\/\/qqpet.jwetech.com\/api\/authorizations url script-request-body lkQQPet.js
+https:\/\/qqpet.jwetech.com\/api\/authorizations url script-response-body lkQQPet.js
 
 [task_local]
 0 0 0,1 * * ? lkQQPet.js
@@ -34,7 +35,7 @@ LOON 本地脚本配置:
 ************************
 
 [Script]
-http-request https:\/\/qqpet.jwetech.com\/api\/authorizations script-path=lkQQPet.js, timeout=10, requires-body=true, tag=QQ萌宠cookie
+http-response https:\/\/qqpet.jwetech.com\/api\/authorizations script-path=lkQQPet.js, timeout=10, requires-body=true, tag=QQ萌宠cookie
 cron "0 0 0,1 * * *" script-path=lkQQPet.js, tag=QQ萌宠
 
 mitm = qqpet.jwetech.com
@@ -141,6 +142,7 @@ function dailySign() {
     })
 }
 
+//ToolKit-start
 function ToolKit(t, s, i) { return new class { constructor(t, s, i) { this.userAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.2 Safari/605.1.15`;
             this.prefix = `lk`;
             this.name = t;
@@ -257,3 +259,4 @@ function ToolKit(t, s, i) { return new class { constructor(t, s, i) { this.userA
             t = s + t + i; return this.toDBC(t) }
         customReplace(t, s, i, e) { try { if (this.isEmpty(i)) { i = "#{" } if (this.isEmpty(e)) { e = "}" } for (let o in s) { t = t.replace(`${i}${o}${e}`, s[o]) } } catch (t) { this.logErr(t) } return t }
         toDBC(t) { var s = ""; for (var i = 0; i < t.length; i++) { if (t.charCodeAt(i) == 32) { s = s + String.fromCharCode(12288) } else if (t.charCodeAt(i) < 127) { s = s + String.fromCharCode(t.charCodeAt(i) + 65248) } } return s } }(t, s, i) }
+//ToolKit-end
