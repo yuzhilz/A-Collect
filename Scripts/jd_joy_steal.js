@@ -244,6 +244,7 @@ function getFriends(currentPage = '1') {
             try {
                 if (err) {
                     console.log('\n京东宠汪汪: API查询请求失败 ‼️‼️')
+                    throw new Error(err);
                 } else {
                     // console.log('JSON.parse(data)', JSON.parse(data))
                     $.getFriendsData = JSON.parse(data);
@@ -280,6 +281,7 @@ function enterFriendRoom(friendPin) {
             try {
                 if (err) {
                     console.log('\n京东宠汪汪: API查询请求失败 ‼️‼️')
+                    throw new Error(err);
                 } else {
                     // console.log('进入好友房间', JSON.parse(data))
                     data = JSON.parse(data);
@@ -301,6 +303,7 @@ function getFriendCoin(friendPin) {
             try {
                 if (err) {
                     console.log('\n京东宠汪汪: API查询请求失败 ‼️‼️')
+                    throw new Error(err);
                 } else {
                     // console.log(`收集好友金币结果--${data}`)
                     data = JSON.parse(data);
@@ -320,6 +323,7 @@ function helpFeed(friendPin) {
             try {
                 if (err) {
                     console.log('\n京东宠汪汪: API查询请求失败 ‼️‼️')
+                    throw new Error(err);
                 } else {
                     console.log(`帮忙喂食结果--${data}`)
                     data = JSON.parse(data);
@@ -340,6 +344,7 @@ function doubleRandomFood(friendPin) {
             try {
                 if (err) {
                     console.log('\n京东宠汪汪: API查询请求失败 ‼️‼️')
+                    throw new Error(err);
                 } else {
                     // console.log('分享', JSON.parse(data))
                     // $.appGetPetTaskConfigRes = JSON.parse(data);
@@ -359,6 +364,7 @@ function getRandomFood(friendPin) {
             try {
                 if (err) {
                     console.log('\n京东宠汪汪: API查询请求失败 ‼️‼️')
+                    throw new Error(err);
                 } else {
                     console.log(`领取双倍狗粮结果--${data}`)
                     data = JSON.parse(data);
@@ -392,6 +398,7 @@ function getCoinChanges() {
             try {
                 if (err) {
                     console.log('\n京东宠汪汪: API查询请求失败 ‼️‼️')
+                    throw new Error(err);
                 } else {
                     // console.log('getCoinChanges', JSON.parse(data))
                     data = JSON.parse(data);
