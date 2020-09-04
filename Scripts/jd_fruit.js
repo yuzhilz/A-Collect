@@ -93,7 +93,7 @@ async function jdFruit() {
         await doTenWater(); //浇水十次
         await getFirstWaterAward(); //领取首次浇水奖励
         await getTenWaterAward(); //领取10浇水奖励
-        await getWaterFriendGotAward(); //领取为3好友浇水奖励
+        await getWaterFriendGotAward(); //领取为2好友浇水奖励
         await doTenWaterAgain(); //再次浇水
         await predictionFruit(); //预测水果成熟时间
         await showMsg();
@@ -190,11 +190,11 @@ async function doDailyTask() {
     }
     //给好友浇水
     if (!$.farmTask.waterFriendTaskInit.f) {
-        if ($.farmTask.waterFriendTaskInit.waterFriendCountKey < 3) {
+        if ($.farmTask.waterFriendTaskInit.waterFriendCountKey < $.farmTask.waterFriendTaskInit.waterFriendMax) {
             await doFriendsWater();
         }
     } else {
-        console.log('给3个好友浇水任务已完成\n')
+        console.log(`给${$.farmTask.waterFriendTaskInit.waterFriendMax}个好友浇水任务已完成\n`)
     }
     // await Promise.all([
     //   clockInIn(),//打卡领水
@@ -439,18 +439,22 @@ async function turntableFarm() {
             console.log('4小时候免费赠送的抽奖机会已领取')
         }
         if ($.initForTurntableFarmRes.turntableBrowserAds && $.initForTurntableFarmRes.turntableBrowserAds.length > 0) {
-            console.log('开始浏览天天抽奖的逛会场任务')
-            if (!$.initForTurntableFarmRes.turntableBrowserAds[0].status) {
-                await browserForTurntableFarm($.initForTurntableFarmRes.turntableBrowserAds[0].adId);
-                if ($.browserForTurntableFarmRes.code === '0' && $.browserForTurntableFarmRes.status) {
-                    await browserForTurntableFarm2($.initForTurntableFarmRes.turntableBrowserAds[0].adId);
-                    if ($.browserForTurntableFarm2Res.code === '0') {
-                        await initForTurntableFarm();
-                        remainLotteryTimes = $.initForTurntableFarmRes.remainLotteryTimes;
+            for (let index = 0; index < $.initForTurntableFarmRes.turntableBrowserAds.length; index++) {
+                if (!$.initForTurntableFarmRes.turntableBrowserAds[index].status) {
+                    console.log(`开始浏览天天抽奖的第${index + 1}个逛会场任务`)
+                    await browserForTurntableFarm(1, $.initForTurntableFarmRes.turntableBrowserAds[index].adId);
+                    if ($.browserForTurntableFarmRes.code === '0' && $.browserForTurntableFarmRes.status) {
+                        console.log(`第${index + 1}个逛会场任务完成，开始领取水滴奖励\n`)
+                        await browserForTurntableFarm(2, $.initForTurntableFarmRes.turntableBrowserAds[index].adId);
+                        if ($.browserForTurntableFarmRes.code === '0') {
+                            console.log(`第${index + 1}个逛会场任务领取水滴奖励完成\n`)
+                            await initForTurntableFarm();
+                            remainLotteryTimes = $.initForTurntableFarmRes.remainLotteryTimes;
+                        }
                     }
+                } else {
+                    console.log(`浏览天天抽奖的第${index + 1}个逛会场任务已完成`)
                 }
-            } else {
-                console.log('天天抽奖浏览任务已经做完')
             }
         }
         //天天抽奖助力
@@ -710,14 +714,14 @@ async function doFriendsWater() {
     await friendListInitForFarm();
     console.log('开始给好友浇水...');
     await taskInitForFarm();
-    const { waterFriendCountKey } = $.farmTask.waterFriendTaskInit;
+    const { waterFriendCountKey, waterFriendMax } = $.farmTask.waterFriendTaskInit;
     console.log(`今日已给${waterFriendCountKey}个好友浇水`);
-    if (waterFriendCountKey < doFriendsWaterLimit) {
+    if (waterFriendCountKey < waterFriendMax) {
         let needWaterFriends = [];
         if ($.friendList.friends && $.friendList.friends.length > 0) {
             $.friendList.friends.map((item, index) => {
                 if (item.friendState === 1) {
-                    if (needWaterFriends.length < (doFriendsWaterLimit - waterFriendCountKey)) {
+                    if (needWaterFriends.length < (waterFriendMax - waterFriendCountKey)) {
                         needWaterFriends.push(item.shareCode);
                     }
                 }
@@ -756,25 +760,26 @@ async function doFriendsWater() {
             console.log('您的好友列表暂无好友,快去邀请您的好友吧!')
         }
     } else {
-        console.log(`今日已为好友浇水量已达您到设置数量:${doFriendsWaterLimit}个`)
+        console.log(`今日已为好友浇水量已达${waterFriendMax}个`)
     }
 }
 //领取给3个好友浇水后的奖励水滴
 async function getWaterFriendGotAward() {
     await taskInitForFarm();
-    if ($.farmTask.waterFriendTaskInit.waterFriendCountKey >= 3) {
-        if (!$.farmTask.waterFriendTaskInit.waterFriendGotAward) {
+    const { waterFriendCountKey, waterFriendMax, waterFriendSendWater, waterFriendGotAward } = $.farmTask.waterFriendTaskInit
+    if (waterFriendCountKey >= waterFriendMax) {
+        if (!waterFriendGotAward) {
             await waterFriendGotAwardForFarm();
-            console.log(`领取给3个好友浇水后的奖励水滴::${JSON.stringify($.waterFriendGotAwardRes)}`)
+            console.log(`领取给${waterFriendMax}个好友浇水后的奖励水滴::${JSON.stringify($.waterFriendGotAwardRes)}`)
             if ($.waterFriendGotAwardRes.code === '0') {
-                message += `【给3好友浇水】奖励${$.waterFriendGotAwardRes.addWater}g水滴\n`;
+                message += `【给${waterFriendMax}好友浇水】奖励${$.waterFriendGotAwardRes.addWater}g水滴\n`;
             }
         } else {
-            console.log('给好友浇水的40g奖励已领取\n');
-            message += `【给3好友浇水】奖励40g水滴已领取\n`;
+            console.log(`给好友浇水的${waterFriendSendWater}g水滴奖励已领取\n`);
+            message += `【给${waterFriendMax}好友浇水】奖励${waterFriendSendWater}g水滴已领取\n`;
         }
     } else {
-        console.log('暂未给三个好友浇水\n');
+        console.log(`暂未给${waterFriendMax}个好友浇水\n`);
     }
 }
 //接收成为对方好友的邀请
@@ -856,17 +861,18 @@ async function timingAwardForTurntableFarm() {
     $.timingAwardRes = await request(arguments.callee.name.toString(), { version: 4, channel: 1 });
 }
 
-async function browserForTurntableFarm(type) {
+async function browserForTurntableFarm(type, adId) {
     if (type === 1) {
         console.log('浏览爆品会场');
     }
     if (type === 2) {
-        console.log('领取浏览爆品会场奖励');
+        console.log('天天抽奖浏览任务领取水滴');
     }
-    const body = { "type": 1, "adId": type, "version": 4, "channel": 1 };
+    const body = { "type": type, "adId": adId, "version": 4, "channel": 1 };
     $.browserForTurntableFarmRes = await request(arguments.callee.name.toString(), body);
     // 浏览爆品会场8秒
 }
+//天天抽奖浏览任务领取水滴API
 async function browserForTurntableFarm2(type) {
     const body = { "type": 2, "adId": type, "version": 4, "channel": 1 };
     $.browserForTurntableFarm2Res = await request('browserForTurntableFarm', body);
@@ -1027,7 +1033,7 @@ async function showMsg() {
         $.msg($.name, subTitle, message, option);
         const notifyMessage = message.replace(/[\n\r]/g, '\n\n');
         if (jdServerNotify) {
-            if ($.isNode() && notify.SCKEY) {
+            if ($.isNode()) {
                 await notify.sendNotify(`${$.name} - 账号${$.index} - ${UserName}`, `${subTitle}\n\n${notifyMessage}`);
             }
             if ($.isNode()) {
@@ -1128,7 +1134,9 @@ function request(function_id, body = {}, timeout = 1000) {
             $.get(taskUrl(function_id, body), (err, resp, data) => {
                 try {
                     if (err) {
-                        console.log('\n东东农场: API查询请求失败 ‼️‼️')
+                        // console.log('\n东东农场: API查询请求失败 ‼️‼️')
+                        console.log(`function_id:${function_id}`)
+                        throw new Error(err);
                     } else {
                         data = JSON.parse(data);
                     }
