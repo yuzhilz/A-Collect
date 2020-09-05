@@ -1,6 +1,6 @@
 /*
 jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d9785748014fc6cca821e58427162e9336/fruit/fruit.js
-更新时间:2020-08-31
+更新时间:2020-09-05
 已支持IOS双京东账号,Node.js支持N个京东账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 // quantumultx
@@ -79,6 +79,7 @@ async function jdFruit() {
             if ($.isNode() && notify.SCKEY) {
                 await notify.sendNotify(`${$.name}水果已可领取`, `京东账号${$.index} ${UserName}\n\n${$.farmInfo.farmUserPro.name}已可领取`);
             }
+            return
         } else if ($.farmInfo.treeState === 1) {
             console.log(`\n${$.farmInfo.farmUserPro.name}种植中...\n`)
         } else if ($.farmInfo.treeState === 0) {
@@ -88,6 +89,7 @@ async function jdFruit() {
             if ($.isNode() && notify.SCKEY) {
                 await notify.sendNotify(`${$.name}请重新种植水果`, `京东账号${$.index} ${UserName}\n\n上轮水果${$.farmInfo.farmUserPro.name}已兑换成功\n\n请去京东APP或微信小程序选购并种植新的水果`);
             }
+            return
         }
         await doDailyTask();
         await doTenWater(); //浇水十次
@@ -1003,9 +1005,41 @@ async function signForFarm() {
  * 初始化农场, 可获取果树及用户信息API
  */
 async function initForFarm() {
-    const functionId = arguments.callee.name.toString();
-    $.farmInfo = await request(functionId);
-    // console.log('$.farmInfo', $.farmInfo);
+    return new Promise(resolve => {
+        const option = {
+            url: `${JD_API_HOST}?functionId=initForFarm`,
+            body: `body=${escape({"version":4})}&appid=wh5&clientVersion=9.1.0`,
+            headers: {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate, br",
+                "accept-language": "zh-CN,zh;q=0.9",
+                "cache-control": "no-cache",
+                "cookie": cookie,
+                "origin": "https://home.m.jd.com",
+                "pragma": "no-cache",
+                "referer": "https://home.m.jd.com/myJd/newhome.action",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-site",
+                "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1",
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        };
+        $.post(option, (err, resp, data) => {
+            try {
+                if (err) {
+                    console.log('\n东东农场: API查询请求失败 ‼️‼️');
+                    $.logErr(err);
+                } else {
+                    $.farmInfo = JSON.parse(data)
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve();
+            }
+        })
+    })
 }
 
 // 初始化任务列表API
@@ -1134,9 +1168,14 @@ function request(function_id, body = {}, timeout = 1000) {
             $.get(taskUrl(function_id, body), (err, resp, data) => {
                 try {
                     if (err) {
-                        // console.log('\n东东农场: API查询请求失败 ‼️‼️')
+                        console.log('\n东东农场: API查询请求失败 ‼️‼️')
                         console.log(`function_id:${function_id}`)
-                        throw new Error(err);
+                        $.logErr(err);
+                        // if ($.isNode()) {
+                        //   throw err
+                        // } else {
+                        //   throw new Error(err);
+                        // }
                     } else {
                         data = JSON.parse(data);
                     }
