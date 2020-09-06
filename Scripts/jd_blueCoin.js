@@ -1,7 +1,7 @@
 /*
 京小超领蓝币(小费)
 感谢@yangtingxiao提供
-更新时间：2020-08-26
+更新时间：2020-08-27
 运行脚本一次收取今天所有的蓝币(耗时会比较久)
 支持京东多个账号
 每天收小费(蓝币)上限是1千个
@@ -20,7 +20,7 @@ const $ = new Env('京小超领蓝币');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-const coinToBeans = $.getdata('coinToBeans') * 1 || 0; //兑换多少数量的京豆（1-20，目前最多20），0默认兑换不兑换
+const coinToBeans = $.getdata('coinToBeans') * 1 || 20; //兑换多少数量的京豆（1-20，目前最多20），0默认兑换不兑换
 
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [],
@@ -147,11 +147,17 @@ function smtg_queryPrize(timeout = 0) {
                     }
                     if (data.data.bizCode === 0) {
                         console.log(`查询换${data.data.result.prizeList[0].title}ID成功，ID:${data.data.result.prizeList[0].prizeId}`)
+                        console.log(`查询换1000京豆兑换ID成功，ID:${data.data.result.prizeList[1].prizeId}`)
                         if (data.data.result.prizeList[0].targetNum === data.data.result.prizeList[0].finishNum) {
                             $.beanerr = `${data.data.result.prizeList[0].subTitle}`;
                             return;
                         }
+                        if (data.data.result.prizeList[1].targetNum === data.data.result.prizeList[1].finishNum) {
+                            $.beanerr = `${data.data.result.prizeList[1].subTitle}`;
+                            return;
+                        }
                     }
+                    await smtg_obtainPrize(data.data.result.prizeList[1].prizeId, 1000);
                     await smtg_obtainPrize(data.data.result.prizeList[0].prizeId, 1000);
                 } catch (e) {
                     $.logErr(e, resp);
