@@ -20,7 +20,7 @@ const $ = new Env('京小超领蓝币');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-const coinToBeans = $.getdata('coinToBeans') * 1 || 20; //兑换多少数量的京豆（1-20，目前最多20），0默认兑换不兑换
+const coinToBeans = $.getdata('coinToBeans') * 1 || 0; //兑换多少数量的京豆（1-20，目前最多20），0默认兑换不兑换
 
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [],
@@ -54,8 +54,11 @@ const JD_API_HOST = `https://api.m.jd.com/api?appid=jdsupermarket`;
             await smtg_receiveCoin();
             if ($.data.data.bizCode === 300) {
                 $.msg($.name, `【提示】京东账号${$.index}${UserName} cookie已过期！请先获取cookie\n直接使用NobyDa的京东签到获取`, 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
-                if ($.isNode() && notify.SCKEY) {
+                if ($.isNode()) {
                     await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                }
+                if ($.isNode()) {
+                    await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
                 }
                 if ($.index === 1) {
                     $.setdata('', 'CookieJD'); //cookie失效，故清空cookie。
