@@ -3,7 +3,16 @@
 更新时间：2020-08-25
 支持京东多个账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
- ****/
+****/
+// quantumultx
+// [task_local]
+// #京东宠汪汪喂食
+// 15 */1 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_feedPets.js, tag=京东宠汪汪喂食, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdcww.png, enabled=true
+// Loon
+// [Script]
+// cron "15 */1 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_feedPets.js,tag=京东宠汪汪喂食
+// Surge
+// 京东宠汪汪喂食 = type=cron,cronexp="15 */1 * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_feedPets.js
 
 const $ = new Env('宠汪汪🐕喂食');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -149,8 +158,11 @@ function ThreeMeals() {
                             $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
                         }
                         console.log(`${data.errorMessage}`)
-                        if ($.isNode() && notify.SCKEY) {
+                        if ($.isNode()) {
                             await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                        }
+                        if ($.isNode()) {
+                            await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
                         }
                     }
                 }
