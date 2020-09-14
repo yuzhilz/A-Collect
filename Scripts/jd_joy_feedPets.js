@@ -52,9 +52,7 @@ let FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10 //默认10g,可选 10,20,40
                 subTitle = '';
                 await feedPets(FEED_NUM); //喂食
                 await ThreeMeals(); //三餐
-                if (!jdNotify || jdNotify === 'false') {
-                    $.msg($.name, subTitle, `【京东账号${i + 1}】${UserName}\n` + message);
-                }
+                await showMsg();
             }
         }
     })()
@@ -64,6 +62,13 @@ let FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10 //默认10g,可选 10,20,40
     .finally(() => {
         $.done();
     })
+
+function showMsg() {
+    $.log(`\n${message}\n`);
+    if (!jdNotify || jdNotify === 'false') {
+        $.msg($.name, subTitle, `【京东账号${i + 1}】${UserName}\n` + message);
+    }
+}
 
 function feedPets(feedNum) {
     return new Promise(resolve => {
