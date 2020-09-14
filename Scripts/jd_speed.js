@@ -11,7 +11,7 @@
 // quantumultx
 // [task_local]
 // #天天加速
-// 8 */3 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_speed.js, tag=京东天天加速, img-url=https://raw.githubusercontent.com/znz1992/Gallery/master/jdttjs.png, enabled=true
+// 8 */3 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_speed.js, tag=京东天天加速, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdjs.png, enabled=true
 // Loon
 // [Script]
 // cron "8 */3 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_speed.js,tag=京东天天加速
@@ -53,11 +53,7 @@ const JD_API_HOST = 'https://api.m.jd.com/'
             message = '';
             subTitle = '';
             await jDSpeedUp();
-            if ($.isLogin) {
-                if (!jdNotify || jdNotify === 'false') {
-                    $.msg($.name, subTitle, `【京东账号${i + 1}】${UserName}\n` + message);
-                }
-            }
+            await showMsg();
         }
     }
 })()
@@ -67,6 +63,15 @@ const JD_API_HOST = 'https://api.m.jd.com/'
     .finally(() => {
         $.done();
     })
+
+function showMsg() {
+    if ($.isLogin) {
+        $.log(`\n${message}\n`);
+        if (!jdNotify || jdNotify === 'false') {
+            $.msg($.name, subTitle, `【京东账号${i + 1}】${UserName}\n` + message);
+        }
+    }
+}
 
 function jDSpeedUp(sourceId, doubleKey) {
     return new Promise((resolve) => {
@@ -108,8 +113,11 @@ function jDSpeedUp(sourceId, doubleKey) {
                         } else if ($.index === 2) {
                             $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
                         }
-                        if ($.isNode() && notify.SCKEY) {
+                        if ($.isNode()) {
                             await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                        }
+                        if ($.isNode()) {
+                            await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
                         }
                         // $.done();
                     } else if (res.info.isLogin === 1) {
