@@ -31,7 +31,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 //此此内容是IOS用户下载脚本到本地使用，填写互助码的地方，同一京东账号的好友互助码请使用@符号隔开。
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
-    '4npkonnsy7xi2bhmcrgudl4ts6zsps6lbhs3g3a@olmijoxgmjutyyefekkdxoehv3thvkthfd6sv6i',
+    '4npkonnsy7xi2bhmcrgudl4ts6zsps6lbhs3g3a@olmijoxgmjutyyefekkdxoehv3thvkthfd6sv6i'
 ]
 let currentRoundId = null; //本期活动id
 let lastRoundId = null; //上期id
@@ -98,11 +98,11 @@ async function jdPlantBean() {
                 $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
             }
             if ($.isNode()) {
-                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
             }
-            if ($.isNode()) {
-                await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-            }
+            // if ($.isNode()) {
+            //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
+            // }
         } else {
             console.log(`种豆得豆-初始失败:  ${JSON.stringify($.plantBeanIndexResult)}`);
         }
@@ -123,11 +123,11 @@ async function doGetReward() {
             $.msg($.name, subTitle, message);
             if ($.isNode()) {
                 const notifyMessage = message.replace(/[\n\r]/g, '\n\n');
-                await notify.sendNotify(`${$.name}`, `京东账号${$.index} ${UserName}\n\n${notifyMessage}`);
+                await notify.sendNotify(`${$.name}`, `京东账号${$.index} ${UserName}\n${notifyMessage}`);
             }
-            if ($.isNode()) {
-                await notify.BarkNotify(`${$.name}`, `京东账号${$.index} ${UserName}\n${message}`);
-            }
+            // if ($.isNode()) {
+            //   await notify.BarkNotify(`${$.name}`, `京东账号${$.index} ${UserName}\n${message}`);
+            // }
         }
     } else if (awardState === '6') {
         //京豆已领取

@@ -6,7 +6,7 @@ IOS用户支持京东双账号,NodeJs用户支持N个京东账号
 feedCount:自定义 每次喂养数量; 等级只和喂养次数有关，与数量无关
 推荐每次投喂10个，积累狗粮，然后去聚宝盆赌每小时的幸运奖，据观察，投入3000-6000中奖概率大，超过7000基本上注定亏本，即使是第一名
 Combine from Zero-S1/JD_tools(https://github.com/Zero-S1/JD_tools)
-更新时间:2020-08-31
+更新时间:2020-09-20
 注：如果使用Node.js, 需自行安装'crypto-js,got,http-server,tough-cookie'模块. 例: npm install crypto-js http-server tough-cookie got --save
 */
 // quantumultx
@@ -88,11 +88,11 @@ async function jdJoy() {
                 $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
             }
             if ($.isNode()) {
-                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
             }
-            if ($.isNode()) {
-                await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-            }
+            // if ($.isNode()) {
+            //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
+            // }
         } else {
             message += `${$.getPetTaskConfigRes.errorMessage}`;
         }
@@ -130,6 +130,9 @@ async function joinTwoPeopleRun() {
                 console.log('今日参赛的比赛已经结束，现在领取奖励');
                 await receiveJoyRunAward();
                 console.log(`领取赛跑奖励结果：${JSON.stringify($.receiveJoyRunAwardRes)}`)
+                if ($.receiveJoyRunAwardRes.success) {
+                    $.msg($.name, '双人赛跑取得获胜', `【京东账号${$.index}】${UserName}\n太棒了,恭喜您获得300积分奖励`)
+                }
             }
             if (petRaceResult === 'participate') {
                 if (raceUsers) {

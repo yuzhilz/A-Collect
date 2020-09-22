@@ -1,6 +1,6 @@
 /*
 京小超
-更新时间：2020-08-17
+更新时间：2020-09-20
 现有功能：每日签到，日常任务（分享游戏，逛会场，关注店铺，卖货能手），收取金币，收取蓝币
 支持京东双账号
 领蓝币请使用此脚本 https://raw.githubusercontent.com/lxk0301/scripts/master/jd_blueCoin.js
@@ -39,6 +39,8 @@ let UserName = '',
     message = '',
     subTitle;
 const JD_API_HOST = 'https://api.m.jd.com/api';
+
+const inviteCodes = ["-4msulYas0O2JsRhE-2TA5XZmBQ", "eU9Yar_mb_9z92_WmXNG0w", "eU9YaejjYv4g8T2EwnsVhQ"];
 !(async() => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
@@ -68,6 +70,8 @@ async function jdSuperMarket(DoubleKey) {
     await smtgSign(); //每日签到
     await doDailyTask(); //做日常任务，分享，关注店铺，
     await smtgHome();
+    await help();
+    await smtgQueryPkTask();
     await showMsg();
 }
 
@@ -75,6 +79,11 @@ function showMsg() {
     $.log(`\n${message}\n`);
     if (!jdNotify || jdNotify === 'false') {
         $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n${message}`);
+    }
+}
+async function help() {
+    for (let code of inviteCodes) {
+        await smtgDoAssistPkTask(code);
     }
 }
 async function doDailyTask() {
@@ -159,11 +168,11 @@ async function receiveGoldCoin() {
                     $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
                 }
                 if ($.isNode()) {
-                    await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                    await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
                 }
-                if ($.isNode()) {
-                    await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                }
+                // if ($.isNode()) {
+                //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
+                // }
                 resolve()
             } else {
                 message += `【领取金币】失败，${data.data.bizMsg}\n`;
@@ -313,6 +322,98 @@ function smtgHome() {
                     subTitle = shopName;
                     message += `【总金币】${totalGold}个\n`;
                     message += `【总蓝币】${totalBlue}个\n`;
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
+    })
+}
+//PK邀请好友
+function smtgDoAssistPkTask(code) {
+    return new Promise((resolve) => {
+        $.get(taskUrl('smtg_doAssistPkTask', { "inviteCode": code }), (err, resp, data) => {
+            try {
+                data = JSON.parse(data);
+                if (data.code === 0 && data.data.success) {
+
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
+    })
+}
+//查询商圈任务列表
+function smtgQueryPkTask() {
+    return new Promise((resolve) => {
+        $.get(taskUrl('smtg_queryPkTask'), async(err, resp, data) => {
+            try {
+                data = JSON.parse(data);
+                if (data.code === 0) {
+                    if (data.data.bizCode === 0) {
+                        const { taskList } = data.data.result;
+                        for (let item of taskList) {
+                            if (item.taskStatus === 1) {
+                                if (item.prizeStatus === 1) {
+                                    //任务已做完，但未领取奖励， 现在为您领取奖励
+                                    await smtgObtainPkTaskPrize(item.taskId);
+                                } else if (item.prizeStatus === 0) {
+                                    console.log(`${item.title}已做完`);
+                                }
+                            } else {
+                                console.log(`[${item.title}] 未做完 ${item.finishNum}/${item.targetNum}`)
+                                if (item.content) {
+                                    const { itemId } = item.content[item.type];
+                                    console.log('itemId', itemId)
+                                    await smtgDoPkTask(item.taskId, itemId);
+                                }
+                            }
+                            // if () {
+                            //
+                            // }
+                        }
+                    } else {
+                        console.log(`${data.data.bizMsg}`)
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
+    })
+}
+//领取PK任务做完后的奖励
+function smtgObtainPkTaskPrize(taskId) {
+    return new Promise((resolve) => {
+        $.get(taskUrl('smtg_obtainPkTaskPrize', { "taskId": taskId }), (err, resp, data) => {
+            try {
+                data = JSON.parse(data);
+                if (data.code === 0 && data.data.success) {
+
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
+    })
+}
+
+function smtgDoPkTask(taskId, itemId) {
+    return new Promise((resolve) => {
+        $.get(taskUrl('smtg_doPkTask', { "taskId": taskId, "itemId": itemId }), (err, resp, data) => {
+            try {
+                data = JSON.parse(data);
+                if (data.code === 0 && data.data.success) {
+
                 }
             } catch (e) {
                 $.logErr(e, resp);

@@ -27,13 +27,13 @@ let cookiesArr = [],
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
     //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-    'MTAxODc2NTEzMDAwMDAwMDAyNDcyNTYzOQ==@MTAxODc2NTEzNTAwMDAwMDAzMjY2MDU1OQ==',
+    'MTAxODc2NTEzMDAwMDAwMDAyNDcyNTYzOQ==@MTAxODc2NTEzNTAwMDAwMDAzMjY2MDU1OQ=='
 ]
 let message = '',
     subTitle = '',
     option = {},
     UserName = '';
-let jdNotify = $.getdata('jdPetNotify'); //是否关闭通知，false打开，true通知
+let jdNotify = false; //是否关闭通知，false打开通知推送，true关闭通知推送
 let jdServerNotify = true; //是否每次运行脚本后，都发送server酱微信通知提醒,默认是true【true:发送，false:不发送】
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 let goodsUrl = '',
@@ -95,11 +95,11 @@ async function jdPet() {
             option['open-url'] = "openApp.jdMobile://";
             $.msg($.name, `【提醒⏰】${$.petInfo.goodsInfo.goodsName}已可领取`, '请去京东APP或微信小程序查看', option);
             if ($.isNode()) {
-                await notify.sendNotify(`${$.name}奖品已可领取`, `京东账号${$.index} ${UserName}\n\n${$.petInfo.goodsInfo.goodsName}已可领取`);
+                await notify.sendNotify(`${$.name}奖品已可领取`, `京东账号${$.index} ${UserName}\n${$.petInfo.goodsInfo.goodsName}已可领取`);
             }
-            if ($.isNode()) {
-                await notify.BarkNotify(`【提醒⏰】${$.petInfo.goodsInfo.goodsName}已可领取`, `请去京东APP或微信小程序查看`);
-            }
+            // if ($.isNode()) {
+            //   await notify.BarkNotify(`【提醒⏰】${$.petInfo.goodsInfo.goodsName}已可领取`, `请去京东APP或微信小程序查看`);
+            // }
             return
         }
         console.log(`\n【您的互助码shareCode】 ${$.petInfo.shareCode}\n`);
@@ -127,11 +127,11 @@ async function jdPet() {
                 $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
             }
             if ($.isNode()) {
-                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
             }
-            if ($.isNode()) {
-                await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-            }
+            // if ($.isNode()) {
+            //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
+            // }
         } else {
             console.log(`初始化萌宠失败:  ${initPetTownRes.message}`);
         }
@@ -416,16 +416,25 @@ async function feedReachInit() {
 }
 async function showMsg() {
     $.log(`\n${message}\n`);
-    if (!jdNotify || jdNotify === 'false') {
+    let ctrTemp;
+    if ($.isNode()) {
+        ctrTemp = `${notify.petNotifyControl}` === 'false' && `${jdNotify}` === 'false'
+    } else if ($.getdata('jdPetNotify')) {
+        ctrTemp = $.getdata('jdPetNotify') === 'false';
+    } else {
+        ctrTemp = `${jdNotify}` === 'false';
+    }
+    // jdNotify = `${notify.petNotifyControl}` === 'false' && `${jdNotify}` === 'false' && $.getdata('jdPetNotify') === 'false';
+    if (ctrTemp) {
         $.msg($.name, subTitle, message, option);
         const notifyMessage = message.replace(/[\n\r]/g, '\n\n');
         if (jdServerNotify) {
             if ($.isNode()) {
-                await notify.sendNotify(`${$.name} - 账号${$.index} - ${UserName}`, `${subTitle}\n\n${notifyMessage}`);
+                await notify.sendNotify(`${$.name} - 账号${$.index} - ${UserName}`, `${subTitle}\n${message}`);
             }
-            if ($.isNode()) {
-                await notify.BarkNotify(`${$.name}`, `${subTitle}\n${message}`);
-            }
+            // if ($.isNode()) {
+            //   await notify.BarkNotify(`${$.name}`, `${subTitle}\n${message}`);
+            // }
         }
     }
 }

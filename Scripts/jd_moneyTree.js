@@ -1,6 +1,6 @@
 /*
 京东摇钱树 ：https://raw.githubusercontent.com/lxk0301/scripts/master/jd_moneyTree.js
-更新时间:2020-09-04
+更新时间:2020-09-22
 京东摇钱树支持京东双账号
 注：如果使用Node.js, 需自行安装'crypto-js,got,http-server,tough-cookie'模块. 例: npm install crypto-js http-server tough-cookie got --save
 */
@@ -100,6 +100,7 @@ function user_info() {
             try {
                 if (err) {
                     console.log("\n摇钱树京东API请求失败 ‼️‼️")
+                    console.log(JSON.stringify(err));
                 } else {
                     const res = JSON.parse(data);
                     if (res && res.resultCode === 0) {
@@ -136,11 +137,11 @@ function user_info() {
                                 $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
                             }
                             if ($.isNode()) {
-                                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
                             }
-                            if ($.isNode()) {
-                                await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                            }
+                            // if ($.isNode()) {
+                            //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
+                            // }
                         }
                     }
                 }
@@ -500,6 +501,7 @@ async function friendRank() {
             try {
                 if (err) {
                     console.log("\n摇钱树京东API请求失败 ‼️‼️");
+                    console.log(JSON.stringify(err));
                     $.logErr(err);
                 } else {
                     data = JSON.parse(data);
@@ -527,6 +529,7 @@ async function friendTreeRoom(friendPin) {
             try {
                 if (err) {
                     console.log("\n摇钱树京东API请求失败 ‼️‼️");
+                    console.log(JSON.stringify(err));
                     $.logErr(err);
                 } else {
                     data = JSON.parse(data);
@@ -555,6 +558,7 @@ async function stealFruit(friendPin, stoleId) {
             try {
                 if (err) {
                     console.log("\n摇钱树京东API请求失败 ‼️‼️");
+                    console.log(JSON.stringify(err));
                     $.logErr(err);
                 } else {
                     data = JSON.parse(data);
@@ -574,6 +578,7 @@ async function request(function_id, body = {}) {
             try {
                 if (err) {
                     console.log("\n摇钱树京东API请求失败 ‼️‼️");
+                    console.log(JSON.stringify(err));
                     $.logErr(err);
                 } else {
                     data = JSON.parse(data);
