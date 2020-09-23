@@ -47,7 +47,7 @@ if ($.isNode()) {
 
 const JD_API_HOST = 'https://rdcseason.m.jd.com/api/';
 const activeEndTime = '2020-10-10';
-const helpCode = [];
+const helpCode = ['ede42dd4-ee95-4490-9981-e32f59442fb9'];
 !(async() => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
