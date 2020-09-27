@@ -28,6 +28,7 @@ if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
     })
+    if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
@@ -122,11 +123,11 @@ function unsubscribeGoods(doubleKey) {
                 $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
             }
             if ($.isNode()) {
-                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
             }
-            if ($.isNode()) {
-                await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-            }
+            // if ($.isNode()) {
+            //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
+            // }
             $.done();
         }
     })

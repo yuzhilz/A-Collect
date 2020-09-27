@@ -20,7 +20,7 @@ const $ = new Env('京小超领蓝币');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-const coinToBeans = $.getdata('coinToBeans') * 1 || 20; //兑换多少数量的京豆（1-20之间，或者1000），0默认兑换不兑换，如需兑换把0改成1-20之间的数字或者1000即可
+const coinToBeans = $.getdata('coinToBeans') * 1 || 0; //兑换多少数量的京豆（1-20之间，或者1000），0默认兑换不兑换，如需兑换把0改成1-20之间的数字或者1000即可
 
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [],
@@ -29,6 +29,7 @@ if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
     })
+    if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));

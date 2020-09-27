@@ -25,6 +25,7 @@ if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
     })
+    if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
@@ -80,9 +81,9 @@ async function jdShop() {
             console.log(`beanCount::${beanCount}`);
             if (beanCount > 0) {
                 $.msg($.name, '', `京东账号 ${$.index} ${UserName}\n成功领取${beanCount}京豆`);
-                if ($.isNode()) {
-                    await notify.sendNotify(`${$.name}`, `京东账号${$.index} ${UserName}\n成功领取${beanCount}京豆`);
-                }
+                // if ($.isNode()) {
+                //   await notify.sendNotify(`${$.name}`, `京东账号${$.index} ${UserName}\n成功领取${beanCount}京豆`);
+                // }
                 // if ($.isNode()) {
                 //   await notify.BarkNotify(`${$.name}`, `京东账号${$.index} ${UserName}\n成功领取${beanCount}京豆`);
                 // }

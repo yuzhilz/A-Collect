@@ -26,6 +26,7 @@ if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
     })
+    if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
@@ -66,7 +67,7 @@ let FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10 //默认10g,可选 10,20,40
 function showMsg() {
     $.log(`\n${message}\n`);
     if (!jdNotify || jdNotify === 'false') {
-        $.msg($.name, subTitle, `【京东账号${i + 1}】${UserName}\n` + message);
+        $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n` + message);
     }
 }
 
@@ -164,11 +165,11 @@ function ThreeMeals() {
                         }
                         console.log(`${data.errorMessage}`)
                         if ($.isNode()) {
-                            await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n\n请重新登录获取cookie`);
+                            await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
                         }
-                        if ($.isNode()) {
-                            await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                        }
+                        // if ($.isNode()) {
+                        //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
+                        // }
                     }
                 }
             } catch (e) {
