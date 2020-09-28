@@ -34,702 +34,717 @@ const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 
 //IOS等用户直接用NobyDa的jd cookie
-let cookiesArr = [], cookie = '';
+let cookiesArr = [],
+    cookie = '';
 if ($.isNode()) {
-  Object.keys(jdCookieNode).forEach((item) => {
-    cookiesArr.push(jdCookieNode[item])
-  })
+    Object.keys(jdCookieNode).forEach((item) => {
+        cookiesArr.push(jdCookieNode[item])
+    })
 } else {
-  cookiesArr.push($.getdata('CookieJD'));
-  cookiesArr.push($.getdata('CookieJD2'));
+    cookiesArr.push($.getdata('CookieJD'));
+    cookiesArr.push($.getdata('CookieJD2'));
 }
 
 const JD_API_HOST = 'https://rdcseason.m.jd.com/api/';
 const activeEndTime = '2020-10-10 01:00:00';
 const helpCode = [
-  '49753cb6-aa29-435c-9e22-d6b8a849c927',
-  '5abaa496-1f10-4ade-86d5-b57ed1ab5d42',
+    'f330144f-9a71-4f90-a00e-871c872ff49d',
+    '135e6f9d-a8a9-47f4-ad00-9464c060b73d',
 ];
-!(async () => {
-  if (!cookiesArr[0]) {
-    $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
-    return;
-  }
-  for (let i = 0; i < cookiesArr.length; i++) {
-    if (cookiesArr[i]) {
-      cookie = cookiesArr[i];
-      $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
-      $.index = i + 1;
-      console.log(`\n开始【京东账号${$.index}】${$.UserName}\n`);
-      message = '';
-      subTitle = '';
-      await JD818();
-      // await getHelp();
-      // await doHelp();
+!(async() => {
+    if (!cookiesArr[0]) {
+        $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
+        return;
     }
-  }
+    for (let i = 0; i < cookiesArr.length; i++) {
+        if (cookiesArr[i]) {
+            cookie = cookiesArr[i];
+            $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+            $.index = i + 1;
+            console.log(`\n开始【京东账号${$.index}】${$.UserName}\n`);
+            message = '';
+            subTitle = '';
+            await JD818();
+            // await getHelp();
+            // await doHelp();
+        }
+    }
 })()
-    .catch((e) => {
-      $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
+.catch((e) => {
+        $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
     })
     .finally(() => {
-      $.done();
+        $.done();
     })
 async function JD818() {
-  await getHelp();
-  await listGoods();//逛新品
-  await shopInfo();//逛店铺
-  await listMeeting();//逛会场
-  await $.wait(1000);
-  //再次允许一次，避免出现遗漏的问题
-  await listGoods();//逛新品
-  await shopInfo();//逛店铺
-  await listMeeting();//逛会场
-  await doHelp();
-  await myRank();//领取往期排名奖励
-  await getListJbean();
-  await getListRank();
-  await getListIntegral();
-  await showMsg()
+    await getHelp();
+    await listGoods(); //逛新品
+    await shopInfo(); //逛店铺
+    await listMeeting(); //逛会场
+    await $.wait(1000);
+    //再次允许一次，避免出现遗漏的问题
+    await listGoods(); //逛新品
+    await shopInfo(); //逛店铺
+    await listMeeting(); //逛会场
+    await doHelp();
+    await myRank(); //领取往期排名奖励
+    await getListJbean();
+    await getListRank();
+    await getListIntegral();
+    await showMsg()
 }
+
 function listMeeting() {
-  const options = {
-    'url': `${JD_API_HOST}task/listMeeting?t=${Date.now()}`,
-    'headers': {
-      'Host': 'rdcseason.m.jd.com',
-      'Accept': 'application/json, text/plain, */*',
-      'Connection':' keep-alive',
-      'Cookie': cookie,
-      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.14(0x17000e2a) NetType/4G Language/zh_CN',
-      'Accept-Language': 'zh-cn',
-      'Referer': `https://rdcseason.m.jd.com/?reloadWQPage=t_${Date.now()}`,
-      'Accept-Encoding': 'gzip, deflate, br'
+    const options = {
+        'url': `${JD_API_HOST}task/listMeeting?t=${Date.now()}`,
+        'headers': {
+            'Host': 'rdcseason.m.jd.com',
+            'Accept': 'application/json, text/plain, */*',
+            'Connection': ' keep-alive',
+            'Cookie': cookie,
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.14(0x17000e2a) NetType/4G Language/zh_CN',
+            'Accept-Language': 'zh-cn',
+            'Referer': `https://rdcseason.m.jd.com/?reloadWQPage=t_${Date.now()}`,
+            'Accept-Encoding': 'gzip, deflate, br'
+        }
     }
-  }
-  return new Promise((resolve) => {
-    $.get(options, async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          // console.log('ddd----ddd', data.code)
-          if (data.code === 200 && data.data.meetingList) {
-            let integralNum = 0, jdNum = 0;
-            for (let item of data.data.meetingList) {
-              let res = await browseMeeting(item.id);
-              if (res.code === 200) {
-                let res2 = await getMeetingPrize(item.id);
-                integralNum += res2.data.integralNum * 1;
-                jdNum += res2.data.jdNum * 1;
-              }
-              // await browseMeeting('1596206323911');
-              // await getMeetingPrize('1596206323911');
+    return new Promise((resolve) => {
+        $.get(options, async(err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                    // console.log('ddd----ddd', data.code)
+                    if (data.code === 200 && data.data.meetingList) {
+                        let integralNum = 0,
+                            jdNum = 0;
+                        for (let item of data.data.meetingList) {
+                            let res = await browseMeeting(item.id);
+                            if (res.code === 200) {
+                                let res2 = await getMeetingPrize(item.id);
+                                integralNum += res2.data.integralNum * 1;
+                                jdNum += res2.data.jdNum * 1;
+                            }
+                            // await browseMeeting('1596206323911');
+                            // await getMeetingPrize('1596206323911');
+                        }
+                        console.log(`逛会场--获得积分:${integralNum}`)
+                        console.log(`逛会场--获得京豆:${jdNum}`)
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
             }
-            console.log(`逛会场--获得积分:${integralNum}`)
-            console.log(`逛会场--获得京豆:${jdNum}`)
-        }
-        }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
+        })
     })
-  })
 }
+
 function listGoods() {
-  const options = {
-    'url': `${JD_API_HOST}task/listGoods?t=${Date.now()}`,
-    'headers': {
-      'Host': 'rdcseason.m.jd.com',
-      'Accept': 'application/json, text/plain, */*',
-      'Connection':' keep-alive',
-      'Cookie': cookie,
-      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.14(0x17000e2a) NetType/4G Language/zh_CN',
-      'Accept-Language': 'zh-cn',
-      'Referer': `https://rdcseason.m.jd.com/?reloadWQPage=t_${Date.now()}`,
-      'Accept-Encoding': 'gzip, deflate, br'
-    }
-  }
-  return new Promise( (resolve) => {
-    $.get(options, async (err, resp, data) => {
-      try {
-        // console.log('data1', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          if (data.code === 200 && data.data.goodsList) {
-            let integralNum = 0, jdNum = 0;
-            for (let item of data.data.goodsList) {
-              let res = await browseGoods(item.id);
-              if (res.code === 200) {
-                let res2 = await getGoodsPrize(item.id);
-                // console.log('逛新品领取奖励res2', res2);
-                integralNum += res2.data.integralNum * 1;
-                jdNum += res2.data.jdNum * 1;
-              }
-            }
-            console.log(`逛新品获得积分:${integralNum}`)
-            console.log(`逛新品获得京豆:${jdNum}`)
-          }
+    const options = {
+        'url': `${JD_API_HOST}task/listGoods?t=${Date.now()}`,
+        'headers': {
+            'Host': 'rdcseason.m.jd.com',
+            'Accept': 'application/json, text/plain, */*',
+            'Connection': ' keep-alive',
+            'Cookie': cookie,
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.14(0x17000e2a) NetType/4G Language/zh_CN',
+            'Accept-Language': 'zh-cn',
+            'Referer': `https://rdcseason.m.jd.com/?reloadWQPage=t_${Date.now()}`,
+            'Accept-Encoding': 'gzip, deflate, br'
         }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
-    })
-  });
+    }
+    return new Promise((resolve) => {
+        $.get(options, async(err, resp, data) => {
+            try {
+                // console.log('data1', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                    if (data.code === 200 && data.data.goodsList) {
+                        let integralNum = 0,
+                            jdNum = 0;
+                        for (let item of data.data.goodsList) {
+                            let res = await browseGoods(item.id);
+                            if (res.code === 200) {
+                                let res2 = await getGoodsPrize(item.id);
+                                // console.log('逛新品领取奖励res2', res2);
+                                integralNum += res2.data.integralNum * 1;
+                                jdNum += res2.data.jdNum * 1;
+                            }
+                        }
+                        console.log(`逛新品获得积分:${integralNum}`)
+                        console.log(`逛新品获得京豆:${jdNum}`)
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
+    });
 }
+
 function shopInfo() {
-  const options = {
-    'url': `${JD_API_HOST}task/shopInfo?t=${Date.now()}`,
-    'headers': {
-      'Host': 'rdcseason.m.jd.com',
-      'Accept': 'application/json, text/plain, */*',
-      'Connection':' keep-alive',
-      'Cookie': cookie,
-      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.14(0x17000e2a) NetType/4G Language/zh_CN',
-      'Accept-Language': 'zh-cn',
-      'Referer': `https://rdcseason.m.jd.com/?reloadWQPage=t_${Date.now()}`,
-      'Accept-Encoding': 'gzip, deflate, br'
-    }
-  }
-  return new Promise( (resolve) => {
-    $.get(options, async (err, resp, data) => {
-      try {
-        // console.log('data1', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          if (data.code === 200 && data.data) {
-            let integralNum = 0, jdNum = 0;
-            for (let item of data.data) {
-              let res = await browseShop(item.shopId);
-              // console.log('res', res)
-              // res = JSON.parse(res);
-              // console.log('res', res.code)
-              if (res.code === 200) {
-                // console.log('---')
-                let res2 = await getShopPrize(item.shopId);
-                // console.log('res2', res2);
-                // res2 = JSON.parse(res2);
-                integralNum += res2.data.integralNum * 1;
-                jdNum += res2.data.jdNum * 1;
-              }
-            }
-            console.log(`逛店铺获得积分:${integralNum}`)
-            console.log(`逛店铺获得京豆:${jdNum}`)
-          }
+    const options = {
+        'url': `${JD_API_HOST}task/shopInfo?t=${Date.now()}`,
+        'headers': {
+            'Host': 'rdcseason.m.jd.com',
+            'Accept': 'application/json, text/plain, */*',
+            'Connection': ' keep-alive',
+            'Cookie': cookie,
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.14(0x17000e2a) NetType/4G Language/zh_CN',
+            'Accept-Language': 'zh-cn',
+            'Referer': `https://rdcseason.m.jd.com/?reloadWQPage=t_${Date.now()}`,
+            'Accept-Encoding': 'gzip, deflate, br'
         }
-        // console.log('data1', data);
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve()
-      }
+    }
+    return new Promise((resolve) => {
+        $.get(options, async(err, resp, data) => {
+            try {
+                // console.log('data1', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                    if (data.code === 200 && data.data) {
+                        let integralNum = 0,
+                            jdNum = 0;
+                        for (let item of data.data) {
+                            let res = await browseShop(item.shopId);
+                            // console.log('res', res)
+                            // res = JSON.parse(res);
+                            // console.log('res', res.code)
+                            if (res.code === 200) {
+                                // console.log('---')
+                                let res2 = await getShopPrize(item.shopId);
+                                // console.log('res2', res2);
+                                // res2 = JSON.parse(res2);
+                                integralNum += res2.data.integralNum * 1;
+                                jdNum += res2.data.jdNum * 1;
+                            }
+                        }
+                        console.log(`逛店铺获得积分:${integralNum}`)
+                        console.log(`逛店铺获得京豆:${jdNum}`)
+                    }
+                }
+                // console.log('data1', data);
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        })
     })
-  })
 
 }
+
 function browseGoods(id) {
-  const options = {
-    "url": `${JD_API_HOST}task/browseGoods?t=${Date.now()}&skuId=${id}`,
-    "headers": {
-      "Host": "rdcseason.m.jd.com",
-      "Accept": "application/json, text/plain, */*",
-      "Connection": "keep-alive",
-      "Cookie": cookie,
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-      "Accept-Language": "zh-cn",
-      "Referer": "https://rdcseason.m.jd.com/",
-      "Accept-Encoding": "gzip, deflate, br"
-    }
-  }
-  return new Promise( (resolve) => {
-    $.get(options, (err, resp, data) => {
-      try {
-        // console.log('data1', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
+    const options = {
+        "url": `${JD_API_HOST}task/browseGoods?t=${Date.now()}&skuId=${id}`,
+        "headers": {
+            "Host": "rdcseason.m.jd.com",
+            "Accept": "application/json, text/plain, */*",
+            "Connection": "keep-alive",
+            "Cookie": cookie,
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+            "Accept-Language": "zh-cn",
+            "Referer": "https://rdcseason.m.jd.com/",
+            "Accept-Encoding": "gzip, deflate, br"
         }
-        // console.log('data1', data);
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
+    }
+    return new Promise((resolve) => {
+        $.get(options, (err, resp, data) => {
+            try {
+                // console.log('data1', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                }
+                // console.log('data1', data);
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
 
 function getGoodsPrize(id) {
-  const options = {
-    "url": `${JD_API_HOST}task/getGoodsPrize?t=${Date.now()}&skuId=${id}`,
-    "headers": {
-      "Host": "rdcseason.m.jd.com",
-      "Accept": "application/json, text/plain, */*",
-      "Connection": "keep-alive",
-      "Cookie": cookie,
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-      "Accept-Language": "zh-cn",
-      "Referer": "https://rdcseason.m.jd.com/",
-      "Accept-Encoding": "gzip, deflate, br"
-    }
-  }
-  return new Promise( (resolve) => {
-    $.get(options, (err, resp, data) => {
-      try {
-        // console.log('data1', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
+    const options = {
+        "url": `${JD_API_HOST}task/getGoodsPrize?t=${Date.now()}&skuId=${id}`,
+        "headers": {
+            "Host": "rdcseason.m.jd.com",
+            "Accept": "application/json, text/plain, */*",
+            "Connection": "keep-alive",
+            "Cookie": cookie,
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+            "Accept-Language": "zh-cn",
+            "Referer": "https://rdcseason.m.jd.com/",
+            "Accept-Encoding": "gzip, deflate, br"
         }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
+    }
+    return new Promise((resolve) => {
+        $.get(options, (err, resp, data) => {
+            try {
+                // console.log('data1', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
+
 function browseShop(id) {
-  const options2 = {
-    "url": `${JD_API_HOST}task/browseShop`,
-    "body": `shopId=${id}`,
-    "headers": {
-      "Host": "rdcseason.m.jd.com",
-      "Accept": "application/json, text/plain, */*",
-      "Connection": "keep-alive",
-      "Cookie": cookie,
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-      "Accept-Language": "zh-cn",
-      "Referer": "https://rdcseason.m.jd.com/",
-      "Accept-Encoding": "gzip, deflate, br"
-    }
-  }
-  return new Promise( (resolve) => {
-    $.post(options2, (err, resp, data) => {
-      try {
-        // console.log('data1', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
+    const options2 = {
+        "url": `${JD_API_HOST}task/browseShop`,
+        "body": `shopId=${id}`,
+        "headers": {
+            "Host": "rdcseason.m.jd.com",
+            "Accept": "application/json, text/plain, */*",
+            "Connection": "keep-alive",
+            "Cookie": cookie,
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+            "Accept-Language": "zh-cn",
+            "Referer": "https://rdcseason.m.jd.com/",
+            "Accept-Encoding": "gzip, deflate, br"
         }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
+    }
+    return new Promise((resolve) => {
+        $.post(options2, (err, resp, data) => {
+            try {
+                // console.log('data1', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
+
 function getShopPrize(id) {
-  const options = {
-    "url": `${JD_API_HOST}task/getShopPrize`,
-    "body": `shopId=${id}`,
-    "headers": {
-      "Host": "rdcseason.m.jd.com",
-      "Accept": "application/json, text/plain, */*",
-      "Connection": "keep-alive",
-      "Cookie": cookie,
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-      "Accept-Language": "zh-cn",
-      "Referer": "https://rdcseason.m.jd.com/",
-      "Accept-Encoding": "gzip, deflate, br"
-    }
-  }
-  return new Promise( (resolve) => {
-    $.post(options, (err, resp, data) => {
-      try {
-        // console.log('getShopPrize', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
+    const options = {
+        "url": `${JD_API_HOST}task/getShopPrize`,
+        "body": `shopId=${id}`,
+        "headers": {
+            "Host": "rdcseason.m.jd.com",
+            "Accept": "application/json, text/plain, */*",
+            "Connection": "keep-alive",
+            "Cookie": cookie,
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+            "Accept-Language": "zh-cn",
+            "Referer": "https://rdcseason.m.jd.com/",
+            "Accept-Encoding": "gzip, deflate, br"
         }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
+    }
+    return new Promise((resolve) => {
+        $.post(options, (err, resp, data) => {
+            try {
+                // console.log('getShopPrize', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
 
 function browseMeeting(id) {
-  const options2 = {
-    "url": `${JD_API_HOST}task/browseMeeting`,
-    "body": `meetingId=${id}`,
-    "headers": {
-      "Host": "rdcseason.m.jd.com",
-      "Accept": "application/json, text/plain, */*",
-      "Connection": "keep-alive",
-      "Cookie": cookie,
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-      "Accept-Language": "zh-cn",
-      "Referer": "https://rdcseason.m.jd.com/",
-      "Accept-Encoding": "gzip, deflate, br"
-    }
-  }
-  return new Promise( (resolve) => {
-    $.post(options2, (err, resp, data) => {
-      try {
-        // console.log('点击浏览会场', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
+    const options2 = {
+        "url": `${JD_API_HOST}task/browseMeeting`,
+        "body": `meetingId=${id}`,
+        "headers": {
+            "Host": "rdcseason.m.jd.com",
+            "Accept": "application/json, text/plain, */*",
+            "Connection": "keep-alive",
+            "Cookie": cookie,
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+            "Accept-Language": "zh-cn",
+            "Referer": "https://rdcseason.m.jd.com/",
+            "Accept-Encoding": "gzip, deflate, br"
         }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
-    })
-  })
-}
-function getMeetingPrize(id) {
-  const options = {
-    "url": `${JD_API_HOST}task/getMeetingPrize`,
-    "body": `meetingId=${id}`,
-    "headers": {
-      "Host": "rdcseason.m.jd.com",
-      "Accept": "application/json, text/plain, */*",
-      "Connection": "keep-alive",
-      "Cookie": cookie,
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-      "Accept-Language": "zh-cn",
-      "Referer": "https://rdcseason.m.jd.com/",
-      "Accept-Encoding": "gzip, deflate, br"
     }
-  }
-  return new Promise( (resolve) => {
-    $.post(options, (err, resp, data) => {
-      try {
-        // console.log('getMeetingPrize', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-        }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
-    })
-  })
-}
-function myRank() {
-  return new Promise(resolve => {
-    const options = {
-      "url": `${JD_API_HOST}task/myRank?t=${Date.now()}`,
-      "headers": {
-        "Host": "rdcseason.m.jd.com",
-        "Accept": "application/json, text/plain, */*",
-        "Connection": "keep-alive",
-        "Cookie": cookie,
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-        "Accept-Language": "zh-cn",
-        "Referer": "https://rdcseason.m.jd.com/",
-        "Accept-Encoding": "gzip, deflate, br"
-      }
-    }
-    $.jbeanNum = '';
-    $.get(options, async (err, resp, data) => {
-      try {
-        // console.log('查询获奖列表data', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          if (data.code === 200 && data.data.myHis) {
-            for (let i = 0; i < data.data.myHis.length; i++) {
-              $.date = data.data.myHis[0].date;
-              if (data.data.myHis[i].status === '21') {
-                await $.wait(1000);
-                console.log('开始领奖')
-                let res = await saveJbean(data.data.myHis[i].id);
-                // console.log('领奖结果', res)
-                if (res.code === 200 && res.data.rsCode === 200) {
-                  // $.jbeanNum += Number(res.data.jbeanNum);
-                  console.log(`${data.data.myHis[i].date}日奖励领取成功${JSON.stringify(res.data.jbeanNum)}`)
+    return new Promise((resolve) => {
+        $.post(options2, (err, resp, data) => {
+            try {
+                // console.log('点击浏览会场', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
                 }
-              }
-              if (i === 0 && data.data.myHis[i].status === '22') {
-                $.jbeanNum = data.data.myHis[i].prize;
-              }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
             }
-            // for (let item of data.data.myHis){
-            //   if (item.status === '21') {
-            //     await $.wait(1000);
-            //     console.log('开始领奖')
-            //     let res = await saveJbean(item.id);
-            //     // console.log('领奖结果', res)
-            //     if (res.code === 200 && res.data.rsCode === 200) {
-            //       $.jbeanNum += Number(res.data.jbeanNum);
-            //     }
-            //   }
-            // }
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
+        })
     })
-  })
 }
-function saveJbean(id) {
-  return new Promise(resolve => {
+
+function getMeetingPrize(id) {
     const options = {
-      "url": `${JD_API_HOST}task/saveJbean`,
-      "body": `prizeId=${id}`,
-      "headers": {
-        "Host": "rdcseason.m.jd.com",
-        "Accept": "application/json, text/plain, */*",
-        "Connection": "keep-alive",
-        "Cookie": cookie,
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
-        "Accept-Language": "zh-cn",
-        "Referer": "https://rdcseason.m.jd.com/",
-        "Accept-Encoding": "gzip, deflate, br"
-      }
-    }
-    $.post(options, (err, resp, data) => {
-      try {
-        // console.log('领取京豆结果', data);
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
+        "url": `${JD_API_HOST}task/getMeetingPrize`,
+        "body": `meetingId=${id}`,
+        "headers": {
+            "Host": "rdcseason.m.jd.com",
+            "Accept": "application/json, text/plain, */*",
+            "Connection": "keep-alive",
+            "Cookie": cookie,
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+            "Accept-Language": "zh-cn",
+            "Referer": "https://rdcseason.m.jd.com/",
+            "Accept-Encoding": "gzip, deflate, br"
         }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
+    }
+    return new Promise((resolve) => {
+        $.post(options, (err, resp, data) => {
+            try {
+                // console.log('getMeetingPrize', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
+}
+
+function myRank() {
+    return new Promise(resolve => {
+        const options = {
+            "url": `${JD_API_HOST}task/myRank?t=${Date.now()}`,
+            "headers": {
+                "Host": "rdcseason.m.jd.com",
+                "Accept": "application/json, text/plain, */*",
+                "Connection": "keep-alive",
+                "Cookie": cookie,
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+                "Accept-Language": "zh-cn",
+                "Referer": "https://rdcseason.m.jd.com/",
+                "Accept-Encoding": "gzip, deflate, br"
+            }
+        }
+        $.jbeanNum = '';
+        $.get(options, async(err, resp, data) => {
+            try {
+                // console.log('查询获奖列表data', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                    if (data.code === 200 && data.data.myHis) {
+                        for (let i = 0; i < data.data.myHis.length; i++) {
+                            $.date = data.data.myHis[0].date;
+                            if (data.data.myHis[i].status === '21') {
+                                await $.wait(1000);
+                                console.log('开始领奖')
+                                let res = await saveJbean(data.data.myHis[i].id);
+                                // console.log('领奖结果', res)
+                                if (res.code === 200 && res.data.rsCode === 200) {
+                                    // $.jbeanNum += Number(res.data.jbeanNum);
+                                    console.log(`${data.data.myHis[i].date}日奖励领取成功${JSON.stringify(res.data.jbeanNum)}`)
+                                }
+                            }
+                            if (i === 0 && data.data.myHis[i].status === '22') {
+                                $.jbeanNum = data.data.myHis[i].prize;
+                            }
+                        }
+                        // for (let item of data.data.myHis){
+                        //   if (item.status === '21') {
+                        //     await $.wait(1000);
+                        //     console.log('开始领奖')
+                        //     let res = await saveJbean(item.id);
+                        //     // console.log('领奖结果', res)
+                        //     if (res.code === 200 && res.data.rsCode === 200) {
+                        //       $.jbeanNum += Number(res.data.jbeanNum);
+                        //     }
+                        //   }
+                        // }
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
+    })
+}
+
+function saveJbean(id) {
+    return new Promise(resolve => {
+        const options = {
+            "url": `${JD_API_HOST}task/saveJbean`,
+            "body": `prizeId=${id}`,
+            "headers": {
+                "Host": "rdcseason.m.jd.com",
+                "Accept": "application/json, text/plain, */*",
+                "Connection": "keep-alive",
+                "Cookie": cookie,
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+                "Accept-Language": "zh-cn",
+                "Referer": "https://rdcseason.m.jd.com/",
+                "Accept-Encoding": "gzip, deflate, br"
+            }
+        }
+        $.post(options, (err, resp, data) => {
+            try {
+                // console.log('领取京豆结果', data);
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
+    })
 }
 async function doHelp() {
-  for (let item of helpCode) {
-    const helpRes = await toHelp(item);
-    if (helpRes.data.status === 5) {
-      console.log(`助力机会已耗尽，跳出助力`);
-      break;
+    for (let item of helpCode) {
+        const helpRes = await toHelp(item);
+        if (helpRes.data.status === 5) {
+            console.log(`助力机会已耗尽，跳出助力`);
+            break;
+        }
     }
-  }
 }
 
 function toHelp(code) {
-  return new Promise(resolve => {
-    const options = {
-      "url": `${JD_API_HOST}task/toHelp`,
-      "body": `shareId=${code}`,
-      "headers": {
-        "Host": "rdcseason.m.jd.com",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Origin": "https://rdcseason.m.jd.com",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Cookie": cookie,
-        "Connection": "keep-alive",
-        "Accept": "application/json, text/plain, */*",
-        "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/252.3;apprpd/Home_Main;ref/JDWebViewController;psq/2;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|695;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
-        "Referer": "https://rdcseason.m.jd.com/",
-        "Content-Length": "44",
-        "Accept-Language": "zh-cn"
-      }
-    }
-    $.post(options, (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          console.log(data);
-          data = JSON.parse(data);
+    return new Promise(resolve => {
+        const options = {
+            "url": `${JD_API_HOST}task/toHelp`,
+            "body": `shareId=${code}`,
+            "headers": {
+                "Host": "rdcseason.m.jd.com",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Origin": "https://rdcseason.m.jd.com",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Cookie": cookie,
+                "Connection": "keep-alive",
+                "Accept": "application/json, text/plain, */*",
+                "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/252.3;apprpd/Home_Main;ref/JDWebViewController;psq/2;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|695;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
+                "Referer": "https://rdcseason.m.jd.com/",
+                "Content-Length": "44",
+                "Accept-Language": "zh-cn"
+            }
         }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
+        $.post(options, (err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    console.log(data);
+                    data = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
+
 function getHelp() {
-  return new Promise(resolve => {
-    const options = {
-      "url": `${JD_API_HOST}task/getHelp?t=${Date.now()}`,
-      "headers": {
-        "Host": "rdcseason.m.jd.com",
-        "Accept": "application/json, text/plain, */*",
-        "Connection": "keep-alive",
-        "Cookie": cookie,
-        "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/255.2;apprpd/Home_Main;ref/JDMainPageViewController;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|701;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
-        "Accept-Language": "zh-cn",
-        "Referer": "https://rdcseason.m.jd.com",
-        "Accept-Encoding": "gzip, deflate, br"
-      }
-    }
-    $.get(options, async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          if (data.code === 200) {
-            console.log(`\n您的助力码shareId(互助码每天都是变化的)\n${data.data.shareId}\n`);
-          }
+    return new Promise(resolve => {
+        const options = {
+            "url": `${JD_API_HOST}task/getHelp?t=${Date.now()}`,
+            "headers": {
+                "Host": "rdcseason.m.jd.com",
+                "Accept": "application/json, text/plain, */*",
+                "Connection": "keep-alive",
+                "Cookie": cookie,
+                "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/255.2;apprpd/Home_Main;ref/JDMainPageViewController;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|701;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
+                "Accept-Language": "zh-cn",
+                "Referer": "https://rdcseason.m.jd.com",
+                "Accept-Encoding": "gzip, deflate, br"
+            }
         }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
+        $.get(options, async(err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                    if (data.code === 200) {
+                        console.log(`\n您的助力码shareId(互助码每天都是变化的)\n${data.data.shareId}\n`);
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
 //获取当前活动总京豆数量
 function getListJbean() {
-  return new Promise(resolve => {
-    const options = {
-      "url": `${JD_API_HOST}task/listJbean?pageNum=1`,
-      "headers": {
-        "Host": "rdcseason.m.jd.com",
-        "Accept": "application/json, text/plain, */*",
-        "Connection": "keep-alive",
-        "Cookie": cookie,
-        "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/255.2;apprpd/Home_Main;ref/JDMainPageViewController;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|701;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
-        "Accept-Language": "zh-cn",
-        "Referer": "https://rdcseason.m.jd.com",
-        "Accept-Encoding": "gzip, deflate, br"
-      }
-    }
-    $.get(options, async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          if (data.code === 200) {
-            $.jbeanCount = data.data.jbeanCount;
-          }
+    return new Promise(resolve => {
+        const options = {
+            "url": `${JD_API_HOST}task/listJbean?pageNum=1`,
+            "headers": {
+                "Host": "rdcseason.m.jd.com",
+                "Accept": "application/json, text/plain, */*",
+                "Connection": "keep-alive",
+                "Cookie": cookie,
+                "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/255.2;apprpd/Home_Main;ref/JDMainPageViewController;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|701;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
+                "Accept-Language": "zh-cn",
+                "Referer": "https://rdcseason.m.jd.com",
+                "Accept-Encoding": "gzip, deflate, br"
+            }
         }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
+        $.get(options, async(err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                    if (data.code === 200) {
+                        $.jbeanCount = data.data.jbeanCount;
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
 
 function getListIntegral() {
-  return new Promise(resolve => {
-    const options = {
-      "url": `${JD_API_HOST}task/listIntegral?pageNum=1`,
-      "headers": {
-        "Host": "rdcseason.m.jd.com",
-        "Accept": "application/json, text/plain, */*",
-        "Connection": "keep-alive",
-        "Cookie": cookie,
-        "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/255.2;apprpd/Home_Main;ref/JDMainPageViewController;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|701;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
-        "Accept-Language": "zh-cn",
-        "Referer": "https://rdcseason.m.jd.com",
-        "Accept-Encoding": "gzip, deflate, br"
-      }
-    }
-    $.get(options, async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          if (data.code === 200) {
-            $.integralCount = data.data.integralCount;
-          }
+    return new Promise(resolve => {
+        const options = {
+            "url": `${JD_API_HOST}task/listIntegral?pageNum=1`,
+            "headers": {
+                "Host": "rdcseason.m.jd.com",
+                "Accept": "application/json, text/plain, */*",
+                "Connection": "keep-alive",
+                "Cookie": cookie,
+                "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/255.2;apprpd/Home_Main;ref/JDMainPageViewController;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|701;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
+                "Accept-Language": "zh-cn",
+                "Referer": "https://rdcseason.m.jd.com",
+                "Accept-Encoding": "gzip, deflate, br"
+            }
         }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
+        $.get(options, async(err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                    if (data.code === 200) {
+                        $.integralCount = data.data.integralCount;
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
 
 //查询今日累计积分与排名
 function getListRank() {
-  return new Promise(resolve => {
-    const options = {
-      "url": `${JD_API_HOST}task/listRank?t=${Date.now()}`,
-      "headers": {
-        "Host": "rdcseason.m.jd.com",
-        "Accept": "application/json, text/plain, */*",
-        "Connection": "keep-alive",
-        "Cookie": cookie,
-        "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/255.2;apprpd/Home_Main;ref/JDMainPageViewController;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|701;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
-        "Accept-Language": "zh-cn",
-        "Referer": "https://rdcseason.m.jd.com",
-        "Accept-Encoding": "gzip, deflate, br"
-      }
-    }
-    $.get(options, async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          if (data.code === 200) {
-            if (data.data.my) {
-              $.integer = data.data.my.integer;
-              $.num = data.data.my.num;
+    return new Promise(resolve => {
+        const options = {
+            "url": `${JD_API_HOST}task/listRank?t=${Date.now()}`,
+            "headers": {
+                "Host": "rdcseason.m.jd.com",
+                "Accept": "application/json, text/plain, */*",
+                "Connection": "keep-alive",
+                "Cookie": cookie,
+                "User-Agent": "jdapp;iPhone;9.1.0;14.0;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167348;supportBestPay/0;jdSupportDarkMode/0;pv/255.2;apprpd/Home_Main;ref/JDMainPageViewController;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|701;jdv/0|kong|t_2010957099_|jingfen|3b5422e836e74037862fea3dcf1a6802|1600647811440|1600647814;adk/;app_device/IOS;pap/JA2015_311210|9.1.0|IOS 14.0;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
+                "Accept-Language": "zh-cn",
+                "Referer": "https://rdcseason.m.jd.com",
+                "Accept-Encoding": "gzip, deflate, br"
             }
-            if (data.data.last) {
-              $.lasNum = data.data.last.num;
-            }
-          }
         }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
+        $.get(options, async(err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    data = JSON.parse(data);
+                    if (data.code === 200) {
+                        if (data.data.my) {
+                            $.integer = data.data.my.integer;
+                            $.num = data.data.my.num;
+                        }
+                        if (data.data.last) {
+                            $.lasNum = data.data.last.num;
+                        }
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
     })
-  })
 }
+
 function showMsg() {
-  if (Date.now() > new Date(activeEndTime).getTime()) {
-    $.msg($.name, '活动已结束', `请删除此脚本或者删除.github/workflows/jd_818.yml文件\n如果帮助到您可以点下🌟STAR鼓励我一下,谢谢\n咱江湖再见\n https://github.com/lxk0301/scripts\n`, {"open-url": "https://github.com/lxk0301/scripts"});
-    if ($.isNode()) notify.sendNotify($.name + '活动已结束', `请禁用或者删除此脚本\n如果帮助到您可以点下🌟STAR鼓励我一下,谢谢\n咱江湖再见\n https://github.com/lxk0301/scripts`)
-  } else {
-    $.msg($.name, `京东账号${$.index} ${$.UserName}`, `${$.jbeanCount ? `${$.integer ? `今日获得积分：${$.integer}个\n` : ''}${$.num ? `今日排名：${$.num}\n` : ''}今日参数人数：${$.lasNum}人\n累计获得京豆：${$.jbeanCount}个🐶\n` : ''}${$.jbeanCount ? `累计获得积分：${$.integralCount}个\n` : ''}${$.jbeanNum ? `${$.date}日奖品：${$.jbeanNum}\n` : ''}具体详情点击弹窗跳转后即可查看`, {"open-url": "https://rdcseason.m.jd.com/#/hame"});
+    if (Date.now() > new Date(activeEndTime).getTime()) {
+        $.msg($.name, '活动已结束', `请删除此脚本或者删除.github/workflows/jd_818.yml文件\n如果帮助到您可以点下🌟STAR鼓励我一下,谢谢\n咱江湖再见\n https://github.com/lxk0301/scripts\n`, { "open-url": "https://github.com/lxk0301/scripts" });
+        if ($.isNode()) notify.sendNotify($.name + '活动已结束', `请禁用或者删除此脚本\n如果帮助到您可以点下🌟STAR鼓励我一下,谢谢\n咱江湖再见\n https://github.com/lxk0301/scripts`)
+    } else {
+        $.msg($.name, `京东账号${$.index} ${$.UserName}`, `${$.jbeanCount ? `${$.integer ? `今日获得积分：${$.integer}个\n` : ''}${$.num ? `今日排名：${$.num}\n` : ''}今日参数人数：${$.lasNum}人\n累计获得京豆：${$.jbeanCount}个🐶\n` : ''}${$.jbeanCount ? `累计获得积分：${$.integralCount}个\n` : ''}${$.jbeanNum ? `${$.date}日奖品：${$.jbeanNum}\n` : ''}具体详情点击弹窗跳转后即可查看`, {"open-url": "https://rdcseason.m.jd.com/#/hame"});
   }
 }
 // prettier-ignore
