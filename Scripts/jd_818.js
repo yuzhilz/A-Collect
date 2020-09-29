@@ -49,7 +49,7 @@ const JD_API_HOST = 'https://rdcseason.m.jd.com/api/';
 const activeEndTime = '2020-10-10 01:00:00';
 const helpCode = [
     '47e8d43c-9964-4a34-9950-54b7d4e84942',
-    '135e6f9d-a8a9-47f4-ad00-9464c060b73d',
+    '99253400-6532-4a27-8a45-7cf52d27ac5d',
 ];
 !(async() => {
     if (!cookiesArr[0]) {
