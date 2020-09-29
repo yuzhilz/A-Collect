@@ -36,7 +36,7 @@ let message = '',
     isFruitFinished = false;
 const retainWater = 100; //保留水滴大于多少g,默认100g;
 let jdNotify = false; //是否关闭通知，false打开通知推送，true关闭通知推送
-let jdServerNotify = false; //是否每次运行脚本后，都发送server酱微信通知提醒,默认是true【true:发送，false:不发送】
+let jdServerNotify = true; //是否每次运行脚本后，都发送server酱微信通知提醒,默认是true【true:发送，false:不发送】
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async() => {
     await requireConfig();
@@ -101,6 +101,7 @@ async function jdFruit() {
         await getFirstWaterAward(); //领取首次浇水奖励
         await getTenWaterAward(); //领取10浇水奖励
         await getWaterFriendGotAward(); //领取为2好友浇水奖励
+        await duck();
         await doTenWaterAgain(); //再次浇水
         await predictionFruit(); //预测水果成熟时间
         await showMsg();
@@ -829,7 +830,53 @@ async function receiveFriendInvite() {
     //   console.log(`对方已是您的好友`)
     // }
 }
+async function duck() {
+    for (let i = 0; i < 10; i++) {
+        //这里循环十次
+        await getFullCollectionReward();
+        if ($.duckRes === '0') {
+            if (!$.duckRes.hasLimit) {
+                if ($.duckRes.type !== 3) {
+                    console.log(`${$.duckRes.title}`);
+                    if ($.duckRes.type === 1) {
+                        message += `【小鸭子】为你带回了水滴\n`;
+                    } else if ($.duckRes.type === 2) {
+                        message += `【小鸭子】为你带回快速浇水卡\n`
+                    }
+                }
+            } else {
+                console.log(`${$.duckRes.title}`)
+                break;
+            }
+        } else if ($.duckRes.code === '10') {
+            console.log(`小鸭子游戏达到上限`)
+            break;
+        }
+    }
+}
 // ========================API调用接口========================
+//鸭子，点我有惊喜
+async function getFullCollectionReward() {
+    return new Promise(resolve => {
+        const body = { "type": 2, "version": 6, "channel": 2 };
+        $.post(taskUrl("getFullCollectionReward", body), (err, resp, data) => {
+            try {
+                if (err) {
+                    console.log('\n东东农场: API查询请求失败 ‼️‼️');
+                    console.log(JSON.stringify(err));
+                    $.logErr(err);
+                } else {
+                    $.duckRes = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve();
+            }
+        })
+    })
+}
+
 /**
  * 领取10次浇水奖励API
  */
