@@ -40,6 +40,7 @@ if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
     })
+    if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
@@ -48,7 +49,7 @@ if ($.isNode()) {
 const JD_API_HOST = 'https://rdcseason.m.jd.com/api/';
 const activeEndTime = '2020-10-10 01:00:00';
 const helpCode = [
-    '47e8d43c-9964-4a34-9950-54b7d4e84942',
+    'f9911de2-8d15-4c95-bfdf-bv00db2a65c9',
     '99253400-6532-4a27-8a45-7cf52d27ac5d',
 ];
 !(async() => {
