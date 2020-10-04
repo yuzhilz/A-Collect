@@ -1,6 +1,6 @@
 /*****
 宠汪汪喂食(如果喂食80g失败，降级一个档次喂食（40g）,依次类推),三餐，建议一小时运行一次
-更新时间：2020-08-25
+更新时间：2020-10-03
 支持京东多个账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 ****/
@@ -31,33 +31,42 @@ if ($.isNode()) {
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
 }
-let jdNotify = $.getdata('jdJoyNotify');
+let jdNotify = true; //是否开启静默运行。默认true开启
 let message = '',
     subTitle = '',
     UserName = '';
 const JD_API_HOST = 'https://jdjoy.jd.com'
-let FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10 //默认10g,可选 10,20,40,80
+let FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10; //喂食数量默认10g,可选 10,20,40,80 , 其他数字不可.
 
-    !(async() => {
-        if (!cookiesArr[0]) {
-            $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
-            return;
-        }
-        for (let i = 0; i < cookiesArr.length; i++) {
-            if (cookiesArr[i]) {
-                cookie = cookiesArr[i];
-                UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
-                $.index = i + 1;
-                console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
-                message = '';
-                subTitle = '';
-                await feedPets(FEED_NUM); //喂食
-                await ThreeMeals(); //三餐
-                await showMsg();
+!(async() => {
+    if (!cookiesArr[0]) {
+        $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
+        return;
+    }
+    for (let i = 0; i < cookiesArr.length; i++) {
+        if (cookiesArr[i]) {
+            cookie = cookiesArr[i];
+            UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+            $.index = i + 1;
+            console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
+            message = '';
+            subTitle = '';
+            if ($.isNode()) {
+                if (process.env.JOY_FEED_COUNT) {
+                    if ([10, 20, 40, 80].indexOf(process.env.JOY_FEED_COUNT * 1) > -1) {
+                        FEED_NUM = process.env.JOY_FEED_COUNT ? process.env.JOY_FEED_COUNT * 1 : FEED_NUM;
+                    } else {
+                        console.log(`您输入的 JOY_FEED_COUNT 为非法数字，请重新输入`);
+                    }
+                }
             }
+            await feedPets(FEED_NUM); //喂食
+            await ThreeMeals(); //三餐
+            await showMsg();
         }
-    })()
-    .catch((e) => {
+    }
+})()
+.catch((e) => {
         $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
     })
     .finally(() => {
@@ -66,6 +75,7 @@ let FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10 //默认10g,可选 10,20,40
 
 function showMsg() {
     $.log(`\n${message}\n`);
+    jdNotify = $.getdata('jdJoyNotify') ? $.getdata('jdJoyNotify') : jdNotify;
     if (!jdNotify || jdNotify === 'false') {
         $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n` + message);
     }
