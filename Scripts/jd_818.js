@@ -49,7 +49,7 @@ if ($.isNode()) {
 const JD_API_HOST = 'https://rdcseason.m.jd.com/api/';
 const activeEndTime = '2020-10-10 01:00:00';
 const helpCode = [
-    '20637338-ccab-429f-8aed-824f056f068a',
+    '7f194a72-fa47-41b6-a32e-df2c2d2a28fe',
     'bed48a34-4be6-4fb8-9738-ebd418352ccb',
 ];
 !(async() => {
