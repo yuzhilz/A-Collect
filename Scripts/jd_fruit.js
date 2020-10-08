@@ -1,6 +1,6 @@
 /*
-jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d9785748014fc6cca821e58427162e9336/fruit/fruit.js
-更新时间:2020-09-26
+东东水果:脚本更新地址 https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js
+更新时间:2020-10-03
 已支持IOS双京东账号,Node.js支持N个京东账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 // quantumultx
@@ -15,6 +15,7 @@ cron "5 6-18/6 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scri
 互助码shareCode请先手动运行脚本查看打印可看到
 一天只能帮助4个人。多出的助力码无效
 注：如果使用Node.js, 需自行安装'crypto-js,got,http-server,tough-cookie'模块. 例: npm install crypto-js http-server tough-cookie got --save
+jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d9785748014fc6cca821e58427162e9336/fruit/fruit.js
 */
 const $ = new Env('东东农场');
 let cookiesArr = [],
@@ -37,6 +38,7 @@ let message = '',
 const retainWater = 100; //保留水滴大于多少g,默认100g;
 let jdNotify = false; //是否关闭通知，false打开通知推送，true关闭通知推送
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
+const activeEndTime = '2020-10-09';
 !(async() => {
     await requireConfig();
     if (!cookiesArr[0]) {
@@ -71,15 +73,13 @@ async function jdFruit() {
         message = `【京东账号${$.index}】${UserName}\n`;
         console.log(`\n【您的互助码shareCode】 ${$.farmInfo.farmUserPro.shareCode}\n`);
         console.log(`\n【已成功兑换水果】${$.farmInfo.farmUserPro.winTimes}次\n`);
+        await masterHelpShare(); //助力好友
         if ($.farmInfo.treeState === 2 || $.farmInfo.treeState === 3) {
             option['open-url'] = "openApp.jdMobile://";
             $.msg($.name, `【提醒⏰】${$.farmInfo.farmUserPro.name}已可领取`, '请去京东APP或微信小程序查看', option);
             if ($.isNode()) {
                 await notify.sendNotify(`${$.name}水果已可领取`, `京东账号${$.index} ${UserName}\n${$.farmInfo.farmUserPro.name}已可领取`);
             }
-            // if ($.isNode()) {
-            //   await notify.BarkNotify(`${$.name}水果已可领取`, `京东账号${$.index} ${UserName}\n${$.farmInfo.farmUserPro.name}已可领取`);
-            // }
             return
         } else if ($.farmInfo.treeState === 1) {
             console.log(`\n${$.farmInfo.farmUserPro.name}种植中...\n`)
@@ -90,9 +90,6 @@ async function jdFruit() {
             if ($.isNode() && notify.SCKEY) {
                 await notify.sendNotify(`${$.name}请重新种植水果`, `京东账号${$.index} ${UserName}\n上轮水果${$.farmInfo.farmUserPro.name}已兑换成功\n\n请去京东APP或微信小程序选购并种植新的水果`);
             }
-            // if ($.isNode()) {
-            //   await notify.BarkNotify(`${$.name}请重新种植水果`, `京东账号${$.index} ${UserName}\n上轮水果${$.farmInfo.farmUserPro.name}已兑换成功\n请去京东APP或微信小程序选购并种植新的水果`);
-            // }
             return
         }
         await doDailyTask();
@@ -221,7 +218,6 @@ async function doDailyTask() {
     await getAwardInviteFriend();
     await clockInIn(); //打卡领水
     await executeWaterRains(); //水滴雨
-    await masterHelpShare(); //助力好友
     await getExtraAward(); //领取额外水滴奖励
     await turntableFarm() //天天抽奖得好礼
 }
@@ -331,7 +327,7 @@ async function doTenWaterAgain() {
     await myCardInfoForFarm();
     const { fastCard, doubleCard, beanCard } = $.myCardInfoRes;
     console.log(`背包已有道具:\n快速浇水卡:${fastCard === -1 ? '未解锁': fastCard}\n水滴翻倍卡:${doubleCard === -1 ? '未解锁': doubleCard}\n水滴换京豆卡:${beanCard === -1 ? '未解锁' : beanCard }\n`)
-    if (totalEnergy > 100 && $.myCardInfoRes.doubleCard > 0) {
+    if (totalEnergy >= 100 && $.myCardInfoRes.doubleCard > 0) {
         //使用翻倍水滴卡
         for (let i = 0; i < new Array($.myCardInfoRes.doubleCard).fill('').length; i++) {
             await userMyCardForFarm('doubleCard');
@@ -340,6 +336,17 @@ async function doTenWaterAgain() {
         await initForFarm();
         totalEnergy = $.farmInfo.farmUserPro.totalEnergy;
     }
+    // if (Date.now() < new Date(activeEndTime).getTime()) {
+    //   if (totalEnergy >= 100 && $.myCardInfoRes.beanCard > 0) {
+    //     //使用水滴换豆卡
+    //     await userMyCardForFarm('beanCard');
+    //     console.log(`使用水滴换豆卡结果:${JSON.stringify($.userMyCardRes)}`);
+    //     if ($.userMyCardRes.code === '0') {
+    //       message += `【水滴换豆卡】获得${$.userMyCardRes.beanCount}个京豆\n`;
+    //     }
+    //   }
+    //   return
+    // }
     // if (totalEnergy > 100 && $.myCardInfoRes.fastCard > 0) {
     //   //使用快速浇水卡
     //   await userMyCardForFarm('fastCard');
