@@ -140,6 +140,8 @@ async function main() {
             cookie = cookiesArr[i];
             UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
             $.index = i + 1;
+            $.inviteReward = 0;
+            $.runReward = 0;
             console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
             message = '';
             subTitle = '';
@@ -198,6 +200,9 @@ async function invite(invite_pins) {
             $.jdLogin = true;
         }
     }
+    if ($.inviteReward > 0) {
+        $.msg($.name, ``, `账号${$.index} [${UserName}]\n给${$.inviteReward/5}人邀请助力成功\n获得狗粮${$.inviteReward}g`)
+    }
 }
 
 function enterRoom(invitePin) {
@@ -243,6 +248,9 @@ function helpInviteFriend(friendPin) {
                     $.log(`邀请助力结果：${data}`);
                     data = JSON.parse(data);
                     // {"errorCode":"help_ok","errorMessage":null,"currentTime":1600254297789,"data":29466,"success":true}
+                    if (data.success && data.errorCode === 'help_ok') {
+                        $.inviteReward += 5;
+                    }
                 }
             } catch (e) {
                 $.logErr(e, resp)
@@ -277,6 +285,9 @@ async function run(run_pins) {
             }
         }
     }
+    if ($.runReward > 0) {
+        $.msg($.name, ``, `账号${$.index} [${UserName}]\n给${$.runReward/5}人赛跑助力成功\n获得狗粮${$.runReward}g`)
+    }
 }
 
 function combatHelp(friendPin) {
@@ -298,6 +309,7 @@ function combatHelp(friendPin) {
                     // {"errorCode":"help_ok","errorMessage":null,"currentTime":1600479266133,"data":{"rewardNum":5,"helpStatus":"help_ok","newUser":false},"success":true}
                     if (data.errorCode === 'help_ok' && data.data.helpStatus === 'help_ok') {
                         console.log(`助力${friendPin}成功\n获得狗粮${data.data.rewardNum}g\n`);
+                        $.runReward += data.data.rewardNum;
                     }
                 }
             } catch (e) {
