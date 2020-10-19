@@ -9,7 +9,9 @@
 * 腾讯视频: 浏览器访问 `https://film.qq.com/` 选择一部电影打开, 再浏览器打开 `http://v.qq.com/x/bu/`
 * 中国联通: 打开 `中国联通app` 点 `签到`
 * bilibili： 浏览器访问 `https://www.bilibili.com`
-* 什么值得买: 浏览器访问 `https://zhiyou.smzdm.com/user/login`, 登录后访问`https://www.smzdm.com`
+* 什么值得买: 
+    浏览器访问 `https://zhiyou.smzdm.com/`, 登录后访问`https://zhiyou.smzdm.com/user/`
+    打开 `app` 退出登录，使用账号密码登录
 * 网易云音乐: 浏览器访问 `https://music.163.com/m/login`, 登录后访问 `https://music.163.com/#/user/level`
 * 滴滴: 打开 `滴滴app`
 * 美团: 打开 `美团app`
