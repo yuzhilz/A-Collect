@@ -1,5 +1,5 @@
 # Working Copy解锁
 
-^https:\/\/education\.github\.com\/api\/user$ url script-request-body ./workingcopy/workingcopy.js
+^https:\/\/education\.github\.com\/api\/user$ url script-request-header ./workingcopy/workingcopy.js
 
 hostname = education.github.com
