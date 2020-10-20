@@ -2,4 +2,4 @@
 
 ^https:\/\/education\.github\.com\/api\/user$ url script-request-body ./workingcopy/WorkingCopy.js
 
-MitM = education.github.com
+hostname = education.github.com
