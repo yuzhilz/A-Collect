@@ -1,6 +1,6 @@
 /*
-京小超
-更新时间：2020-10-18
+京小超(活动入口：京东APP-》首页-》京东超市-》底部东东超市)
+更新时间：2020-10-19
 现有功能：每日签到，日常任务（分享游戏，逛会场，关注店铺，卖货能手），收取金币，收取蓝币,商圈活动
 Some Functions Modified From https://github.com/Zero-S1/JD_tools/blob/master/JD_superMarket.py
 支持京东双账号
@@ -38,7 +38,9 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
     //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-    'eU9Ya7jjb_Uk9TrcySIRhQ@eU9YarrhMK4h8WrRyXYWgw'
+    '-4msulYas0O2JsRhE-2TA5XZmBQ@eU9Yar_mb_9z92_WmXNG0w@eU9YaejjYv4g8T2EwnsVhQ',
+    //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
+    'aURoM7PtY_Q@eU9Ya-y2N_5z9DvXwyIV0A@eU9YaOnjYK4j-GvWmXIWhA',
 ]
 
 !(async() => {
@@ -83,13 +85,13 @@ async function jdSuperMarket() {
         }
         return
     }
+    await businessCircleActivity(); //商圈活动
     await receiveBlueCoin(); //收蓝币（小费）
     await receiveLimitProductBlueCoin(); //收限时商品的蓝币
     await smtgSign(); //每日签到
     await doDailyTask(); //做日常任务，分享，关注店铺，
     await help(); //商圈助力
     await smtgQueryPkTask(); //做商品PK任务
-    await businessCircleActivity(); //商圈活动
     await myProductList(); //货架
     await drawLottery();
     await upgrade(); //升级货架和商品
@@ -109,6 +111,10 @@ function showMsg() {
 //抽奖功能(招财进宝)
 async function drawLottery() {
     const smtg_lotteryIndexRes = await smtg_lotteryIndex();
+    drawLotteryFlag = $.getdata('jdSuperMarketLottery') ? $.getdata('jdSuperMarketLottery') : drawLotteryFlag;
+    if ($.isNode() && process.env.jdSuperMarketLottery) {
+        drawLotteryFlag = process.env.jdSuperMarketLottery;
+    }
     if (`${drawLotteryFlag}` === 'true') {
         if (smtg_lotteryIndexRes && smtg_lotteryIndexRes.data.bizCode === 0) {
             const { result } = smtg_lotteryIndexRes.data
@@ -272,7 +278,7 @@ async function businessCircleActivity() {
   const businessCirclePKDetailRes = await smtg_businessCirclePKDetail();
   if (businessCirclePKDetailRes && businessCirclePKDetailRes.data.bizCode === 0) {
     const { businessCircleVO, otherBusinessCircleVO, inviteCode, pkSettleTime } = businessCirclePKDetailRes.data.result;
-    console.log(`\n您的商圈inviteCode互助码：\n\n${inviteCode}\n\n`);
+    console.log(`\n【您的商圈inviteCode互助码】：\n${inviteCode}\n\n`);
     const businessCircleIndexRes = await smtg_businessCircleIndex();
     const { result } = businessCircleIndexRes.data;
     const { pkPrizeStatus, pkStatus  } = result;
@@ -425,8 +431,8 @@ async function upgrade() {
     console.log(`\n自动升级: 您设置的是关闭自动升级\n`);
     return
   }
-  console.log(`\n开始检测升级商品,目前没有平稳升级,只取倒数几个商品进行升级`)
-  console.log('普通货架取倒数4个商品,冰柜货架取倒数3个商品,水果货架取倒数2个商品')
+  console.log(`\n*************开始检测升级商品，如遇到商品能解锁，则优先解锁***********`)
+  console.log('目前没有平稳升级,只取倒数几个商品进行升级,普通货架取倒数4个商品,冰柜货架取倒数3个商品,水果货架取倒数2个商品')
   const smtgProductListRes = await smtg_productList();
   if (smtgProductListRes.data.bizCode === 0) {
     let productType1 = [], shelfCategory_1 = [], shelfCategory_2 = [], shelfCategory_3 = [];
@@ -451,9 +457,12 @@ async function upgrade() {
     shelfCategory_2 = shelfCategory_2.slice(-3);
     shelfCategory_3 = shelfCategory_3.slice(-2);
     const shelfCategorys = shelfCategory_1.concat(shelfCategory_2).concat(shelfCategory_3);
-    console.log(`\n待升级商品     归属货架     解锁状态    可升级状态`)
+    console.log(`\n商品名称       归属货架     目前等级    解锁状态    可升级状态`)
     for (let item of shelfCategorys) {
-      console.log(`  ${item["name"].length<3?item["name"]+`\xa0`:item["name"]}       ${item['shelfCategory'] === 1 ? '普通货架' : item['shelfCategory'] === 2 ? '冰柜货架' : item['shelfCategory'] === 3 ? '水果货架':'未知货架'}     ${item["unlockStatus"] === 0 ? '未解锁' : '已解锁'}      ${item["upgradeStatus"] === 1 ? '可以升级' : item["upgradeStatus"] === 0 ? '不可升级':item["upgradeStatus"]}`)
+      console.log(`  ${item["name"].length<3?item["name"]+`\xa0`:item["name"]}       ${item['shelfCategory'] === 1 ? '普通货架' : item['shelfCategory'] === 2 ? '冰柜货架' : item['shelfCategory'] === 3 ? '水果货架':'未知货架'}       ${item["unlockStatus"] === 0 ? '---' : item["level"]+'级'}     ${item["unlockStatus"] === 0 ? '未解锁' : '已解锁'}      ${item["upgradeStatus"] === 1 ? '可以升级' : item["upgradeStatus"] === 0 ? '不可升级':item["upgradeStatus"]}`)
+    }
+    shelfCategorys.sort(sortSyData);
+    for (let item of shelfCategorys) {
       if (item['unlockStatus'] === 1) {
         console.log(`\n开始解锁商品：${item['name']}`)
         await smtg_unlockProduct(item['productId']);
@@ -466,7 +475,7 @@ async function upgrade() {
       }
     }
   }
-  console.log('\n开始检查能否升级货架');
+  console.log('\n**********开始检查能否升级货架***********');
   const shelfListRes = await smtg_shelfList();
   if (shelfListRes.data.bizCode === 0) {
     const { shelfList } = shelfListRes.data.result;
@@ -479,7 +488,7 @@ async function upgrade() {
     console.log(`待升级货架数量${shelfList_upgrade.length}个`);
     if (shelfList_upgrade && shelfList_upgrade.length > 0) {
       shelfList_upgrade.sort(sortSyData);
-      console.log("待升级货架名         等级     升级所需金币");
+      console.log("\n可升级货架名         等级     升级所需金币");
       for (let item of shelfList_upgrade) {
         console.log(` [${item["name"]}]         ${item["level"]}/${item["maxLevel"]}         ${item["upgradeCostGold"]}`);
       }
@@ -953,7 +962,6 @@ function smtg_shelfProductList(shelfId) {
 //升级商品
 function smtg_upgradeProduct(productId) {
   return new Promise((resolve) => {
-    console.log(`开始升级商品`)
     $.get(taskUrl('smtg_upgradeProduct', { productId }), (err, resp, data) => {
       try {
         // console.log(`升级商品productId[${productId}]结果:${data}`);
@@ -961,6 +969,7 @@ function smtg_upgradeProduct(productId) {
           console.log('\n京小超: API查询请求失败 ‼️‼️')
           console.log(JSON.stringify(err));
         } else {
+          console.log(`升级商品结果\n${data}`);
           data = JSON.parse(data);
         }
       } catch (e) {
@@ -995,7 +1004,6 @@ function smtg_unlockProduct(productId) {
 //升级货架
 function smtg_upgradeShelf(shelfId) {
   return new Promise((resolve) => {
-    console.log(`开始升级货架`)
     $.get(taskUrl('smtg_upgradeShelf', { shelfId }), (err, resp, data) => {
       try {
         // console.log(`升级货架shelfId[${shelfId}]结果:${data}`);
@@ -1003,6 +1011,7 @@ function smtg_upgradeShelf(shelfId) {
           console.log('\n京小超: API查询请求失败 ‼️‼️')
           console.log(JSON.stringify(err));
         } else {
+          console.log(`升级货架结果\n${data}`)
           data = JSON.parse(data);
         }
       } catch (e) {
@@ -1131,7 +1140,7 @@ function shareCodesFormat() {
 }
 function requireConfig() {
   return new Promise(resolve => {
-    console.log('\n开始获取京小超配置文件\n')
+    // console.log('\n开始获取京小超配置文件\n')
     notify = $.isNode() ? require('./sendNotify') : '';
     //Node.js用户请在jdCookie.js处填写京东ck;
     const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
