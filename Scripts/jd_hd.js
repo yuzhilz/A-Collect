@@ -10,7 +10,7 @@ xeq1kjnhr.m.jd.com
 let html = $response.body
 
 html = html.replace(/(<\/html>)/g, "") +
-`
+    `
   <script>
 
     const script = document.createElement('script');
@@ -88,4 +88,4 @@ html = html.replace(/(<\/html>)/g, "") +
 </html>
 `
 
-$done({body: html})
+$done({ body: html })
