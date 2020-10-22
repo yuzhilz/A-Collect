@@ -19,127 +19,130 @@ cron "11 1-23/5 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scr
 const $ = new Env('京小超');
 //Node.js用户请在jdCookie.js处填写京东ck;
 //IOS等用户直接用NobyDa的jd cookie
-let cookiesArr = [], cookie = '', jdSuperMarketShareArr = [], notify, newShareCodes;
+let cookiesArr = [],
+    cookie = '',
+    jdSuperMarketShareArr = [],
+    notify, newShareCodes;
 
-let jdNotify = true;//用来是否关闭弹窗通知，true表示关闭，false表示开启。
-let superMarketUpgrade = true;//自动升级,顺序:解锁升级商品、升级货架,true表示自动升级,false表示关闭自动升级
-let businessCircleJump = true;//小于对方300热力值自动更换商圈队伍,true表示运行,false表示禁止
-let drawLotteryFlag = true;//是否用金币去抽奖，true表示开启，false表示关闭。默认开启
-let UserName = '', message = '', subTitle;
+let jdNotify = true; //用来是否关闭弹窗通知，true表示关闭，false表示开启。
+let superMarketUpgrade = true; //自动升级,顺序:解锁升级商品、升级货架,true表示自动升级,false表示关闭自动升级
+let businessCircleJump = true; //小于对方300热力值自动更换商圈队伍,true表示运行,false表示禁止
+let drawLotteryFlag = true; //是否用金币去抽奖，true表示开启，false表示关闭。默认开启
+let UserName = '',
+    message = '',
+    subTitle;
 const JD_API_HOST = 'https://api.m.jd.com/api';
 
 //助力好友分享码
 //此此内容是IOS用户下载脚本到本地使用，填写互助码的地方，同一京东账号的好友互助码请使用@符号隔开。
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
-  //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-  '-4msulYas0O2JsRhE-2TA5XZmBQ@eU9Yar_mb_9z92_WmXNG0w@eU9YaejjYv4g8T2EwnsVhQ',
-  //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
-  'aURoM7PtY_Q@eU9Ya-y2N_5z9DvXwyIV0A@eU9YaOnjYK4j-GvWmXIWhA',
+    'eU9Ya7jjb_Uk9TrcySIRhQ@eU9YarrhMK4h8WrRyXYWgw'
 ]
 
-!(async () => {
-  await requireConfig();
-  if (!cookiesArr[0]) {
-    $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
-  }
-  for (let i = 0; i < cookiesArr.length; i++) {
-    if (cookiesArr[i]) {
-      cookie = cookiesArr[i];
-      UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
-      $.index = i + 1;
-      $.coincount = 0;//收取了多少个蓝币
-      $.coinerr = "";
-      $.blueCionTimes = 0;
-      console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
-      message = '';
-      subTitle = '';
-      await shareCodesFormat();//格式化助力码
-      await jdSuperMarket();
-      // await receiveLimitProductBlueCoin();
+!(async() => {
+    await requireConfig();
+    if (!cookiesArr[0]) {
+        $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
     }
-  }
+    for (let i = 0; i < cookiesArr.length; i++) {
+        if (cookiesArr[i]) {
+            cookie = cookiesArr[i];
+            UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+            $.index = i + 1;
+            $.coincount = 0; //收取了多少个蓝币
+            $.coinerr = "";
+            $.blueCionTimes = 0;
+            console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
+            message = '';
+            subTitle = '';
+            await shareCodesFormat(); //格式化助力码
+            await jdSuperMarket();
+            // await receiveLimitProductBlueCoin();
+        }
+    }
 })()
-    .catch((e) => {
-      $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
+.catch((e) => {
+        $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
     })
     .finally(() => {
-      $.done();
+        $.done();
     })
 async function jdSuperMarket() {
-  await receiveGoldCoin();//收金币
-  if ($.goldCoinData.data.bizCode === 300) {
-    $.msg($.name, `【提示】京东账号${$.index}${UserName} cookie已过期！请先获取cookie\n直接使用NobyDa的京东签到获取`, 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
-    if ($.index === 1) {
-      $.setdata('', 'CookieJD');//cookie失效，故清空cookie。
-    } else if ($.index === 2){
-      $.setdata('', 'CookieJD2');//cookie失效，故清空cookie。
+    await receiveGoldCoin(); //收金币
+    if ($.goldCoinData.data.bizCode === 300) {
+        $.msg($.name, `【提示】京东账号${$.index}${UserName} cookie已过期！请先获取cookie\n直接使用NobyDa的京东签到获取`, 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
+        if ($.index === 1) {
+            $.setdata('', 'CookieJD'); //cookie失效，故清空cookie。
+        } else if ($.index === 2) {
+            $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
+        }
+        if ($.isNode()) {
+            await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
+        }
+        return
     }
-    if ($.isNode()) {
-      await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-    }
-    return
-  }
-  await businessCircleActivity();//商圈活动
-  await receiveBlueCoin();//收蓝币（小费）
-  await receiveLimitProductBlueCoin();//收限时商品的蓝币
-  await smtgSign();//每日签到
-  await doDailyTask();//做日常任务，分享，关注店铺，
-  await help();//商圈助力
-  await smtgQueryPkTask();//做商品PK任务
-  await myProductList();//货架
-  await drawLottery();
-  await upgrade();//升级货架和商品
-  await manageProduct();
-  await limitTimeProduct();
-  await smtgHome();
-  await showMsg();
+    await businessCircleActivity(); //商圈活动
+    await receiveBlueCoin(); //收蓝币（小费）
+    await receiveLimitProductBlueCoin(); //收限时商品的蓝币
+    await smtgSign(); //每日签到
+    await doDailyTask(); //做日常任务，分享，关注店铺，
+    await help(); //商圈助力
+    await smtgQueryPkTask(); //做商品PK任务
+    await myProductList(); //货架
+    await drawLottery();
+    await upgrade(); //升级货架和商品
+    await manageProduct();
+    await limitTimeProduct();
+    await smtgHome();
+    await showMsg();
 }
+
 function showMsg() {
-  $.log(`\n${message}\n`);
-  jdNotify = $.getdata('jdSuperMarketNotify') ? $.getdata('jdSuperMarketNotify') : jdNotify;
-  if (!jdNotify || jdNotify === 'false') {
-    $.msg($.name, subTitle ,`【京东账号${$.index}】${UserName}\n${message}`);
-  }
+    $.log(`\n${message}\n`);
+    jdNotify = $.getdata('jdSuperMarketNotify') ? $.getdata('jdSuperMarketNotify') : jdNotify;
+    if (!jdNotify || jdNotify === 'false') {
+        $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n${message}`);
+    }
 }
 //抽奖功能(招财进宝)
 async function drawLottery() {
-  const smtg_lotteryIndexRes = await smtg_lotteryIndex();
-  drawLotteryFlag = $.getdata('jdSuperMarketLottery') ? $.getdata('jdSuperMarketLottery') : drawLotteryFlag;
-  if ($.isNode() && process.env.jdSuperMarketLottery) {
-    drawLotteryFlag = process.env.jdSuperMarketLottery;
-  }
-  if (`${drawLotteryFlag}` === 'true') {
-    if (smtg_lotteryIndexRes && smtg_lotteryIndexRes.data.bizCode === 0) {
-      const { result } = smtg_lotteryIndexRes.data
-      if (result.goldCoins > result.costCoins && result.remainedDrawTimes > 0) {
-        const drawLotteryRes = await smtg_drawLottery();
-        console.log(`\n抽奖结果${JSON.stringify(drawLotteryRes)}`);
-        await drawLottery();
-      } else {
-        console.log(`\n已抽奖或者金币不足`);
-        console.log(`详情：${JSON.stringify(smtg_lotteryIndexRes)}`)
-      }
+    const smtg_lotteryIndexRes = await smtg_lotteryIndex();
+    drawLotteryFlag = $.getdata('jdSuperMarketLottery') ? $.getdata('jdSuperMarketLottery') : drawLotteryFlag;
+    if ($.isNode() && process.env.jdSuperMarketLottery) {
+        drawLotteryFlag = process.env.jdSuperMarketLottery;
     }
-  } else {
-    console.log(`设置的为不抽奖`)
-  }
+    if (`${drawLotteryFlag}` === 'true') {
+        if (smtg_lotteryIndexRes && smtg_lotteryIndexRes.data.bizCode === 0) {
+            const { result } = smtg_lotteryIndexRes.data
+            if (result.goldCoins > result.costCoins && result.remainedDrawTimes > 0) {
+                const drawLotteryRes = await smtg_drawLottery();
+                console.log(`\n抽奖结果${JSON.stringify(drawLotteryRes)}`);
+                await drawLottery();
+            } else {
+                console.log(`\n已抽奖或者金币不足`);
+                console.log(`详情：${JSON.stringify(smtg_lotteryIndexRes)}`)
+            }
+        }
+    } else {
+        console.log(`设置的为不抽奖`)
+    }
 }
 async function help() {
-  console.log(`\n开始助力好友`);
-  for (let code of newShareCodes) {
-    if (!code) continue;
-    const res = await smtgDoAssistPkTask(code);
-    console.log(`助力好友${JSON.stringify(res)}`);
-  }
+    console.log(`\n开始助力好友`);
+    for (let code of newShareCodes) {
+        if (!code) continue;
+        const res = await smtgDoAssistPkTask(code);
+        console.log(`助力好友${JSON.stringify(res)}`);
+    }
 }
 async function doDailyTask() {
-  const smtgQueryShopTaskRes = await smtgQueryShopTask();
-  if (smtgQueryShopTaskRes.code === 0 && smtgQueryShopTaskRes.data.success) {
-    const taskList = smtgQueryShopTaskRes.data.result.taskList;
-    console.log(`\n日常赚钱任务       完成状态`)
-    for (let item of taskList) {
-      console.log(` ${item['title'].length < 4 ? item['title']+`\xa0` : item['title']}         ${item['finishNum'] === item['targetNum'] ? '已完成':'未完成'} ${item['finishNum']}/${item['targetNum']}`)
+    const smtgQueryShopTaskRes = await smtgQueryShopTask();
+    if (smtgQueryShopTaskRes.code === 0 && smtgQueryShopTaskRes.data.success) {
+        const taskList = smtgQueryShopTaskRes.data.result.taskList;
+        console.log(`\n日常赚钱任务       完成状态`)
+        for (let item of taskList) {
+            console.log(` ${item['title'].length < 4 ? item['title']+`\xa0` : item['title']}         ${item['finishNum'] === item['targetNum'] ? '已完成':'未完成'} ${item['finishNum']}/${item['targetNum']}`)
       //领奖
       if (item.taskStatus === 1 && item.prizeStatus === 1) {
         const res = await smtgObtainShopTaskPrize(item.taskId);
@@ -317,7 +320,7 @@ async function businessCircleActivity() {
     console.log(`商圈PK奖励领取结果：${JSON.stringify(getPkPrizeRes)}`)
     if (getPkPrizeRes && getPkPrizeRes.data.bizCode === 0) {
       const { pkPersonPrizeInfoVO, pkTeamPrizeInfoVO } = getPkPrizeRes.data.result;
-      $.msg($.name, `【京东账号${$.index}】 ${UserName}\\n【商圈PK奖励】${pkPersonPrizeInfoVO.blueCoin + pkTeamPrizeInfoVO.blueCoin}蓝币领取成功`)
+      $.msg($.name, `【京东账号${$.index}】 ${UserName}\n【商圈PK奖励】${pkPersonPrizeInfoVO.blueCoin + pkTeamPrizeInfoVO.blueCoin}蓝币领取成功`)
       if ($.isNode()) {
         await notify.sendNotify(`${$.name}`, `【京东账号${$.index}】 ${UserName}\n【商圈PK奖励】${pkPersonPrizeInfoVO.blueCoin + pkTeamPrizeInfoVO.blueCoin}蓝币领取成功`)
       }
