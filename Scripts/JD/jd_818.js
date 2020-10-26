@@ -65,6 +65,7 @@ let helpCode = [
             message = '';
             subTitle = '';
             await JD818();
+            // await main();
             // await getHelp();
             // await doHelp();
         }
@@ -570,15 +571,23 @@ function saveJbean(id) {
     })
 }
 async function doHelp() {
-    //去掉重复的
-    const set = new Set(helpCode);
-    helpCode = [...set];
-    await $.http.get({ url: "http://jd.turinglabs.net/helpcode/print/" }).then((resp) => {
-        if (resp.statusCode === 200) {
-            const { body } = resp;
-            helpCode = helpCode.concat(body.replace(/"/g, '').split(','))
-        }
-    });
+    console.log(`脚本自带助力码数量:${helpCode.length}`)
+    let body = '',
+        nowTime = Date.now();
+    const zone = new Date().getTimezoneOffset();
+    if (zone === 0) {
+        nowTime += 28800000; //UTC-0时区加上8个小时
+    }
+    //当天大于9:00才从API里面取收集的助力码
+    if (nowTime > new Date(nowTime).setHours(9, 0, 0, 0)) body = await printAPI(); //访问收集的互助码
+    if (body) {
+        console.log(`printAPI返回助力码数量:${body.replace(/"/g, '').split(',').length}`)
+        helpCode = helpCode.concat(body.replace(/"/g, '').split(','))
+    }
+    console.log(`累计助力码数量:${helpCode.length}`)
+        //去掉重复的
+    helpCode = [...new Set(helpCode)];
+    console.log(`去重后总助力码数量:${helpCode.length}`)
     for (let item of helpCode) {
         const helpRes = await toHelp(item.trim());
         if (helpRes.data.status === 5) {
@@ -586,6 +595,25 @@ async function doHelp() {
             break;
         }
     }
+}
+
+function printAPI() {
+    return new Promise(resolve => {
+        $.get({ url: "http://jd.turinglabs.net/helpcode/print/" }, (err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    // data = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
+    })
 }
 
 function toHelp(code) {
