@@ -1,6 +1,12 @@
 /*
+ * @Author: lxk0301 https://github.com/lxk0301 
+ * @Date: 2020-10-26 18:54:16 
+ * @Last Modified by: lxk0301
+ * @Last Modified time: 2020-10-26 18:54:37
+ */
+/*
 京小超(活动入口：京东APP-》首页-》京东超市-》底部东东超市)
-更新时间：2020-10-19
+更新时间：2020-10-26
 现有功能：每日签到，日常任务（分享游戏，逛会场，关注店铺，卖货能手），收取金币，收取蓝币,商圈活动
 Some Functions Modified From https://github.com/Zero-S1/JD_tools/blob/master/JD_superMarket.py
 支持京东双账号
@@ -56,9 +62,9 @@ let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好�
             console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
             message = '';
             subTitle = '';
-            await shareCodesFormat(); //格式化助力码
+            //await shareCodesFormat();//格式化助力码
             await jdSuperMarket();
-            // await receiveLimitProductBlueCoin();
+            // await businessCircleActivity();
         }
     }
 })()
@@ -130,6 +136,7 @@ async function drawLottery() {
 }
 async function help() {
     console.log(`\n开始助力好友`);
+    return
     for (let code of newShareCodes) {
         if (!code) continue;
         const res = await smtgDoAssistPkTask(code);
@@ -271,7 +278,18 @@ function smtgSign() {
 // 商圈活动
 async function businessCircleActivity() {
   // console.log(`\n商圈PK奖励,次日商圈大战开始的时候自动领领取\n`)
-  const myCircleId = '-4msulYas0O2JsRhE-2TA5XZmBQ_1602947898742';
+  const myCircleId = '-4msulYas0O2JsRhE-2TA5XZmBQ';
+  const myTeamId = '-4msulYas0O2JsRhE-2TA5XZmBQ_1603680929024';
+  const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
+  if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
+    const { joinStatus } = smtg_getTeamPkDetailInfoRes.data.result;
+    console.log(`joinStatus:${joinStatus}`);
+    if (joinStatus === 0) {
+      const res = await smtg_joinPkTeam(myTeamId, myCircleId);
+      console.log(`res${JSON.stringify(res)}`);
+    }
+  }
+  return
   const businessCirclePKDetailRes = await smtg_businessCirclePKDetail();
   if (businessCirclePKDetailRes && businessCirclePKDetailRes.data.bizCode === 0) {
     const { businessCircleVO, otherBusinessCircleVO, inviteCode, pkSettleTime } = businessCirclePKDetailRes.data.result;
@@ -805,7 +823,42 @@ function smtgDoPkTask(taskId, itemId) {
     })
   })
 }
-
+function smtg_joinPkTeam(teamId, inviteCode) {
+  return new Promise((resolve) => {
+    $.get(taskUrl('smtg_joinPkTeam', { teamId, inviteCode, "channel": "3", "sharePkActivityId": "1603555200000" }), (err, resp, data) => {
+      try {
+        if (err) {
+          console.log('\n京小超: API查询请求失败 ‼️‼️')
+          console.log(JSON.stringify(err));
+        } else {
+          data = JSON.parse(data);
+        }
+      } catch (e) {
+        $.logErr(e, resp);
+      } finally {
+        resolve(data);
+      }
+    })
+  })
+}
+function smtg_getTeamPkDetailInfo() {
+  return new Promise((resolve) => {
+    $.get(taskUrl('smtg_getTeamPkDetailInfo'), (err, resp, data) => {
+      try {
+        if (err) {
+          console.log('\n京小超: API查询请求失败 ‼️‼️')
+          console.log(JSON.stringify(err));
+        } else {
+          data = JSON.parse(data);
+        }
+      } catch (e) {
+        $.logErr(e, resp);
+      } finally {
+        resolve(data);
+      }
+    })
+  })
+}
 function smtg_businessCirclePKDetail() {
   return new Promise((resolve) => {
     $.get(taskUrl('smtg_businessCirclePKDetail'), (err, resp, data) => {

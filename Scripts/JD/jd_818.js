@@ -3,7 +3,7 @@
 活动时间10.21日-11.12日结束，活动23天，保底最少可以拿到690京豆
 活动地址: https://rdcseason.m.jd.com/#/index
 
-更新日期：2020-10-25
+更新日期：2020-10-26
 
 其中有20京豆是往期奖励，需第一天参加活动后，第二天才能拿到！！！！
 
@@ -28,6 +28,7 @@ cron "1 0-18/6 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scri
 const $ = new Env('京东手机狂欢城');
 
 const notify = $.isNode() ? require('./sendNotify') : '';
+let jdNotify = true; //是否开启推送互助码
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 
@@ -47,7 +48,7 @@ if ($.isNode()) {
 const JD_API_HOST = 'https://rdcseason.m.jd.com/api/';
 const activeEndTime = '2020/11/13 01:00:00';
 let helpCode = [
-    '27f1ab2b-5880-4a3e-81d5-d06ccba432f2',
+    '71864ae9-c3ac-435c-983f-75f320f52969',
     'ee9cc512-6a5e-4cc3-a949-cc22c355b8d9',
 ];
 !(async() => {
@@ -106,7 +107,7 @@ async function JD818() {
     await listGoods(); //逛新品
     await shopInfo(); //逛店铺
     await listMeeting(); //逛会场
-    await $.wait(1000);
+    await $.wait(10000);
     //再次运行一次，避免出现遗漏的问题
     await listGoods(); //逛新品
     await shopInfo(); //逛店铺
@@ -589,6 +590,7 @@ async function doHelp() {
     helpCode = [...new Set(helpCode)];
     console.log(`去重后总助力码数量:${helpCode.length}`)
     for (let item of helpCode) {
+        if (!item) continue;
         const helpRes = await toHelp(item.trim());
         if (helpRes.data.status === 5) {
             console.log(`助力机会已耗尽，跳出助力`);
@@ -599,7 +601,7 @@ async function doHelp() {
 
 function printAPI() {
     return new Promise(resolve => {
-        $.get({ url: "http://jd.turinglabs.net/helpcode/print/" }, (err, resp, data) => {
+        $.get({ url: "http://jd.turinglabs.net/helpcode/print/20/" }, (err, resp, data) => {
             try {
                 if (err) {
                     console.log(`${JSON.stringify(err)}`)
@@ -678,13 +680,30 @@ function getHelp() {
                     if (data.code === 200) {
                         console.log(`\n您的助力码shareId(互助码每天都是变化的)\n\n"${data.data.shareId}",\n`);
                         console.log(`每日9:00以后复制下面的URL链接在浏览器里面打开一次就能自动上车\n\nhttp://jd.turinglabs.net/helpcode/add/${data.data.shareId}\n`);
-                        // await $.http.get({url: `http://jd.turinglabs.net/helpcode/add/${data.data.shareId}/`}).then((resp) => {
-                        //   console.log(resp);
-                        //   return
-                        //   if (resp.statusCode === 200) {
-                        //     const { body } = resp;
-                        //   }
-                        // });
+                        let ctrTemp;
+                        if ($.isNode() && process.env.JD_818_SHAREID_NOTIFY) {
+                            ctrTemp = `${process.env.JD_818_SHAREID_NOTIFY}` === 'true';
+                        } else if ($.getdata('jd818ShareIdNotify')) {
+                            ctrTemp = $.getdata('jd818ShareIdNotify') === 'true';
+                        } else {
+                            ctrTemp = `${jdNotify}` === 'true';
+                        }
+                        // 只在早晨9点钟触发一次
+                        let NowHours = new Date().getHours();
+                        const zone = new Date().getTimezoneOffset();
+                        if (zone === 0) {
+                            NowHours += 8; //UTC-0时区加上8个小时
+                        }
+                        if (ctrTemp && NowHours === 9 && $.isNode()) await notify.sendNotify(`[${$.name}]互助码自动上车`, `[9:00之后上车]您的互助码上车链接是 ↓↓↓ \n\n http://jd.turinglabs.net/helpcode/add/${data.data.shareId} \n\n ↑↑↑`, {
+                                url: `http://jd.turinglabs.net/helpcode/add/${data.data.shareId}`
+                            })
+                            // await $.http.get({url: `http://jd.turinglabs.net/helpcode/add/${data.data.shareId}/`}).then((resp) => {
+                            //   console.log(resp);
+                            //   return
+                            //   if (resp.statusCode === 200) {
+                            //     const { body } = resp;
+                            //   }
+                            // });
                         $.temp.push(data.data.shareId);
                     }
                 }
