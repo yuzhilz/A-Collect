@@ -574,22 +574,26 @@ function saveJbean(id) {
 async function doHelp() {
     console.log(`脚本自带助力码数量:${helpCode.length}`)
     let body = '',
-        nowTime = Date.now();
+        nowTime = Date.now(),
+        tempCode = [];
     const zone = new Date().getTimezoneOffset();
     if (zone === 0) {
         nowTime += 28800000; //UTC-0时区加上8个小时
     }
+
+    console.log(`是否大于当天九点🕘:${nowTime > new Date(nowTime).setHours(9, 0, 0, 0)}`)
+
     //当天大于9:00才从API里面取收集的助力码
     if (nowTime > new Date(nowTime).setHours(9, 0, 0, 0)) body = await printAPI(); //访问收集的互助码
     if (body) {
         console.log(`printAPI返回助力码数量:${body.replace(/"/g, '').split(',').length}`)
-        helpCode = helpCode.concat(body.replace(/"/g, '').split(','))
+        tempCode = helpCode.concat(body.replace(/"/g, '').split(','))
     }
-    console.log(`累计助力码数量:${helpCode.length}`)
+    console.log(`累计助力码数量:${tempCode.length}`)
         //去掉重复的
-    helpCode = [...new Set(helpCode)];
-    console.log(`去重后总助力码数量:${helpCode.length}`)
-    for (let item of helpCode) {
+    tempCode = [...new Set(tempCode)];
+    console.log(`去重后总助力码数量:${tempCode.length}`)
+    for (let item of tempCode) {
         if (!item) continue;
         const helpRes = await toHelp(item.trim());
         if (helpRes.data.status === 5) {
@@ -683,8 +687,6 @@ function getHelp() {
                         let ctrTemp;
                         if ($.isNode() && process.env.JD_818_SHAREID_NOTIFY) {
                             ctrTemp = `${process.env.JD_818_SHAREID_NOTIFY}` === 'true';
-                        } else if ($.getdata('jd818ShareIdNotify')) {
-                            ctrTemp = $.getdata('jd818ShareIdNotify') === 'true';
                         } else {
                             ctrTemp = `${jdNotify}` === 'true';
                         }
