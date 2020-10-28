@@ -1,0 +1,3 @@
+hostname = bunearth.m.jd.com, api.m.jd.com
+
+1 0-18/6 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_818.js, tag=京东手机狂欢城, enabled=true
