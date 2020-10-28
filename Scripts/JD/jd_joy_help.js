@@ -33,10 +33,11 @@ https://jdjoy.jd.com/pet/getFriends?itemsPerPage=20&currentPage=1
 **/
 let url = $request.url
 const friendsArr = ["jd_7da9924d92a2c", "jd_6fcfb7044255e"]
-function randomFriendPin(m,n) {
-  return Math.floor(Math.random()*(m - n) + n);
+    //随机生成m(小)到n(大)的数，包含m和n
+function randomFriendPin(m, n) {
+    return Math.round(Math.random() * (n - m) + m);
 }
-let friendPin = friendsArr[randomFriendPin(0, friendsArr.length - 1)]  //强制为对方助力,可成为好友关系
+let friendPin = friendsArr[randomFriendPin(0, friendsArr.length - 1)] //强制为对方助力,可成为好友关系
 friendPin = encodeURI(friendPin);
 const timestamp = new Date().getTime()
 newUrl = url.replace(/friendPin=.*?$/i, "friendPin=" + friendPin).replace(/invitePin=.*?$/i, "invitePin=" + friendPin).replace(/inviteTimeStamp=.*?$/i, "inviteTimeStamp=" + timestamp + "&")

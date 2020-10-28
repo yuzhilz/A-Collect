@@ -2,11 +2,11 @@
  * @Author: lxk0301 https://github.com/lxk0301 
  * @Date: 2020-10-26 18:54:16 
  * @Last Modified by: lxk0301
- * @Last Modified time: 2020-10-26 18:54:37
+ * @Last Modified time: 2020-10-27 18:54:37
  */
 /*
 京小超(活动入口：京东APP-》首页-》京东超市-》底部东东超市)
-更新时间：2020-10-26
+更新时间：2020-10-27
 现有功能：每日签到，日常任务（分享游戏，逛会场，关注店铺，卖货能手），收取金币，收取蓝币,商圈活动
 Some Functions Modified From https://github.com/Zero-S1/JD_tools/blob/master/JD_superMarket.py
 支持京东双账号
@@ -43,10 +43,11 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
 //此此内容是IOS用户下载脚本到本地使用，填写互助码的地方，同一京东账号的好友互助码请使用@符号隔开。
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
+        //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
         'eU9Ya7jjb_Uk9TrcySIRhQ@eU9YarrhMK4h8WrRyXYWgw'
     ]
     // const inviteCodes = ["-4msulYas0O2JsRhE-2TA5XZmBQ", 'eU9Yar_mb_9z92_WmXNG0w', "eU9YaOnjYK4j-GvWmXIWhA"];
-const inviteCodes = ["eU9Ya7jjb_Uk9TrcySIRhQ", "eU9YarrhMK4h8WrRyXYWgw"];
+const inviteCodes = ["YF5-KbvnOA", "eU9YaLm0bq4i-TrUzSUUhA"];
 !(async() => {
     await requireConfig();
     if (!cookiesArr[0]) {
@@ -295,13 +296,13 @@ async function businessCircleActivity() {
   const myTeamId = 'IhM_beyxYPwg82i6iw_1603680889867';
   const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
   if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
-    const { joinStatus, pkStatus, inviteCount, inviteCode, currentUserPkInfo, pkUserPkInfo } = smtg_getTeamPkDetailInfoRes.data.result;
+    const { joinStatus, pkStatus, inviteCount, inviteCode, currentUserPkInfo, pkUserPkInfo, pkActivityId } = smtg_getTeamPkDetailInfoRes.data.result;
     console.log(`joinStatus:${joinStatus}`);
     console.log(`pkStatus:${pkStatus}`);
     console.log(`pkStatus:${pkStatus}`);
     console.log(`inviteCode:${inviteCode}`);
     if (joinStatus === 0) {
-      const res = await smtg_joinPkTeam(myTeamId, inviteCodes[randomFriendPin(0, inviteCodes.length - 1)]);
+      const res = await smtg_joinPkTeam(myTeamId, inviteCodes[randomFriendPin(0, inviteCodes.length - 1)], pkActivityId);
       console.log(`res${JSON.stringify(res)}`);
     } else if (joinStatus === 1) {
       console.log(`我邀请的人数:${inviteCount}\n`)
@@ -842,9 +843,9 @@ function smtgDoPkTask(taskId, itemId) {
     })
   })
 }
-function smtg_joinPkTeam(teamId, inviteCode) {
+function smtg_joinPkTeam(teamId, inviteCode, sharePkActivityId) {
   return new Promise((resolve) => {
-    $.get(taskUrl('smtg_joinPkTeam', { teamId, inviteCode, "channel": "3", "sharePkActivityId": "1603555200000" }), (err, resp, data) => {
+    $.get(taskUrl('smtg_joinPkTeam', { teamId, inviteCode, "channel": "3", sharePkActivityId }), (err, resp, data) => {
       try {
         if (err) {
           console.log('\n京小超: API查询请求失败 ‼️‼️')
