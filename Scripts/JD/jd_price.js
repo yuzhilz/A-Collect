@@ -20,9 +20,13 @@ if (url.indexOf(path1) != -1) {
 
 if (url.indexOf(path3) != -1) {
     let obj = JSON.parse(body);
-    delete obj.data.JDHttpToolKit.httpdns;
-    delete obj.data.JDHttpToolKit.dnsvipV6;
+    let JDHttpToolKit = obj.data.JDHttpToolKit;
+    if (JDHttpToolKit) {
+        delete obj.data.JDHttpToolKit.httpdns;
+        delete obj.data.JDHttpToolKit.dnsvipV6;
+    }
     $done({ body: JSON.stringify(obj) });
+    $done({ body });
 }
 
 if (url.indexOf(path2) != -1) {
@@ -30,7 +34,7 @@ if (url.indexOf(path2) != -1) {
     const floors = obj.floors;
     const commodity_info = floors[floors.length - 1];
     const shareUrl = commodity_info.data.property.shareUrl;
-    request_history_price(shareUrl, function (data) {
+    request_history_price(shareUrl, function(data) {
         if (data) {
             const lowerword = adword_obj();
             lowerword.data.ad.textColor = "#fe0000";
@@ -92,7 +96,7 @@ function priceSummary(data) {
 
 function historySummary(single) {
     const rexMatch = /\[.*?\]/g;
-    const rexExec = /\[(.*),(.*),"(.*)"\]/;
+    const rexExec = /\[(.*),(.*),"(.*)".*\]/;
     let currentPrice, lowest60, lowest180, lowest360
     let list = single.jiagequshiyh.match(rexMatch);
     list = list.reverse().slice(0, 360);
@@ -146,7 +150,10 @@ function sub(arg1, arg2) {
 
 function add(arg1, arg2) {
     arg1 = arg1.toString(), arg2 = arg2.toString();
-    var arg1Arr = arg1.split("."), arg2Arr = arg2.split("."), d1 = arg1Arr.length == 2 ? arg1Arr[1] : "", d2 = arg2Arr.length == 2 ? arg2Arr[1] : "";
+    var arg1Arr = arg1.split("."),
+        arg2Arr = arg2.split("."),
+        d1 = arg1Arr.length == 2 ? arg1Arr[1] : "",
+        d2 = arg2Arr.length == 2 ? arg2Arr[1] : "";
     var maxLen = Math.max(d1.length, d2.length);
     var m = Math.pow(10, maxLen);
     var result = Number(((arg1 * m + arg2 * m) / m).toFixed(maxLen));
@@ -163,7 +170,7 @@ function request_history_price(share_url, callback) {
         },
         body: "methodName=getHistoryTrend&p_url=" + encodeURIComponent(share_url)
     }
-    $tool.post(options, function (error, response, data) {
+    $tool.post(options, function(error, response, data) {
         if (!error) {
             callback(JSON.parse(data));
             if (consolelog) console.log("Data:\n" + data);
@@ -288,11 +295,11 @@ function tool() {
     return { isQuanX, isSurge, isResponse, notify, write, read, get, post }
 }
 
-Array.prototype.insert = function (index, item) {
+Array.prototype.insert = function(index, item) {
     this.splice(index, 0, item);
 };
 
-Date.prototype.format = function (fmt) {
+Date.prototype.format = function(fmt) {
     var o = {
         "y+": this.getFullYear(),
         "M+": this.getMonth() + 1,
@@ -307,13 +314,11 @@ Date.prototype.format = function (fmt) {
         if (new RegExp("(" + k + ")").test(fmt)) {
             if (k == "y+") {
                 fmt = fmt.replace(RegExp.$1, ("" + o[k]).substr(4 - RegExp.$1.length));
-            }
-            else if (k == "S+") {
+            } else if (k == "S+") {
                 var lens = RegExp.$1.length;
                 lens = lens == 1 ? 3 : lens;
                 fmt = fmt.replace(RegExp.$1, ("00" + o[k]).substr(("" + o[k]).length - 1, lens));
-            }
-            else {
+            } else {
                 fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
             }
         }
