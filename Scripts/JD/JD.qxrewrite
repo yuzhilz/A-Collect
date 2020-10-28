@@ -1,3 +1,15 @@
-hostname = bunearth.m.jd.com, api.m.jd.com
+hostname = bunearth.m.jd.com, api.m.jd.com, jdjoy.jd.com, draw.jdfcloud.com,  blindbox.jd.com, api.m.jd.com, daojia.jd.com, ms.jr.jd.com, xeq1kjnhr.m.jd.com,
 
-1 0-18/6 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_818.js, tag=京东手机狂欢城, enabled=true
+# 获取京东Cookie. 
+https:\/\/api\.m\.jd\.com\/client\.action.*functionId=signBean url script-request-header ./JD/JD_DailyBonus.js
+^https:\/\/ms\.jr\.jd\.com\/gw\/generic\/bt\/h5\/m\/queryUserSignFlow url script-request-header ./JD/jdczf_cookie.js
+^https:\/\/jdjoy\.jd\.com\/pet\/getPetTreasureBox|^https:\/\/draw\.jdfcloud\.com\/\/pet\/getPetTreasureBox url script-response-body ./JD/jd_petTreasureBox.js
+
+# 京东比价
+^https?://api\.m\.jd\.com/client\.action\?functionId=(wareBusiness|serverConfig) url script-response-body ./JD/jd_price.js
+
+# 宠汪汪助力更新Token
+^https:\/\/draw\.jdfcloud\.com\/\/api\/user\/addUser\?code=\w+& url script-response-body ./JD/jd_joy_run.js
+ 
+# 宠汪汪助力获取Token
+^https:\/\/draw\.jdfcloud\.com\/\/api\/bean\/square\/silverBean\/task\/get\? url script-request-header ./JD/jd_joy_run.js
