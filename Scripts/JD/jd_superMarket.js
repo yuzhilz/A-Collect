@@ -43,12 +43,12 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
 //此此内容是IOS用户下载脚本到本地使用，填写互助码的地方，同一京东账号的好友互助码请使用@符号隔开。
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
-    //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-    'eU9Ya7jjb_Uk9TrcySIRhQ@eU9YarrhMK4h8WrRyXYWgw'
-]
-const inviteCodes = ['eU9Ya7jjb_Uk9TrcySIRhQ@eU9YarrhMK4h8WrRyXYWgw'];
-const myTeamId = '-4msulYas0O2JsRhE-2TA5XZmBQ_1603901056110';
-//const inviteCodes = ["YF5-KbvnOA", "eU9YaLm0bq4i-TrUzSUUhA"];
+        //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
+        'eU9Ya7jjb_Uk9TrcySIRhQ@eU9YarrhMK4h8WrRyXYWgw'
+    ]
+    //const inviteCodes = ["-4msulYas0O2JsRhE-2TA5XZmBQ", 'eU9Yar_mb_9z92_WmXNG0w', "eU9YaOnjYK4j-GvWmXIWhA", "eU9Ya-y2N_5z9DvXwyIV0A","aURoM7PtY_Q","eU9YaeS3Z6ol8zrRmnMb1Q"];
+const myTeamId = 'IhM_beyxYPwg82i6iw_1603900876017';
+const inviteCodes = ["YF5-KbvnOA", "eU9YaLm0bq4i-TrUzSUUhA"];
 
 !(async() => {
     await requireConfig();
