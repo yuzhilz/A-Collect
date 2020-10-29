@@ -1,4 +1,10 @@
 /*
+ * @Author: lxk0301 https://github.com/lxk0301 
+ * @Date: 2020-08-18 09:25:47 
+ * @Last Modified by: lxk0301
+ * @Last Modified time: 2020-10-29 09:26:12
+ */
+/*
 京东手机狂欢城活动，每日可获得30+以上京豆（其中20京豆是往期奖励，需第一天参加活动后，第二天才能拿到）
 活动时间10.21日-11.12日结束，活动23天，保底最少可以拿到690京豆
 活动地址: https://rdcseason.m.jd.com/#/index
@@ -47,9 +53,10 @@ if ($.isNode()) {
 
 const JD_API_HOST = 'https://rdcseason.m.jd.com/api/';
 const activeEndTime = '2020/11/13 01:00:00';
+const addUrl = 'http://jd.turinglabs.net/helpcode/create/';
+const printUrl = `http://jd.turinglabs.net/helpcode/print/20/`;
 let helpCode = [
-    '71864ae9-c3ac-435c-983f-75f320f52969',
-    'ee9cc512-6a5e-4cc3-a949-cc22c355b8d9',
+    '37cffe80-5cd8-4fe4-a8c0-b62ef1d9ed89'
 ];
 !(async() => {
     if (!cookiesArr[0]) {
@@ -66,9 +73,9 @@ let helpCode = [
             message = '';
             subTitle = '';
             await JD818();
-            // await main();
             // await getHelp();
             // await doHelp();
+            // await main();
         }
     }
     console.log($.temp)
@@ -605,7 +612,7 @@ async function doHelp() {
 
 function printAPI() {
     return new Promise(resolve => {
-        $.get({ url: "http://jd.turinglabs.net/helpcode/print/20/" }, (err, resp, data) => {
+        $.get({ url: `${printUrl}` }, (err, resp, data) => {
             try {
                 if (err) {
                     console.log(`${JSON.stringify(err)}`)
@@ -683,7 +690,7 @@ function getHelp() {
                     data = JSON.parse(data);
                     if (data.code === 200) {
                         console.log(`\n您的助力码shareId(互助码每天都是变化的)\n\n"${data.data.shareId}",\n`);
-                        console.log(`每日9:00以后复制下面的URL链接在浏览器里面打开一次就能自动上车\n\nhttp://jd.turinglabs.net/helpcode/add/${data.data.shareId}\n`);
+                        console.log(`每日9:00以后复制下面的URL链接在浏览器里面打开一次就能自动上车\n\n${addUrl}${data.data.shareId}\n`);
                         let ctrTemp;
                         if ($.isNode() && process.env.JD_818_SHAREID_NOTIFY) {
                             ctrTemp = `${process.env.JD_818_SHAREID_NOTIFY}` === 'true';
@@ -697,7 +704,7 @@ function getHelp() {
                             NowHours += 8; //UTC-0时区加上8个小时
                         }
                         if (ctrTemp && NowHours === 9 && $.isNode()) await notify.sendNotify(`[${$.name}]互助码自动上车`, `[9:00之后上车]您的互助码上车链接是 ↓↓↓ \n\n http://jd.turinglabs.net/helpcode/add/${data.data.shareId} \n\n ↑↑↑`, {
-                                url: `http://jd.turinglabs.net/helpcode/add/${data.data.shareId}`
+                                url: `${addUrl}${data.data.shareId}`
                             })
                             // await $.http.get({url: `http://jd.turinglabs.net/helpcode/add/${data.data.shareId}/`}).then((resp) => {
                             //   console.log(resp);
