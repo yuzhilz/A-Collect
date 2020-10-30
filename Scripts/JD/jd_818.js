@@ -56,7 +56,18 @@ const activeEndTime = '2020/11/13 01:00:00';
 const addUrl = 'http://jd.turinglabs.net/helpcode/create/';
 const printUrl = `http://jd.turinglabs.net/helpcode/print/20/`;
 let helpCode = [
-    '37cffe80-5cd8-4fe4-a8c0-b62ef1d9ed89'
+    '4db5438b-83bb-444b-b1ff-3bfa067ca2ad',
+    '777a5497-6c72-4165-8463-ed6f383c4fc1',
+    '9a747b3b-29f5-467e-8065-ee61739b751e',
+    'eb8b0b93-ac80-459c-b34a-237f63d3b659',
+    '67cae632-095f-4967-9aa5-afa613734d65',
+    '334f9c10-5816-4f78-a1b0-de1c434c4a8e',
+    '9fc3c1d5-9b41-4bec-a0be-8faa2d504fef',
+    '0e680ea1-fb7a-4163-bf76-3ad1313dc29d',
+    '00719f49-98fb-4283-b9ed-88ee4d298041',
+    '4bb9e198-a775-420f-af8e-5fe4f549778b',
+    '9e8de4fc-4082-4595-9b2f-733f8395863c',
+    '73ae4a12-ede3-4f55-970a-0490bd91d175',
 ];
 !(async() => {
     if (!cookiesArr[0]) {
