@@ -146,7 +146,7 @@ function listMeeting() {
             'Accept': 'application/json, text/plain, */*',
             'Connection': ' keep-alive',
             'Cookie': cookie,
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.14(0x17000e2a) NetType/4G Language/zh_CN',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1',
             'Accept-Language': 'zh-cn',
             'Referer': `https://rdcseason.m.jd.com/?reloadWQPage=t_${Date.now()}`,
             'Accept-Encoding': 'gzip, deflate, br'

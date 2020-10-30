@@ -234,7 +234,7 @@ function taskUrl(function_id, body = {}) {
         headers: {
             'Cookie': cookie,
             'Host': 'api.m.jd.com',
-            'User-Agent': `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`,
+            'User-Agent': `Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1 Mobile/15E148 Safari/604.1`,
             'Referer': 'https://vip.m.jd.com/newPage/reward/123dd/slideContent?page=focus',
         }
     }

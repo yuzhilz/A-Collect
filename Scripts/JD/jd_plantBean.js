@@ -582,7 +582,7 @@ function requestGet(function_id, body = {}) {
                 'Host': 'api.m.jd.com',
                 'Accept': '*/*',
                 'Connection': 'keep-alive',
-                'User-Agent': 'JD4iPhone/167283 (iPhone;iOS 13.6.1;Scale/3.00)',
+                'User-Agent': 'JD4iPhone/167414 (iPhone;iOS 14.1;Scale/3.00)',
                 'Accept-Language': 'zh-Hans-CN;q=1,en-CN;q=0.9',
                 'Accept-Encoding': 'gzip, deflate, br',
                 'Content-Type': "application/x-www-form-urlencoded"

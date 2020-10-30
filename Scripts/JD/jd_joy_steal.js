@@ -234,7 +234,7 @@ function getFriends(currentPage = '1') {
                 'Connection': 'keep-alive',
                 'Content-Type': 'application/json',
                 'Referer': 'https://jdjoy.jd.com/pet/index',
-                'User-Agent': 'jdapp;iPhone;8.5.8;13.4.1;9b812b59e055cd226fd60ebb5fd0981c4d0d235d;network/wifi;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/0;model/iPhone9,2;addressid/138109592;hasOCPay/0;appBuild/167169;supportBestPay/0;jdSupportDarkMode/0;pv/200.75;apprpd/MyJD_Main;ref/MyJdMTAManager;psq/29;ads/;psn/9b812b59e055cd226fd60ebb5fd0981c4d0d235d|608;jdv/0|direct|-|none|-|1587263154256|1587263330;adk/;app_device/IOS;pap/JA2015_311210|8.5.8|IOS 13.4.1;Mozilla/5.0 (iPhone; CPU iPhone OS 13_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1',
+                'User-Agent': 'jdapp;iPhone;9.2.0;14.1;b8de06581a26c6249196cb41617c57e7a73e73a8;network/wifi;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/0;model/iPhone10,3;addressid/1368323046;hasOCPay/0;appBuild/167414;supportBestPay/0;jdSupportDarkMode/0;pv/11.51;apprpd/Home_Main;ref/JDWebViewController;psq/1;ads/;psn/b8de06581a26c6249196cb41617c57e7a73e73a8|31;jdv/0|direct|-|none|-|1603860669554|1604045210;adk/;app_device/IOS;pap/JA2015_311210|9.2.0|IOS 14.1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1',
                 'Accept-Language': 'zh-cn',
                 'Accept-Encoding': 'gzip, deflate, br',
             }
@@ -411,7 +411,7 @@ function getCoinChanges() {
                 'Connection': 'keep-alive',
                 'Content-Type': 'application/json',
                 'Referer': 'https://jdjoy.jd.com/pet/index',
-                'User-Agent': 'jdapp;iPhone;8.5.8;13.4.1;9b812b59e055cd226fd60ebb5fd0981c4d0d235d;network/wifi;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/0;model/iPhone9,2;addressid/138109592;hasOCPay/0;appBuild/167169;supportBestPay/0;jdSupportDarkMode/0;pv/200.75;apprpd/MyJD_Main;ref/MyJdMTAManager;psq/29;ads/;psn/9b812b59e055cd226fd60ebb5fd0981c4d0d235d|608;jdv/0|direct|-|none|-|1587263154256|1587263330;adk/;app_device/IOS;pap/JA2015_311210|8.5.8|IOS 13.4.1;Mozilla/5.0 (iPhone; CPU iPhone OS 13_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1',
+                'User-Agent': 'jdapp;iPhone;9.2.0;14.1;b8de06581a26c6249196cb41617c57e7a73e73a8;network/wifi;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/0;model/iPhone10,3;addressid/1368323046;hasOCPay/0;appBuild/167414;supportBestPay/0;jdSupportDarkMode/0;pv/11.51;apprpd/Home_Main;ref/JDWebViewController;psq/1;ads/;psn/b8de06581a26c6249196cb41617c57e7a73e73a8|31;jdv/0|direct|-|none|-|1603860669554|1604045210;adk/;app_device/IOS;pap/JA2015_311210|9.2.0|IOS 14.1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1',
                 'Accept-Language': 'zh-cn',
                 'Accept-Encoding': 'gzip, deflate, br',
             }
@@ -476,7 +476,7 @@ function taskUrl(functionId, friendPin) {
             'Connection': 'keep-alive',
             'Content-Type': 'application/json',
             'Referer': 'https://jdjoy.jd.com/pet/index',
-            'User-Agent': 'jdapp;iPhone;8.5.8;13.4.1;9b812b59e055cd226fd60ebb5fd0981c4d0d235d;network/wifi;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/0;model/iPhone9,2;addressid/138109592;hasOCPay/0;appBuild/167169;supportBestPay/0;jdSupportDarkMode/0;pv/200.75;apprpd/MyJD_Main;ref/MyJdMTAManager;psq/29;ads/;psn/9b812b59e055cd226fd60ebb5fd0981c4d0d235d|608;jdv/0|direct|-|none|-|1587263154256|1587263330;adk/;app_device/IOS;pap/JA2015_311210|8.5.8|IOS 13.4.1;Mozilla/5.0 (iPhone; CPU iPhone OS 13_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1',
+            'User-Agent': 'jdapp;iPhone;9.2.0;14.1;b8de06581a26c6249196cb41617c57e7a73e73a8;network/wifi;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/0;model/iPhone10,3;addressid/1368323046;hasOCPay/0;appBuild/167414;supportBestPay/0;jdSupportDarkMode/0;pv/11.51;apprpd/Home_Main;ref/JDWebViewController;psq/1;ads/;psn/b8de06581a26c6249196cb41617c57e7a73e73a8|31;jdv/0|direct|-|none|-|1603860669554|1604045210;adk/;app_device/IOS;pap/JA2015_311210|9.2.0|IOS 14.1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1',
             'Accept-Language': 'zh-cn',
             'Accept-Encoding': 'gzip, deflate, br',
         }
