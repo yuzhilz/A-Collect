@@ -21,7 +21,7 @@ jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d978574
 const $ = new Env('东东农场');
 let cookiesArr = [],
     cookie = '',
-    jdFruitShareArr = [],
+    jdFruitShareArr = ['baabc1ce0c2549ed858cd31f1501a5da'],
     isBox = false,
     notify, newShareCodes;
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
@@ -29,7 +29,7 @@ let cookiesArr = [],
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
     //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-    'baabc1ce0c2549ed858cd31f1501a5da@7eaa88f952684ac8955138e1a5855748@@',
+    'baabc1ce0c2549ed858cd31f1501a5da@7eaa88f952684ac8955138e1a5855748',
     //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
     '',
 ]
@@ -1247,15 +1247,15 @@ function readShareCode() {
 
 function shareCodesFormat() {
     return new Promise(async resolve => {
-        // console.log(`第${$.index}个京东账号的助力码:::${jdFruitShareArr[$.index - 1]}`)
+        console.log(`第${$.index}个京东账号的助力码:::${jdFruitShareArr[$.index - 1]}`)
         newShareCodes = [];
-        // if (jdFruitShareArr[$.index - 1]) {
-        //     newShareCodes = jdFruitShareArr[$.index - 1].split('@');
-        // } else {
-        // console.log(`由于您第${$.index}个京东账号未提供shareCode,将采纳本脚本自带的助力码\n`)
-        const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
-        newShareCodes = shareCodes[tempIndex].split('@');
-        //}
+        if (jdFruitShareArr[$.index - 1]) {
+            newShareCodes = jdFruitShareArr[$.index - 1].split('@');
+        } else {
+            console.log(`由于您第${$.index}个京东账号未提供shareCode,将采纳本脚本自带的助力码\n`)
+            const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
+            newShareCodes = shareCodes[tempIndex].split('@');
+        }
         const readShareCodeRes = await readShareCode();
         if (readShareCodeRes && readShareCodeRes.code === 200) {
             newShareCodes = newShareCodes.concat(readShareCodeRes.data || []);
