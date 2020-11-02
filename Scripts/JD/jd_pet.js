@@ -27,7 +27,8 @@ let cookiesArr = [],
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
     //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-    'MTAxODc2NTEzMDAwMDAwMDAyNDcyNTYzOQ==@MTAxODc2NTEzNTAwMDAwMDAzMjY2MDU1OQ=='
+    'MTAxODc2NTEzMDAwMDAwMDAyNDcyNTYzOQ==@MTAxODc2NTEzNTAwMDAwMDAzMjY2MDU1OQ==',
+    ''
 ]
 let message = '',
     subTitle = '',
