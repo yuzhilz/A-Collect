@@ -18,7 +18,11 @@ if ($.isNode()) {
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
 }
-const JD_API_HOST = 'https://api.m.jd.com/client.action';
+let message = '',
+    subTitle = '',
+    UserName = '';
+const JD_API_HOST = 'https://api.m.jd.com/client.action'
+
 !(async() => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
@@ -32,11 +36,14 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
             $.errorMsg = '';
             await jdFactory();
             await jdfactory_getTaskDetail();
-            await doDailyTask();
-            await meetList();
-            await shopList();
-            await followList();
+            // await doDailyTask();
+            // await meetList();
+            // await shopList();
+            // await followList();
             await addEnergy();
+            // await collectElectricity();
+            // await DailyElectricity();
+            // await showMsg();
         }
     }
 })()
@@ -47,10 +54,21 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 .finally(() => {
     $.done();
 })
+
+function showMsg() {
+    if ($.isLogin) {
+        $.log(`\n${message}\n`);
+        jdNotify = $.getdata('jdSpeedNotify') ? $.getdata('jdSpeedNotify') : jdNotify;
+        if (!jdNotify || jdNotify === 'false') {
+            $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n` + message);
+        }
+    }
+}
 async function jdFactory() {
     await initForfactory();
     if ($.factoryInfo.data.result.haveProduct === 1) {
         console.log(`\n【产品名称】${$.factoryInfo.data.result.factoryInfo.name}` + `  剩余:${$.factoryInfo.data.result.factoryInfo.couponCount}`);
+        subTitle = `【产品名称】${$.factoryInfo.data.result.factoryInfo.name}` + `  剩余:${$.factoryInfo.data.result.factoryInfo.couponCount}`
     } else if ($.factoryInfo.data.result.haveProduct === 0) {
         //未开始生产新商品
         $.msg($.name, `【提醒⏰】请重新选择产品`);
@@ -72,8 +90,12 @@ async function initForfactory() {
                     $.logErr(err);
                 } else {
                     $.factoryInfo = JSON.parse(data);
-                    console.log('-----初始化：' + $.factoryInfo.data.bizMsg + '-----');
-                    $.UserName = $.factoryInfo.data.result.UserName;
+                    if ($.factoryInfo.code === 0) {
+                        console.log('-----初始化：' + $.factoryInfo.data.bizMsg + '-----');
+                        $.UserName = $.factoryInfo.data.result.UserName;
+                    } else {
+                        console.log('-----初始化：' + $.factoryInfo.msg + '-----');
+                    }
                 }
             } catch (e) {
                 $.logErr(e, resp)
@@ -120,9 +142,9 @@ async function doDailyTask() {
         } else {
             console.log(`签到结果:  ${JSON.stringify($.signResult.msg)}`);
         }
+        console.log('-----休息一下-----');
+        await sleep(5000);
     }
-    console.log('-----休息一下-----');
-    await sleep(5000);
 }
 
 //逛板块
@@ -131,7 +153,7 @@ async function meetList() {
     if ($.homeData.data.result.taskVos[3].times === $.homeData.data.result.taskVos[3].maxTimes) {
         console.log('任务已经做过了');
     } else {
-        for (i = 0; i < $.homeData.data.result.taskVos[3].shoppingActivityVos.length; i++) {
+        for (i = 0; i < $.homeData.data.result.taskVos[3].maxTimes; i++) {
             await meetForFactory(i);
             await jdfactory_getTaskDetail();
             console.log($.homeData.data.result.taskVos[3].shoppingActivityVos[i].title + '  ' + $.homeData.data.result.taskVos[3].times + '/' + $.homeData.data.result.taskVos[3].maxTimes);
@@ -142,9 +164,9 @@ async function meetList() {
             }
             await sleep(2000);
         }
+        console.log('-----休息一下-----');
+        await sleep(5000);
     }
-    console.log('-----休息一下-----');
-    await sleep(5000);
 }
 
 // 逛商品
@@ -153,7 +175,7 @@ async function shopList() {
     if ($.homeData.data.result.taskVos[4].times === $.homeData.data.result.taskVos[4].maxTimes) {
         console.log('任务已经做过了');
     } else {
-        for (i = 0; i < $.homeData.data.result.taskVos[4].productInfoVos.length; i++) {
+        for (i = 0; i < $.homeData.data.result.taskVos[4].maxTimes; i++) {
             await shopForFactory(i);
             await jdfactory_getTaskDetail();
             console.log('任务次数  ' + $.homeData.data.result.taskVos[4].times + '/' + $.homeData.data.result.taskVos[4].maxTimes);
@@ -162,11 +184,11 @@ async function shopList() {
             } else {
                 console.log(`任务执行结果: ${JSON.stringify($.shopResult.data.bizMsg)}`);
             }
-            await sleep(2000);
+            await sleep(8000);
         }
+        console.log('-----休息一下-----');
+        await sleep(5000);
     }
-    console.log('-----休息一下-----');
-    await sleep(5000);
 }
 
 // 关注店铺
@@ -175,7 +197,7 @@ async function followList() {
     if ($.homeData.data.result.taskVos[5].times === $.homeData.data.result.taskVos[5].maxTimes) {
         console.log('任务已经做过了');
     } else {
-        for (i = 0; i < $.homeData.data.result.taskVos[5].followShopVo.length; i++) {
+        for (i = 0; i < $.homeData.data.result.taskVos[5].maxTimes; i++) {
             await followShop(i);
             await jdfactory_getTaskDetail();
             console.log('任务次数: ' + $.homeData.data.result.taskVos[5].times + '/' + $.homeData.data.result.taskVos[5].maxTimes);
@@ -186,10 +208,11 @@ async function followList() {
             }
             await sleep(2000);
         }
+        console.log('-----休息一下-----');
+        await sleep(5000);
     }
-    console.log('-----休息一下-----');
-    await sleep(5000);
 }
+
 
 
 // 签到API
@@ -239,8 +262,43 @@ async function finishfollow() {
 
 // 充电
 async function addEnergy() {
+    if ($.factoryInfo.data.result.factoryInfo.totalScore === $.homeData.data.result.userScore) {
+        return new Promise(resolve => {
+            $.get(taskUrl('jdfactory_addEnergy'), async(err, resp, data) => {
+                try {
+                    if (err) {
+                        console.log(`${JSON.stringify(err)}`)
+                        console.log(`${$.name} API请求失败，请检查网路重试`)
+                    } else {
+                        if (data) {
+                            $.addEnergy = JSON.parse(data);
+                            console.log($.addEnergy);
+                            if ($.addEnergy.data.bizCode === 0) {
+                                console.log('充电成功');
+                            } else {
+                                console.log($.addEnergy.data.bizMsg);
+                            }
+                        } else {
+                            console.log(`京东服务器返回空数据`)
+                        }
+                    }
+                } catch (e) {
+                    $.logErr(e, resp)
+                } finally {
+                    resolve();
+                }
+            })
+        })
+    } else {
+        console.log('当前电量⚡ :' + $.homeData.data.result.userScore + '  需要电量⚡ :' + $.factoryInfo.data.result.factoryInfo.totalScore);
+        $.msg('东东工厂', subTitle, '\n 当前电量⚡ :' + $.homeData.data.result.userScore + '  需要电量⚡ :' + $.factoryInfo.data.result.factoryInfo.totalScore);
+    }
+}
+
+//收集电量
+async function collectElectricity() {
     return new Promise(resolve => {
-        $.get(taskUrl('jdfactory_addEnergy&'), async(err, resp, data) => {
+        $.get(taskUrl('collectElectricity'), async(err, resp, data) => {
             try {
                 if (err) {
                     console.log(`${JSON.stringify(err)}`)
@@ -249,7 +307,7 @@ async function addEnergy() {
                     if (data) {
                         $.addEnergy = JSON.parse(data);
                         if ($.addEnergy.data.bizCode === 0) {
-                            console.log('充电成功');
+                            console.log('收集成功');
                         } else {
                             console.log($.addEnergy.data.bizMsg);
 
@@ -265,6 +323,28 @@ async function addEnergy() {
             }
         })
     })
+}
+
+//每日巡厂API
+async function DailyElectricity() {
+    const time = new Date();
+    var now = time.getHours();
+    if (10 <= now <= 13) {
+        if ($.homeData.data.result.taskVos[7].times === $.homeData.data.result.taskVos[7].maxTimes) {
+            console.log('任务已经做过了');
+        } else {
+            const functionId = 'jdfactory_collectScore';
+            const taskToken = $.homeData.data.result.taskVos[7].threeMealInfoVos.taskToken;
+            const body = `'taskToken':'${taskToken}'`;
+            const host = `api.m.jd.com`;
+            $.DailyElectricityResult = await request(functionId, body, host);
+            if ($.DailyElectricityResult.data.bizCode === 0) {
+                console.log($.DailyElectricityResult.data.bizMsg);
+            } else {
+                console.log($.DailyElectricityResult.data.bizMsg);
+            }
+        }
+    }
 }
 
 function request(functionId, body, host, ContentType) {
