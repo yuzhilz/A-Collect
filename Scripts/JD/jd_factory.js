@@ -36,14 +36,14 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
             $.errorMsg = '';
             await jdFactory();
             await jdfactory_getTaskDetail();
-            // await doDailyTask();
-            // await meetList();
-            // await shopList();
-            // await followList();
+            await doDailyTask();
+            await meetList();
+            await shopList();
+            await followList();
             await addEnergy();
-            // await collectElectricity();
-            // await DailyElectricity();
-            // await showMsg();
+            await collectElectricity();
+            await DailyElectricity();
+            await showMsg();
         }
     }
 })()
