@@ -2,7 +2,7 @@
  * @Author: lxk0301 
  * @Date: 2020-10-21 17:04:04 
  * @Last Modified by: lxk0301
- * @Last Modified time: 2020-10-31 00:35:04
+ * @Last Modified time: 2020-11-02 00:35:04
  */
 /**
  星推官脚本 https://raw.githubusercontent.com/lxk0301/scripts/master/jd_xtg.js
@@ -25,7 +25,7 @@
  京东星推官 = type=cron,cronexp=2 0 * * *,wake-system=1,timeout=320,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_xtg.js
  */
 const $ = new Env('京东星推官');
-const activeEndTime = '2020/11/13 00:00:00'; //活动结束时间
+const activeEndTime = '2020/11/12 23:59:59'; //活动结束时间
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -39,6 +39,9 @@ if ($.isNode()) {
     })
     if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
+    let cookiesData = $.getdata('CookiesJD') || "[]";
+    cookiesData = JSON.parse(cookiesData);
+    cookiesArr = cookiesData.map(item => item.cookie);
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
 }
@@ -60,7 +63,9 @@ const starID = [
     'lgyangzishan',
     'laobansongweilong',
     'haiermaoxiaotong',
-    "skgwangyibo"
+    "skgwangyibo",
+    "kongtiaozhangjike",
+    "sanxingningjing",
 ];
 const shareID = [
     'e646c144-28a7-4b1b-8145-5b0dbff107ec',
@@ -79,7 +84,9 @@ const shareID = [
     '921c376e-8cc5-4236-8242-ff8bb1b88a95',
     '8b3ce203-4b10-4c36-a87d-da8c82efe362',
     'c8e1feb3-6ab1-4410-8444-1de8bd22e041',
-    "dd6b5270-3e5e-436d-be0f-295a8604cf47"
+    "dd6b5270-3e5e-436d-be0f-295a8604cf47",
+    "7aef5700-4fa0-43b8-98fa-3a09f46ea47c",
+    "be0ec81c-bf26-4b7b-9527-d02b0286e5af",
 ];
 const JD_API_HOST = 'https://urvsaggpt.m.jd.com/guardianstar';
 !(async() => {
@@ -103,9 +110,9 @@ const JD_API_HOST = 'https://urvsaggpt.m.jd.com/guardianstar';
                 $.j = index;
                 await JD_XTG();
             }
-            console.log(`\n等待10秒后，再去领取奖励\n`)
+            console.log(`\n等待3秒后，再去领取奖励\n`)
             console.log(`做任务之前京豆总计:${$.beanCount}`)
-            await $.wait(10000);
+            await $.wait(3000);
             for (let index = 0; index < starID.length; index++) {
                 $.activeId = starID[index];
                 $.j = index;
@@ -137,8 +144,8 @@ async function showMsg() {
         $.msg($.name, '活动已结束', `请删除或禁用此脚本\n如果帮助到您可以点下🌟STAR鼓励我一下,谢谢\n咱江湖再见\nhttps://github.com/lxk0301/scripts`, { "open-url": "https://github.com/lxk0301/scripts" });
         if ($.isNode()) await notify.sendNotify($.name + '活动已结束', `请删除此脚本\n如果帮助到您可以点下🌟STAR鼓励我一下,谢谢\n咱江湖再见\nhttps://github.com/lxk0301/scripts`)
     } else {
-        $.msg($.name, `账号${$.index} ${$.UserName}`, `任务已做完\n做任务之前京豆总计:${$.beanCount}\n做完任务后京豆总计:${$.jdNum}\n${($.jdNum - $.beanCount) > 0 ? `获得京豆：${$.jdNum - $.beanCount}京豆 🐶(仅供参考)\n` : ''}京豆先到先得\n活动地址点击弹窗跳转后即可查看\n注：如未获得京豆就是已被分完`, {"open-url": "https://prodev.m.jd.com/mall/active/3gSzKSnvrrhYushciUpzHcDnkYE3/index.html"})
-    if ($.isNode()) await notify.sendNotify(`${$.name}`, `账号${$.index} ${$.UserName}\n任务已做完\n做任务之前京豆总计:${$.beanCount}\n做完任务后京豆总计:${$.jdNum}\n${($.jdNum - $.beanCount) > 0 ? `获得京豆：${$.jdNum - $.beanCount}京豆 🐶(仅供参考)\n` : ''}京豆先到先得\n注：如未获得京豆就是已被分完\n活动地址：https://prodev.m.jd.com/mall/active/3gSzKSnvrrhYushciUpzHcDnkYE3/index.html`)
+        $.msg($.name, `账号${$.index} ${$.UserName}`, `做任务之前京豆总计:${$.beanCount}\n做完任务后京豆总计:${$.jdNum}\n${($.jdNum - $.beanCount) > 0 ? `获得京豆：${$.jdNum - $.beanCount}京豆 🐶(仅供参考)\n` : ''}京豆先到先得\n活动地址点击弹窗跳转后即可查看\n注：如未获得京豆就是已被分完`, {"open-url": "https://prodev.m.jd.com/mall/active/3gSzKSnvrrhYushciUpzHcDnkYE3/index.html"})
+    if ($.isNode()) await notify.sendNotify(`${$.name}`, `账号${$.index} ${$.UserName}\n做任务之前京豆总计:${$.beanCount}\n做完任务后京豆总计:${$.jdNum}\n${($.jdNum - $.beanCount) > 0 ? `获得京豆：${$.jdNum - $.beanCount}京豆 🐶(仅供参考)\n` : ''}京豆先到先得\n注：如未获得京豆就是已被分完\n活动地址：https://prodev.m.jd.com/mall/active/3gSzKSnvrrhYushciUpzHcDnkYE3/index.html`)
   }
 }
 async function JD_XTG() {
@@ -259,7 +266,7 @@ function doSupport(shareId) {
         "Cookie": cookie,
         "Host": "urvsaggpt.m.jd.com",
         "Referer": "https://urvsaggpt.m.jd.com/static/index.html",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
       }
     }
     $.post(options, (err, resp, data) => {
@@ -291,7 +298,7 @@ function TotalBean() {
         "Connection": "keep-alive",
         "Cookie": cookie,
         "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
       }
     }
     $.post(options, (err, resp, data) => {
@@ -331,7 +338,7 @@ function getDayPrizeStatus(prizeType, prizeId, status) {
         "Cookie": cookie,
         "Host": "urvsaggpt.m.jd.com",
         "Referer": "https://urvsaggpt.m.jd.com/static/index.html",
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
       }
     }
     $.post(options, (err, resp, data) => {
@@ -364,7 +371,7 @@ function taskPostUrl(type, id, status) {
       "Cookie": cookie,
       "Host": "urvsaggpt.m.jd.com",
       "Referer": "https://urvsaggpt.m.jd.com/static/index.html",
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
     }
   }
 }
@@ -379,7 +386,7 @@ function taskUrl(function_id) {
       "Cookie": cookie,
       "Host": "urvsaggpt.m.jd.com",
       "Referer": "https://urvsaggpt.m.jd.com/static/index.html",
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
     }
   }
 }

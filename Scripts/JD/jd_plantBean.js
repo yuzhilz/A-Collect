@@ -488,18 +488,44 @@ async function helpShare(plantUuid) {
 async function plantBeanIndex() {
     $.plantBeanIndexResult = await request('plantBeanIndex'); //plantBeanIndexBody
 }
+
+function readShareCode() {
+    return new Promise(resolve => {
+        $.get({ url: `http://api.turinglabs.net/api/v1/jd/bean/read/3/` }, (err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    if (data) {
+                        data = JSON.parse(data);
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve(data);
+            }
+        })
+    })
+}
 //格式化助力码
 function shareCodesFormat() {
-    return new Promise(resolve => {
-        console.log(`第${$.index}个京东账号的助力码:::${jdPlantBeanShareArr[$.index - 1]}`)
+    return new Promise(async resolve => {
+        // console.log(`第${$.index}个京东账号的助力码:::${jdPlantBeanShareArr[$.index - 1]}`)
+        newShareCodes = [];
         if (jdPlantBeanShareArr[$.index - 1]) {
             newShareCodes = jdPlantBeanShareArr[$.index - 1].split('@');
         } else {
-            console.log(`由于您未提供shareCode,将采纳本脚本自带的助力码\n`)
+            console.log(`由于您第${$.index}个京东账号未提供shareCode,将采纳本脚本自带的助力码\n`)
             const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
             newShareCodes = shareCodes[tempIndex].split('@');
         }
-        console.log(`格式化后第${$.index}个京东账号的助力码${JSON.stringify(newShareCodes)}`)
+        const readShareCodeRes = await readShareCode();
+        if (readShareCodeRes && readShareCodeRes.code === 200) {
+            newShareCodes = newShareCodes.concat(readShareCodeRes.data || []);
+        }
+        console.log(`第${$.index}个京东账号将要助力的好友${JSON.stringify(newShareCodes)}`)
         resolve();
     })
 }
@@ -561,7 +587,7 @@ function requireConfig() {
                 jdPlantBeanShareArr.push(temp.join('@'));
             }
         }
-        console.log(`\n种豆得豆助力码::${JSON.stringify(jdPlantBeanShareArr)}`);
+        // console.log(`\n种豆得豆助力码::${JSON.stringify(jdPlantBeanShareArr)}`);
         console.log(`您提供了${jdPlantBeanShareArr.length}个账号的种豆得豆助力码\n`);
         resolve()
     })
@@ -639,7 +665,7 @@ function taskUrl(function_id, body) {
             'Accept': '*/*',
             'Connection': 'keep-alive',
             'User-Agent': 'JD4iPhone/167414 (iPhone;iOS 14.1;Scale/3.00)',
-            'Accept-Language': 'zh-Hans-CN;q=1',
+            'Accept-Language': 'zh-Hans-CN;q=1,en-CN;q=0.9',
             'Accept-Encoding': 'gzip, deflate, br',
             'Content-Type': "application/x-www-form-urlencoded"
         }

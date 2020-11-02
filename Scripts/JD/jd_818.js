@@ -2,14 +2,12 @@
  * @Author: lxk0301 https://github.com/lxk0301 
  * @Date: 2020-08-18 09:25:47 
  * @Last Modified by: lxk0301
- * @Last Modified time: 2020-10-29 09:26:12
+ * @Last Modified time: 2020-11-02 09:26:12
  */
 /*
 京东手机狂欢城活动，每日可获得30+以上京豆（其中20京豆是往期奖励，需第一天参加活动后，第二天才能拿到）
 活动时间10.21日-11.12日结束，活动23天，保底最少可以拿到690京豆
 活动地址: https://rdcseason.m.jd.com/#/index
-
-更新日期：2020-10-26
 
 其中有20京豆是往期奖励，需第一天参加活动后，第二天才能拿到！！！！
 
@@ -55,20 +53,7 @@ const JD_API_HOST = 'https://rdcseason.m.jd.com/api/';
 const activeEndTime = '2020/11/13 01:00:00';
 const addUrl = 'http://jd.turinglabs.net/helpcode/create/';
 const printUrl = `http://jd.turinglabs.net/helpcode/print/20/`;
-let helpCode = [
-    '4db5438b-83bb-444b-b1ff-3bfa067ca2ad',
-    '777a5497-6c72-4165-8463-ed6f383c4fc1',
-    '9a747b3b-29f5-467e-8065-ee61739b751e',
-    'eb8b0b93-ac80-459c-b34a-237f63d3b659',
-    '67cae632-095f-4967-9aa5-afa613734d65',
-    '334f9c10-5816-4f78-a1b0-de1c434c4a8e',
-    '9fc3c1d5-9b41-4bec-a0be-8faa2d504fef',
-    '0e680ea1-fb7a-4163-bf76-3ad1313dc29d',
-    '00719f49-98fb-4283-b9ed-88ee4d298041',
-    '4bb9e198-a775-420f-af8e-5fe4f549778b',
-    '9e8de4fc-4082-4595-9b2f-733f8395863c',
-    '73ae4a12-ede3-4f55-970a-0490bd91d175',
-];
+let helpCode = [];
 !(async() => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
@@ -89,7 +74,7 @@ let helpCode = [
             // await main();
         }
     }
-    console.log($.temp)
+    // console.log($.temp)
 })()
 .catch((e) => {
         $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -598,14 +583,15 @@ async function doHelp() {
     if (zone === 0) {
         nowTime += 28800000; //UTC-0时区加上8个小时
     }
-
+    await updateShareCodes();
+    if (!$.updatePkActivityIdRes) await updateShareCodesCDN();
+    tempCode = $.updatePkActivityIdRes.shareCodes;
     console.log(`是否大于当天九点🕘:${nowTime > new Date(nowTime).setHours(9, 0, 0, 0)}`)
-
-    //当天大于9:00才从API里面取收集的助力码
+        //当天大于9:00才从API里面取收集的助力码
     if (nowTime > new Date(nowTime).setHours(9, 0, 0, 0)) body = await printAPI(); //访问收集的互助码
     if (body) {
         console.log(`printAPI返回助力码数量:${body.replace(/"/g, '').split(',').length}`)
-        tempCode = helpCode.concat(body.replace(/"/g, '').split(','))
+        tempCode = tempCode.concat(body.replace(/"/g, '').split(','))
     }
     console.log(`累计助力码数量:${tempCode.length}`)
         //去掉重复的
@@ -714,7 +700,7 @@ function getHelp() {
                         if (zone === 0) {
                             NowHours += 8; //UTC-0时区加上8个小时
                         }
-                        if (ctrTemp && NowHours === 9 && $.isNode()) await notify.sendNotify(`[${$.name}]互助码自动上车`, `[9:00之后上车]您的互助码上车链接是 ↓↓↓ \n\n http://jd.turinglabs.net/helpcode/add/${data.data.shareId} \n\n ↑↑↑`, {
+                        if (ctrTemp && NowHours === 9 && $.isNode()) await notify.sendNotify(`[${$.name}]互助码自动上车`, `[9:00之后上车]您的互助码上车链接是 ↓↓↓ \n\n ${addUrl}${data.data.shareId} \n\n ↑↑↑`, {
                                 url: `${addUrl}${data.data.shareId}`
                             })
                             // await $.http.get({url: `http://jd.turinglabs.net/helpcode/add/${data.data.shareId}/`}).then((resp) => {
@@ -843,6 +829,47 @@ function getListRank() {
                 $.logErr(e, resp)
             } finally {
                 resolve(data);
+            }
+        })
+    })
+}
+
+function updateShareCodes(url = 'https://raw.githubusercontent.com/lxk0301/updateTeam/master/jd_shareCodes.json') {
+    return new Promise(resolve => {
+        //https://cdn.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_shareCodes.json
+        //https://raw.githubusercontent.com/lxk0301/updateTeam/master/jd_shareCodes.json
+        $.get({ url }, async(err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                } else {
+                    $.updatePkActivityIdRes = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve();
+            }
+        })
+    })
+}
+
+function updateShareCodesCDN(url = 'https://cdn.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_shareCodes.json') {
+    return new Promise(resolve => {
+        //https://cdn.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_shareCodes.json
+        //https://raw.githubusercontent.com/lxk0301/updateTeam/master/jd_shareCodes.json
+        $.get({ url }, async(err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    $.updatePkActivityIdRes = JSON.parse(data);
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve();
             }
         })
     })

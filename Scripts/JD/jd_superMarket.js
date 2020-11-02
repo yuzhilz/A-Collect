@@ -2,11 +2,10 @@
  * @Author: lxk0301 https://github.com/lxk0301 
  * @Date: 2020-10-26 18:54:16 
  * @Last Modified by: lxk0301
- * @Last Modified time: 2020-10-27 18:54:37
+ * @Last Modified time: 2020-11-01 18:54:37
  */
 /*
 京小超(活动入口：京东APP-》首页-》京东超市-》底部东东超市)
-更新时间：2020-10-27
 现有功能：每日签到，日常任务（分享游戏，逛会场，关注店铺，卖货能手），收取金币，收取蓝币,商圈活动
 Some Functions Modified From https://github.com/Zero-S1/JD_tools/blob/master/JD_superMarket.py
 支持京东双账号
@@ -43,12 +42,13 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
 //此此内容是IOS用户下载脚本到本地使用，填写互助码的地方，同一京东账号的好友互助码请使用@符号隔开。
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
-        //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-        'eU9Ya7jjb_Uk9TrcySIRhQ@eU9YarrhMK4h8WrRyXYWgw'
-    ]
-    //const inviteCodes = ["-4msulYas0O2JsRhE-2TA5XZmBQ", 'eU9Yar_mb_9z92_WmXNG0w', "eU9YaOnjYK4j-GvWmXIWhA", "eU9Ya-y2N_5z9DvXwyIV0A","aURoM7PtY_Q","eU9YaeS3Z6ol8zrRmnMb1Q"];
-const myTeamId = 'IhM_beyxYPwg82i6iw_1603900876017';
-const inviteCodes = ["eU9Ya7jjb_Uk9TrcySIRhQ", "eU9YarrhMK4h8WrRyXYWgw"];
+    //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
+    'eU9Ya7jjb_Uk9TrcySIRhQ@eU9YarrhMK4h8WrRyXYWgw'
+]
+let myTeamId = [];
+let inviteCodes = [];
+// const myTeamId = 'IhM_beyxYPwg82i6iw_1603900876017';
+// const inviteCodes = ["YF5-KbvnOA", "eU9YaLm0bq4i-TrUzSUUhA", "IhM_beyxYPwg82i6iw"];
 
 !(async() => {
     await requireConfig();
@@ -296,14 +296,36 @@ async function businessCircleActivity() {
   // console.log(`\n商圈PK奖励,次日商圈大战开始的时候自动领领取\n`)
   const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
   if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
-    const { joinStatus, pkStatus, inviteCount, inviteCode, currentUserPkInfo, pkUserPkInfo, prizeInfo, pkActivityId } = smtg_getTeamPkDetailInfoRes.data.result;
+    const { joinStatus, pkStatus, inviteCount, inviteCode, currentUserPkInfo, pkUserPkInfo, prizeInfo, pkActivityId, teamId } = smtg_getTeamPkDetailInfoRes.data.result;
     console.log(`joinStatus:${joinStatus}`);
     console.log(`pkStatus:${pkStatus}`);
     console.log(`pkStatus:${pkStatus}`);
     console.log(`inviteCode:${inviteCode}`);
+    console.log(`PK队伍teamId:${teamId}`);
+    await updatePkActivityId();
+    if (!$.updatePkActivityIdRes) await updatePkActivityIdCDN();
+    console.log(`\nupdatePkActivityId返回的数据:::${JSON.stringify($.updatePkActivityIdRes)}`);
+    console.log(`\npkActivityId\n${pkActivityId}`);
     if (joinStatus === 0) {
-      const res = await smtg_joinPkTeam(myTeamId, inviteCodes[randomFriendPin(0, inviteCodes.length - 1)], pkActivityId);
-      console.log(`res${JSON.stringify(res)}`);
+      await updatePkActivityId();
+      if (!$.updatePkActivityIdRes) await updatePkActivityIdCDN();
+      if ($.updatePkActivityIdRes && ($.updatePkActivityIdRes.pkActivityId === pkActivityId)) {
+        inviteCodes = $.updatePkActivityIdRes.inviteCode || inviteCodes;
+        myTeamId = $.updatePkActivityIdRes.teamId || myTeamId;
+
+        const randomNum = randomFriendPin(0, myTeamId.length - 1);
+
+        const res = await smtg_joinPkTeam(myTeamId[randomNum], inviteCodes[randomNum], pkActivityId);
+        if (res.data.bizCode === 0) {
+          console.log(`加入战队成功`)
+        } else if (res.data.bizCode === 229) {
+          console.log(`加入战队失败,该战队已满\n无法加入`)
+        } else {
+          console.log(`加入战队其他未知情况:${JSON.stringify(res)}`)
+        }
+      } else {
+        console.log('\nupdatePkActivityId请求返回的pkActivityId与京东服务器返回不一致,暂时不加入战队')
+      }
     } else if (joinStatus === 1) {
       console.log(`我邀请的人数:${inviteCount}\n`)
       console.log(`PK 我方队伍数量/对方队伍数量：${currentUserPkInfo.teamCount}/${pkUserPkInfo.teamCount}\n`);
@@ -326,6 +348,8 @@ async function businessCircleActivity() {
       } else if (prizeInfo.pkPrizeStatus === 1) {
         console.log(`商圈PK奖励已经领取`)
       }
+    } else if (pkStatus === 3) {
+      console.log(`商圈PK暂停中`)
     }
   }
   return
@@ -633,6 +657,46 @@ async function limitTimeProduct() {
 }
 
 //=============================================脚本使用到的京东API=====================================
+function updatePkActivityId(url = 'https://raw.githubusercontent.com/lxk0301/updateTeam/master/jd_superMarketTeam.json') {
+  return new Promise(resolve => {
+    //https://cdn.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_superMarketTeam.json
+    //https://raw.githubusercontent.com/lxk0301/updateTeam/master/jd_superMarketTeam.json
+    $.get({url}, async (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          $.updatePkActivityIdRes = JSON.parse(data);
+        }
+      } catch (e) {
+        $.logErr(e, resp)
+      } finally {
+        resolve();
+      }
+    })
+  })
+}
+function updatePkActivityIdCDN(url = 'https://cdn.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_superMarketTeam.json') {
+  return new Promise(resolve => {
+    //https://cdn.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_superMarketTeam.json
+    //https://raw.githubusercontent.com/lxk0301/updateTeam/master/jd_superMarketTeam.json
+    $.get({url}, async (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          $.updatePkActivityIdRes = JSON.parse(data);
+        }
+      } catch (e) {
+        $.logErr(e, resp)
+      } finally {
+        resolve();
+      }
+    })
+  })
+}
 function smtgDoShopTask(taskId, itemId) {
   return new Promise((resolve) => {
     const body = {
