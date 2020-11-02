@@ -19,7 +19,7 @@ cron "5 6-18/6 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scri
 const $ = new Env('东东萌宠');
 let cookiesArr = [],
     cookie = '',
-    jdPetShareArr = [],
+    jdPetShareArr = ['MTAxODc2NTEzMDAwMDAwMDAyNDcyNTYzOQ==', 'MTAxODc2NTEzNTAwMDAwMDAzMjY2MDU1OQ=='],
     isBox = false,
     notify, newShareCodes;
 //助力好友分享码(最多5个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
