@@ -21,7 +21,7 @@ jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d978574
 const $ = new Env('东东农场');
 let cookiesArr = [],
     cookie = '',
-    jdFruitShareArr = ['baabc1ce0c2549ed858cd31f1501a5da'],
+    jdFruitShareArr = ['baabc1ce0c2549ed858cd31f1501a5da', '7eaa88f952684ac8955138e1a5855748'],
     isBox = false,
     notify, newShareCodes;
 //助力好友分享码(最多4个,否则后面的助力失败),原因:京东农场每人每天只有四次助力机会
