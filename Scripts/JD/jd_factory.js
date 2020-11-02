@@ -40,9 +40,9 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
             await meetList();
             await shopList();
             await followList();
-            await addEnergy();
             await collectElectricity();
             await DailyElectricity();
+            await addEnergy();
             await showMsg();
         }
     }
@@ -298,7 +298,7 @@ async function addEnergy() {
 //收集电量
 async function collectElectricity() {
     return new Promise(resolve => {
-        $.get(taskUrl('collectElectricity'), async(err, resp, data) => {
+        $.get(taskUrl('jdfactory_collectElectricity'), async(err, resp, data) => {
             try {
                 if (err) {
                     console.log(`${JSON.stringify(err)}`)
