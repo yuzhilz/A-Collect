@@ -290,6 +290,7 @@ async function addEnergy() {
             })
         })
     } else {
+        await jdfactory_getTaskDetail();
         console.log('当前电量⚡ :' + $.homeData.data.result.userScore + '  需要电量⚡ :' + $.factoryInfo.data.result.factoryInfo.totalScore);
         $.msg('东东工厂', subTitle, '\n 当前电量⚡ :' + $.homeData.data.result.userScore + '  需要电量⚡ :' + $.factoryInfo.data.result.factoryInfo.totalScore);
     }
