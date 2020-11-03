@@ -403,7 +403,7 @@ async function invite() {
         $.post(url, async(err, resp, data) => {
             try {
                 data = JSON.parse(data);
-                console.log($.data.tokenKey);
+                console.log($.data);
             } catch (e) {
                 $.logErr(e, resp);
             } finally {
