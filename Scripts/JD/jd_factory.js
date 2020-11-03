@@ -404,7 +404,7 @@ function request(functionId, body, host, ContentType) {
 
 function taskUrl(function_id, body = {}) {
     return {
-        url: `${JD_API_HOST}?functionId=${function_id}&body=${escape(JSON.stringify(body))}&clientVersion=1.0.0&client=wh5`,
+        url: `${JD_API_HOST}?functionId=${function_id}`,
         headers: {
             'Origin': `https://h5.m.jd.com`,
             'Cookie': cookie,
@@ -415,7 +415,8 @@ function taskUrl(function_id, body = {}) {
             'Accept-Language': `zh-cn`,
             'Content-Type': `application/x-www-form-urlencoded`,
             'User-Agent': `jdapp;iPhone;9.2.0;14.1;`
-        }
+        },
+        body: `functionId=${function_id}&body=${escape(JSON.stringify(body))}&clientVersion=1.0.0&client=wh5`
     }
 }
 
