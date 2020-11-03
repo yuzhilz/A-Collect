@@ -36,7 +36,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
             await jdFactory();
             await jdfactory_getTaskDetail();
             console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
-            //console.log(`互助码: ` + $.factoryInfo.data.result.);
+            console.log(`互助码: ` + $.factoryInfo.data.result);
             await doDailyTask();
             await meetList();
             await shopList();
@@ -406,7 +406,7 @@ function taskUrl(function_id, body = {}) {
     return {
         url: `${JD_API_HOST}?functionId=${function_id}`,
         headers: {
-            'Origin': `https://h5.m.jd.com`,
+            'Origin': `https://h5.m.jd.com&body=${escape(JSON.stringify(body))}&clientVersion=1.0.0&client=wh5`,
             'Cookie': cookie,
             'Connection': `keep-alive`,
             'Referer': `https://h5.m.jd.com/babelDiy/Zeus/2uSsV2wHEkySvompfjB43nuKkcHp/index.html`,
@@ -416,7 +416,6 @@ function taskUrl(function_id, body = {}) {
             'Content-Type': `application/x-www-form-urlencoded`,
             'User-Agent': `jdapp;iPhone;9.2.0;14.1;`
         },
-        body: `functionId=${function_id}&body=${escape(JSON.stringify(body))}&clientVersion=1.0.0&client=wh5`
     }
 }
 
