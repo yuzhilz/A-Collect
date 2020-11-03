@@ -31,13 +31,12 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
     for (let i = 0; i < cookiesArr.length; i++) {
         if (cookiesArr[i]) {
             cookie = cookiesArr[i];
-            $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+            $.UserName = $.factoryInfo.data.result.UserName;
             $.errorMsg = '';
-            await inviteCode();
             await jdFactory();
             await jdfactory_getTaskDetail();
             console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
-            console.log(`互助码: ` + $.factoryInfo.data.result);
+            //console.log(`互助码: ` + $.factoryInfo.data.result.);
             await doDailyTask();
             await meetList();
             await shopList();
@@ -349,37 +348,6 @@ async function DailyElectricity() {
             }
         }
     }
-}
-
-// 获得助理码
-async function inviteCode() {
-    const function_id = 'genToken';
-    return new Promise((resolve) => {
-        let url = {
-            url: `${JD_API_HOST}?functionId=${function_id}`,
-            headers: {
-                'Origin': `https://h5.m.jd.com`,
-                'Cookie': cookie,
-                'Connection': `keep-alive`,
-                'Referer': `https://h5.m.jd.com/babelDiy/Zeus/2uSsV2wHEkySvompfjB43nuKkcHp/index.html`,
-                'Host': 'api.m.jd.com',
-                'Accept-Encoding': `gzip, deflate, br`,
-                'Accept-Language': `zh-Hans-CN;q=1`,
-                'Content-Type': `application/x-www-form-urlencoded`,
-                'User-Agent': `JD4iphone/167414 (iPhone; iOS 14.1; Scale/3.00)`
-            }
-        }
-        $.post(url, async(err, resp, data) => {
-            try {
-                data = JSON.parse(data);
-                console.log($.data.tokenKey);
-            } catch (e) {
-                $.logErr(e, resp);
-            } finally {
-                resolve()
-            }
-        })
-    })
 }
 
 //助力
