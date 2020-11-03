@@ -20,7 +20,7 @@ if ($.isNode()) {
 }
 let message = '',
     subTitle = '',
-    UserName = '';
+    shareCodes = ['P04z54XCjVWnYaS5m9cZ2esjHVDlwcfuXNvEN4'];
 const JD_API_HOST = 'https://api.m.jd.com/client.action'
 
 !(async() => {
@@ -32,10 +32,12 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
         if (cookiesArr[i]) {
             cookie = cookiesArr[i];
             $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
-            console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
             $.errorMsg = '';
+            await inviteCode();
             await jdFactory();
             await jdfactory_getTaskDetail();
+            console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
+            console.log(`互助码: ` + $.factoryInfo.data.result);
             await doDailyTask();
             await meetList();
             await shopList();
@@ -264,7 +266,7 @@ async function finishfollow() {
 async function addEnergy() {
     if ($.factoryInfo.data.result.factoryInfo.totalScore === $.homeData.data.result.userScore) {
         return new Promise(resolve => {
-            $.get(taskUrl('jdfactory_addEnergy'), async(err, resp, data) => {
+            $.post(taskUrl('jdfactory_addEnergy'), async(err, resp, data) => {
                 try {
                     if (err) {
                         console.log(`${JSON.stringify(err)}`)
@@ -299,7 +301,7 @@ async function addEnergy() {
 //收集电量
 async function collectElectricity() {
     return new Promise(resolve => {
-        $.get(taskUrl('jdfactory_collectElectricity'), async(err, resp, data) => {
+        $.post(taskUrl('jdfactory_collectElectricity'), async(err, resp, data) => {
             try {
                 if (err) {
                     console.log(`${JSON.stringify(err)}`)
@@ -346,6 +348,69 @@ async function DailyElectricity() {
             }
         }
     }
+}
+
+// 获得助理码
+async function inviteCode() {
+    const function_id = 'genToken';
+    return new Promise((resolve) => {
+        let url = {
+            url: `${JD_API_HOST}?functionId=${function_id}`,
+            headers: {
+                'Origin': `https://h5.m.jd.com`,
+                'Cookie': cookie,
+                'Connection': `keep-alive`,
+                'Referer': `https://h5.m.jd.com/babelDiy/Zeus/2uSsV2wHEkySvompfjB43nuKkcHp/index.html`,
+                'Host': 'api.m.jd.com',
+                'Accept-Encoding': `gzip, deflate, br`,
+                'Accept-Language': `zh-Hans-CN;q=1`,
+                'Content-Type': `application/x-www-form-urlencoded`,
+                'User-Agent': `JD4iphone/167414 (iPhone; iOS 14.1; Scale/3.00)`
+            }
+        }
+        $.post(url, async(err, resp, data) => {
+            try {
+                data = JSON.parse(data);
+                console.log($.data.tokenKey);
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        })
+    })
+}
+
+//助力
+async function invite() {
+    const function_id = 'collectFriendRecordColor';
+    return new Promise((resolve) => {
+        let url = {
+            url: `${JD_API_HOST}?functionId=${function_id}`,
+            headers: {
+                'Origin': `https://h5.m.jd.com`,
+                'Cookie': cookie,
+                'Connection': `keep-alive`,
+                'Referer': `https://h5.m.jd.com/babelDiy/Zeus/2uSsV2wHEkySvompfjB43nuKkcHp/index.html`,
+                'Host': 'api.m.jd.com',
+                'Accept-Encoding': `gzip, deflate, br`,
+                'Accept-Language': `zh-cn`,
+                'Content-Type': `application/x-www-form-urlencoded`,
+                'User-Agent': `jdapp;iPhone;9.2.0;14.1;`
+            },
+            body: `functionId=${function_id}$body={${shareCodes}}&client=wh5&clientVersion=1.0.0`
+        }
+        $.post(url, async(err, resp, data) => {
+            try {
+                data = JSON.parse(data);
+                console.log($.data.tokenKey);
+            } catch (e) {
+                $.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        })
+    })
 }
 
 function request(functionId, body, host, ContentType) {
