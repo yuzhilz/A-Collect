@@ -42,6 +42,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
             await meetList();
             await shopList();
             await followList();
+            await invited();
             await collectElectricity();
             await DailyElectricity();
             await addEnergy();
@@ -382,7 +383,7 @@ async function inviteCode() {
 }
 
 //助力
-async function invite() {
+async function invited() {
     const function_id = 'collectFriendRecordColor';
     return new Promise((resolve) => {
         let url = {
