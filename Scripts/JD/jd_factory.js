@@ -37,7 +37,6 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
             $.UserName = $.homeData.data.result.UserName;
             console.log($.homeData);
             console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
-            console.log(`互助码: ` + $.factoryInfo.data.result);
             await doDailyTask();
             await meetList();
             await shopList();
