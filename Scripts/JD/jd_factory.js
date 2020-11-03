@@ -34,7 +34,8 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
             $.errorMsg = '';
             await jdFactory();
             await jdfactory_getTaskDetail();
-            $.UserName = $.factoryInfo.data.result.UserName;
+            $.UserName = $.homeData.data.result.UserName;
+            console.log($.homeData);
             console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
             console.log(`互助码: ` + $.factoryInfo.data.result);
             await doDailyTask();
