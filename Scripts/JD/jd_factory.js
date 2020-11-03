@@ -31,10 +31,10 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
     for (let i = 0; i < cookiesArr.length; i++) {
         if (cookiesArr[i]) {
             cookie = cookiesArr[i];
-            $.UserName = $.factoryInfo.data.result.UserName;
             $.errorMsg = '';
             await jdFactory();
             await jdfactory_getTaskDetail();
+            $.UserName = $.factoryInfo.data.result.UserName;
             console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
             console.log(`互助码: ` + $.factoryInfo.data.result);
             await doDailyTask();
