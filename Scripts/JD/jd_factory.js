@@ -22,7 +22,12 @@ let message = '',
     subTitle = '',
     UserName = '';
 const JD_API_HOST = 'https://api.m.jd.com/client.action'
-
+let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
+    //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
+    'P04z54XCjVWnYaS5m9cZ2esjHVDlwcfuXNvEN4@',
+    //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
+    '',
+];
 !(async() => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
@@ -34,12 +39,15 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action'
             $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
             console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
             $.errorMsg = '';
+            await shareCodesFormat();
             await jdFactory();
             await jdfactory_getTaskDetail();
+            console.log('你的互助码是: ' + $.homeData.data.result.taskVos[1].assistTaskDetailVo.taskToken);
             await doDailyTask();
             await meetList();
             await shopList();
             await followList();
+            await masterHelpShare();
             await collectElectricity();
             await DailyElectricity();
             await addEnergy();
@@ -213,7 +221,50 @@ async function followList() {
     }
 }
 
+// 助力
+async function masterHelpShare() {
+    console.log('开始助力好友');
+    let salveHelpAddWater = 0;
+    let remainTimes = 3;
+    let helpSuccessPeoples = '';
+    console.log(`格式化后的助力码::${JSON.stringify(newShareCodes)}\n`);
+    for (let code of newShareCodes) {
+        console.log(`开始助力京东账号${$.nickName}的好友: ${code}`);
+        if (!code) continue;
+        if (code === $.farmInfo.farmUserPro.shareCode) {
+            console.log('不能为自己助力哦，跳过自己的shareCode\n')
+            continue
+        }
+        await masterHelp(code);
+        if ($.helpResult.code === '0') {
+            if ($.helpResult.helpResult.code === '0') {
+                //助力成功
+                salveHelpAddWater += $.helpResult.helpResult.salveHelpAddWater;
+                console.log(`【助力好友结果】: 已成功给【${$.helpResult.helpResult.masterUserInfo.nickName}】助力`);
+                console.log(`给好友【${$.helpResult.helpResult.masterUserInfo.nickName}】助力获得${$.helpResult.helpResult.salveHelpAddWater}g水滴`)
+                helpSuccessPeoples += ($.helpResult.helpResult.masterUserInfo.nickName || '匿名用户') + ',';
+            } else if ($.helpResult.helpResult.code === '8') {
+                console.log(`【助力好友结果】: 助力【${$.helpResult.helpResult.masterUserInfo.nickName}】失败，您今天助力次数已耗尽`);
+            } else if ($.helpResult.helpResult.code === '9') {
+                console.log(`【助力好友结果】: 之前给【${$.helpResult.helpResult.masterUserInfo.nickName}】助力过了`);
+            } else if ($.helpResult.helpResult.code === '10') {
+                console.log(`【助力好友结果】: 好友【${$.helpResult.helpResult.masterUserInfo.nickName}】已满五人助力`);
+            } else {
+                console.log(`助力其他情况：${JSON.stringify($.helpResult.helpResult)}`);
+            }
+            console.log(`【今日助力次数还剩】${$.helpResult.helpResult.remainTimes}次\n`);
+            remainTimes = $.helpResult.helpResult.remainTimes;
+            if ($.helpResult.helpResult.remainTimes === 0) {
+                console.log(`您当前助力次数已耗尽，跳出助力`);
+                break
+            }
+        } else {
+            console.log(`助力失败::${JSON.stringify($.helpResult)}`);
+        }
+    }
+    console.log($.masterHelp);
 
+}
 
 // 签到API
 async function signForFactory() {
@@ -258,6 +309,21 @@ async function finishfollow() {
     const body = `'taskToken':'${taskToken}'`;
     const host = `api.m.jd.com`;
     $.finishfollow = await request(functionId, body, host);
+}
+
+// 助力API
+async function masterHelp() {
+    const functionId = 'jdfactory_collectScore';
+    const host = `api.m.jd.com`;
+    const body = `"taskToken":${shareCodes}`;
+    $.masterHelp = await request(functionId, body, host, {
+        imageUrl: "",
+        nickName: "",
+        shareCode: arguments[0],
+        babelChannel: "3",
+        version: 2,
+        channel: 1
+    });
 }
 
 // 充电
@@ -401,6 +467,17 @@ function taskPostUrl(functionId, body, host, ContentType) {
         },
         body: `functionId=${functionId}&body={${body}}&client=wh5&clientVersion=1.0.0`
     }
+}
+
+function shareCodesFormat() {
+    return new Promise(async resolve => {
+        newShareCodes = [];
+        const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
+        console.log(shareCodes);
+        //newShareCodes = shareCodes[tempIndex].split('@');
+        console.log(`第${$.index}个京东账号将要助力的好友${JSON.stringify(newShareCodes)}`);
+        resolve();
+    })
 }
 
 const sleep = (timeountMS) => new Promise((resolve) => {
