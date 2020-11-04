@@ -35,17 +35,14 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
             console.log(`\n===============开始【京东账号${$.UserName}】==================\n`);
             $.errorMsg = '';
             $.index = i + 1;
-            if (finish) {
-                await lottery();
-                await showMsg();
-            } else {
-                await initForlottery();
-                await signIn();
-                await meetList();
-                await followList();
-                await shopList();
-                await checked();
-            }
+            await initForlottery();
+            await signIn();
+            await meetList();
+            await followList();
+            await shopList();
+            await checked();
+            await lottery();
+            await showMsg();
         }
     }
 })()
