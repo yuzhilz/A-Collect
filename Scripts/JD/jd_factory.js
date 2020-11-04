@@ -1,13 +1,12 @@
-const { resolve } = require('path');
+// 东东工厂
+// Author: 799953468 https://github.com/799953468
+// 更新时间：2020-10-31 17:18
 
-/*
-东东工厂
-更新时间：2020-10-31 17:18
+// [task_local]
+// # 东东工厂
+// 0 */3 * * * ./JD/jd_factory.js, tag=东东工厂, img-url=https://raw.githubusercontent.com/Orz-3/task/master/jd.png, enabled=true
 
-[task_local]
-# 东东工厂
-*/
-const $ = new Env('京东工厂');
+const $ = new Env('东东工厂');
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [],

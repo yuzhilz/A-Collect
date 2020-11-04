@@ -1,9 +1,11 @@
 /*
 京东抽奖机
-更新时间：2020-11-04 19:04
+Author: 799953468 https://github.com/799953468
+更新时间：2020-11-05 07:45
 
 [task_local]
 # 京东抽奖机
+2 0 * * * ./JD/jd_lotteryMachine.js, tag=京东抽奖机, img-url=https://raw.githubusercontent.com/Orz-3/task/master/jd.png, enabled=true
 */
 const $ = new Env('京东抽奖机');
 //Node.js用户请在jdCookie.js处填写京东ck;
