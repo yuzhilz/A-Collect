@@ -1,6 +1,6 @@
 /*****
 宠汪汪喂食(如果喂食80g失败，降级一个档次喂食（40g）,依次类推),三餐，建议一小时运行一次
-更新时间：2020-10-03
+更新时间：2020-11-03
 支持京东多个账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 ****/
@@ -29,15 +29,14 @@ if ($.isNode()) {
     if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
     let cookiesData = $.getdata('CookiesJD') || "[]";
-    cookiesData = JSON.parse(cookiesData);
+    cookiesData = jsonParse(cookiesData);
     cookiesArr = cookiesData.map(item => item.cookie);
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
 }
 let jdNotify = true; //是否开启静默运行。默认true开启
 let message = '',
-    subTitle = '',
-    UserName = '';
+    subTitle = '';
 const JD_API_HOST = 'https://jdjoy.jd.com'
 let FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10; //喂食数量默认10g,可选 10,20,40,80 , 其他数字不可.
 
@@ -49,9 +48,18 @@ let FEED_NUM = ($.getdata('joyFeedCount') * 1) || 10; //喂食数量默认10g,�
     for (let i = 0; i < cookiesArr.length; i++) {
         if (cookiesArr[i]) {
             cookie = cookiesArr[i];
-            UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+            $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
             $.index = i + 1;
-            console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
+            $.isLogin = true;
+            $.nickName = '';
+            await TotalBean();
+            console.log(`\n开始【京东账号${$.index}】${$.nickName || $.UserName}\n`);
+            if (!$.isLogin) {
+                $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/`, { "open-url": "https://bean.m.jd.com/" });
+                $.setdata('', `CookieJD${i ? i + 1 : "" }`); //cookie失效，故清空cookie。
+                if ($.isNode()) await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取cookie`);
+                continue
+            }
             message = '';
             subTitle = '';
             if ($.isNode()) {
@@ -80,7 +88,7 @@ function showMsg() {
     $.log(`\n${message}\n`);
     jdNotify = $.getdata('jdJoyNotify') ? $.getdata('jdJoyNotify') : jdNotify;
     if (!jdNotify || jdNotify === 'false') {
-        $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n` + message);
+        $.msg($.name, subTitle, `【京东账号${$.index}】${$.UserName}\n` + message);
     }
 }
 
@@ -168,22 +176,6 @@ function ThreeMeals() {
                         console.log(`三餐结果领取成功`)
                         message += `【三餐】领取成功，获得${data.data}g狗粮\n`;
                     }
-                } else {
-                    console.log('三餐请求失败')
-                    if (data.errorCode === 'B0001') {
-                        if ($.index === 1) {
-                            $.setdata('', 'CookieJD'); //cookie失效，故清空cookie。
-                        } else if ($.index === 2) {
-                            $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
-                        }
-                        console.log(`${data.errorMessage}`)
-                        if ($.isNode()) {
-                            await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                        }
-                        // if ($.isNode()) {
-                        //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                        // }
-                    }
                 }
             } catch (e) {
                 $.logErr(resp, e);
@@ -194,6 +186,58 @@ function ThreeMeals() {
     })
 }
 
+function jsonParse(str) {
+    if (typeof str == "string") {
+        try {
+            return JSON.parse(str);
+        } catch (e) {
+            console.log(e);
+            $.msg($.name, '', '不要在BoxJS手动复制粘贴修改cookie')
+            return [];
+        }
+    }
+}
+
+function TotalBean() {
+    return new Promise(async resolve => {
+        const options = {
+            "url": `https://wq.jd.com/user/info/QueryJDUserInfo?sceneval=2`,
+            "headers": {
+                "Accept": "application/json,text/plain, */*",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Language": "zh-cn",
+                "Connection": "keep-alive",
+                "Cookie": cookie,
+                "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+            }
+        }
+        $.post(options, (err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    if (data) {
+                        data = JSON.parse(data);
+                        if (data['retcode'] === 13) {
+                            $.isLogin = false; //cookie过期
+                            return
+                        }
+                        $.nickName = data['base'].nickname;
+                    } else {
+                        console.log(`京东服务器返回空数据`)
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve();
+            }
+        })
+    })
+}
 // prettier-ignore
 function Env(t, e) {
     class s {

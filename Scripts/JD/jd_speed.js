@@ -1,6 +1,6 @@
 /*
 京东天天加速链接：https://raw.githubusercontent.com/lxk0301/scripts/master/jd_speed.js
-更新时间:2020-10-13
+更新时间：2020-11-03
 支持京东双账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 每天4京豆，再小的苍蝇也是肉
@@ -36,8 +36,7 @@ if ($.isNode()) {
 }
 let jdNotify = true; //是否开启静默运行。默认true开启
 let message = '',
-    subTitle = '',
-    UserName = '';
+    subTitle = '';
 const JD_API_HOST = 'https://api.m.jd.com/'
 
 !(async() => {
@@ -48,9 +47,18 @@ const JD_API_HOST = 'https://api.m.jd.com/'
     for (let i = 0; i < cookiesArr.length; i++) {
         if (cookiesArr[i]) {
             cookie = cookiesArr[i];
-            UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+            $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
             $.index = i + 1;
-            console.log(`\n开始【京东账号${$.index}】${UserName}\n`);
+            $.isLogin = true;
+            $.nickName = '';
+            await TotalBean();
+            console.log(`\n开始【京东账号${$.index}】${$.nickName || $.UserName}\n`);
+            if (!$.isLogin) {
+                $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/`, { "open-url": "https://bean.m.jd.com/" });
+                $.setdata('', `CookieJD${i ? i + 1 : "" }`); //cookie失效，故清空cookie。
+                if ($.isNode()) await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取cookie`);
+                continue
+            }
             message = '';
             subTitle = '';
             await jDSpeedUp();
@@ -66,12 +74,11 @@ const JD_API_HOST = 'https://api.m.jd.com/'
     })
 
 function showMsg() {
-    if ($.isLogin) {
+    jdNotify = $.getdata('jdSpeedNotify') ? $.getdata('jdSpeedNotify') : jdNotify;
+    if (!jdNotify || jdNotify === 'false') {
+        $.msg($.name, subTitle, `【京东账号${$.index}】${$.nickName}\n` + message);
+    } else {
         $.log(`\n${message}\n`);
-        jdNotify = $.getdata('jdSpeedNotify') ? $.getdata('jdSpeedNotify') : jdNotify;
-        if (!jdNotify || jdNotify === 'false') {
-            $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n` + message);
-        }
     }
 }
 
@@ -107,24 +114,7 @@ function jDSpeedUp(sourceId, doubleKey) {
                         } else {
                             console.log("\n" + "天天加速-开始本次任务 ");
                         }
-                        if (res.info.isLogin === 0) {
-                            $.isLogin = false;
-                            console.log("\n天天加速-Cookie失效")
-                            $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取\nhttps://bean.m.jd.com/`, { "open-url": "https://bean.m.jd.com/" });
-                            if ($.index === 1) {
-                                $.setdata('', 'CookieJD'); //cookie失效，故清空cookie。
-                            } else if ($.index === 2) {
-                                $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
-                            }
-                            if ($.isNode()) {
-                                await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                            }
-                            // if ($.isNode()) {
-                            //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                            // }
-                            // $.done();
-                        } else if (res.info.isLogin === 1) {
-                            $.isLogin = true;
+                        if (res.info.isLogin === 1) {
                             subTitle = `【奖励】${res.data.beans_num}京豆`;
                             if (res.data.task_status === 0) {
                                 const taskID = res.data.source_id;
@@ -149,7 +139,7 @@ function jDSpeedUp(sourceId, doubleKey) {
                                 if (data.match(/\"beans_num\":\d+/)) {
                                     //message += "【上轮奖励】成功领取" + data.match(/\"beans_num\":(\d+)/)[1] + "京豆 🐶";
                                     if (!jdNotify || jdNotify === 'false') {
-                                        $.msg($.name, '', `【京东账号${$.index}】${UserName}\n` + "【上轮太空旅行】成功领取" + data.match(/\"beans_num\":(\d+)/)[1] + "京豆 🐶");
+                                        $.msg($.name, '', `【京东账号${$.index}】${$.nickName}\n` + "【上轮太空旅行】成功领取" + data.match(/\"beans_num\":(\d+)/)[1] + "京豆 🐶");
                                     }
                                 } else {
                                     console.log("京东天天-加速: 成功, 明细: 无京豆 🐶")
@@ -485,6 +475,46 @@ function useEnergy(PropID) {
     })
 }
 
+function TotalBean() {
+    return new Promise(async resolve => {
+        const options = {
+            "url": `https://wq.jd.com/user/info/QueryJDUserInfo?sceneval=2`,
+            "headers": {
+                "Accept": "application/json,text/plain, */*",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Language": "zh-cn",
+                "Connection": "keep-alive",
+                "Cookie": cookie,
+                "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+            }
+        }
+        $.post(options, (err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    if (data) {
+                        data = JSON.parse(data);
+                        if (data['retcode'] === 13) {
+                            $.isLogin = false; //cookie过期
+                            return
+                        }
+                        $.nickName = data['base'].nickname;
+                    } else {
+                        console.log(`京东服务器返回空数据`)
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve();
+            }
+        })
+    })
+}
 // prettier-ignore
 function Env(t, e) {
     class s {
