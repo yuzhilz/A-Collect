@@ -101,7 +101,7 @@ async function meetList() {
         for (i = 0; i < $.lotteryInfo.data.result.taskVos[2].maxTimes; i++) {
             if ($.lotteryInfo.data.result.taskVos[2].times === $.lotteryInfo.data.result.taskVos[2].maxTimes) {
                 console.log('任务已经做过了');
-                continue;
+                break;
             }
             await meetForFactory(i);
             await initForlottery();
@@ -127,7 +127,7 @@ async function followList() {
         for (i = 0; i < $.lotteryInfo.data.result.taskVos[3].maxTimes; i++) {
             if ($.lotteryInfo.data.result.taskVos[3].times === $.lotteryInfo.data.result.taskVos[3].maxTimes) {
                 console.log('任务已经做过了');
-                continue;
+                break;
             }
             await followShop(i);
             await initForlottery();
@@ -153,7 +153,7 @@ async function shopList() {
         for (i = 0; i < $.lotteryInfo.data.result.taskVos[4].maxTimes; i++) {
             if ($.lotteryInfo.data.result.taskVos[4].times === $.lotteryInfo.data.result.taskVos[4].maxTimes) {
                 console.log('任务已经做过了');
-                continue;
+                break;
             }
             await shopForLottery(i);
             await initForlottery();
@@ -191,7 +191,7 @@ async function lottery() {
 // 判断任务完成
 async function checked() {
     console.log('开始检测任务完成情况');
-    while (finish = false) {
+    while (finish === false) {
         await initForlottery();
         await signIn();
         await meetList();
