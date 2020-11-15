@@ -1,21 +1,25 @@
 /*
 东东水果:脚本更新地址 https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js
-更新时间：2020-11-03
+更新时间：2020-11-04
 东东农场活动链接：https://h5.m.jd.com/babelDiy/Zeus/3KSjXqQabiTuD1cJ28QskrpWoBKT/index.html
 已支持IOS双京东账号,Node.js支持N个京东账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
-// quantumultx
+互助码shareCode请先手动运行脚本查看打印可看到
+一天只能帮助4个人。多出的助力码无效
+==========================Quantumultx=========================
 [task_local]
 #jd免费水果
 5 6-18/6 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js, tag=东东农场, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdnc.png, enabled=true
-// Loon
+=========================Loon=============================
 [Script]
 cron "5 6-18/6 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js,tag=东东农场
-// Surge
-// 东东农场 = type=cron,cronexp="5 6-18/6 * * *",wake-system=1,timeout=120,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/fruit.js
-互助码shareCode请先手动运行脚本查看打印可看到
-一天只能帮助4个人。多出的助力码无效
-注：如果使用Node.js, 需自行安装'crypto-js,got,http-server,tough-cookie'模块. 例: npm install crypto-js http-server tough-cookie got --save
+
+=========================Surge============================
+东东农场 = type=cron,cronexp="5 6-18/6 * * *",wake-system=1,timeout=120,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js
+
+=========================小火箭===========================
+东东农场 = type=cron,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_fruit.js, cronexpr="5 6-18/6 * * *", timeout=200, enable=true
+
 jd免费水果 搬的https://github.com/liuxiaoyucc/jd-helper/blob/a6f275d9785748014fc6cca821e58427162e9336/fruit/fruit.js
 */
 const $ = new Env('东东农场');
@@ -31,7 +35,7 @@ let shareCodes = [ // 这个列表填入你要助力的好友的shareCode
     //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
     'baabc1ce0c2549ed858cd31f1501a5da@7eaa88f952684ac8955138e1a5855748',
     //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
-    '',
+    'baabc1ce0c2549ed858cd31f1501a5da@7eaa88f952684ac8955138e1a5855748',
 ]
 let message = '',
     subTitle = '',
@@ -40,6 +44,7 @@ let message = '',
 const retainWater = 100; //保留水滴大于多少g,默认100g;
 let jdNotify = false; //是否关闭通知，false打开通知推送，true关闭通知推送
 let jdFruitBeanCard = false; //农场使用水滴换豆卡(如果出现限时活动时100g水换20豆,此时比浇水划算,推荐换豆),true表示换豆(不浇水),false表示不换豆(继续浇水),脚本默认是浇水
+let randomCount = 20;
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async() => {
     await requireConfig();
@@ -81,8 +86,8 @@ async function jdFruit() {
     await initForFarm();
     if ($.farmInfo.farmUserPro) {
         // option['media-url'] = $.farmInfo.farmUserPro.goodsImage;
-        subTitle = `【水果名称】${$.farmInfo.farmUserPro.name}`;
-        message = `【京东账号${$.index}】${$.nickName}\n`;
+        subTitle = `【京东账号${$.index}】${$.nickName}`;
+        message = `【水果名称】${$.farmInfo.farmUserPro.name}\n`;
         console.log(`\n【您的互助码shareCode】 ${$.farmInfo.farmUserPro.shareCode}\n`);
         console.log(`\n【已成功兑换水果】${$.farmInfo.farmUserPro.winTimes}次\n`);
         await masterHelpShare(); //助力好友
@@ -585,7 +590,7 @@ async function getExtraAward() {
             }
         } else {
             console.log("助力好友未达到5个");
-            message += `【额外奖励】领取失败,原因：助力好友未达5个\n`;
+            message += `【额外奖励】领取失败,原因：给您助力的人未达5个\n`;
         }
         if ($.masterHelpResult.masterHelpPeoples && $.masterHelpResult.masterHelpPeoples.length > 0) {
             let str = '';
@@ -913,7 +918,9 @@ async function getFullCollectionReward() {
                     console.log(JSON.stringify(err));
                     $.logErr(err);
                 } else {
-                    $.duckRes = JSON.parse(data);
+                    if (safeGet(data)) {
+                        $.duckRes = JSON.parse(data);
+                    }
                 }
             } catch (e) {
                 $.logErr(e, resp)
@@ -1147,7 +1154,9 @@ async function initForFarm() {
                     console.log(JSON.stringify(err));
                     $.logErr(err);
                 } else {
-                    $.farmInfo = JSON.parse(data)
+                    if (safeGet(data)) {
+                        $.farmInfo = JSON.parse(data)
+                    }
                 }
             } catch (e) {
                 $.logErr(e, resp)
@@ -1209,14 +1218,14 @@ function timeFormat(time) {
 
 function readShareCode() {
     return new Promise(resolve => {
-        $.get({ url: `http://api.turinglabs.net/api/v1/jd/farm/read/4/` }, (err, resp, data) => {
+        $.get({ url: `http://api.turinglabs.net/api/v1/jd/farm/read/${randomCount}/` }, (err, resp, data) => {
             try {
                 if (err) {
                     console.log(`${JSON.stringify(err)}`)
                     console.log(`${$.name} API请求失败，请检查网路重试`)
                 } else {
                     if (data) {
-                        console.log('随机取4个码')
+                        console.log(`随机取个${randomCount}码放到您固定的互助码后面`)
                         data = JSON.parse(data);
                     }
                 }
@@ -1364,13 +1373,10 @@ function request(function_id, body = {}, timeout = 1000) {
                         console.log(JSON.stringify(err));
                         console.log(`function_id:${function_id}`)
                         $.logErr(err);
-                        // if ($.isNode()) {
-                        //   throw err
-                        // } else {
-                        //   throw new Error(err);
-                        // }
                     } else {
-                        data = JSON.parse(data);
+                        if (safeGet(data)) {
+                            data = JSON.parse(data);
+                        }
                     }
                 } catch (e) {
                     $.logErr(e, resp);
@@ -1380,6 +1386,18 @@ function request(function_id, body = {}, timeout = 1000) {
             })
         }, timeout)
     })
+}
+
+function safeGet(data) {
+    try {
+        if (typeof JSON.parse(data) == "object") {
+            return true;
+        }
+    } catch (e) {
+        console.log(e);
+        console.log(`京东服务器访问数据为空，请检查自身设备网络情况`);
+        return false;
+    }
 }
 
 function taskUrl(function_id, body = {}) {
