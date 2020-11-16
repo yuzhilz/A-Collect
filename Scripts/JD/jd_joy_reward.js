@@ -11,12 +11,12 @@
 // Quantumult X
 [task_local]
 #宠汪汪积分兑换奖品
-0 0-16/8 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_reward.js, tag=宠汪汪积分兑换奖品, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdcww.png, enabled=true
+0 0-16/8 * * * https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_joy_reward.js, tag=宠汪汪积分兑换奖品, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdcww.png, enabled=true
 // Loon
 [Script]
-cron "0 0-16/8 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_reward.js,tag=宠汪汪积分兑换奖品
+cron "0 0-16/8 * * *" script-path=https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_joy_reward.js,tag=宠汪汪积分兑换奖品
 // Surge
-宠汪汪积分兑换奖品 = type=cron,cronexp="0 0-16/8 * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_joy_reward.js
+宠汪汪积分兑换奖品 = type=cron,cronexp="0 0-16/8 * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_joy_reward.js
  */
 const $ = new Env('宠汪汪积分兑换奖品');
 let joyRewardName = 20; //是否兑换京豆，默认开启兑换功能，其中20为兑换20京豆,500为兑换500京豆，0为不兑换京豆.数量有限先到先得
@@ -52,8 +52,12 @@ const JD_API_HOST = 'https://jdjoy.jd.com';
             console.log(`\n开始【京东账号${$.index}】${$.nickName || $.UserName}\n`);
             if (!$.isLogin) {
                 $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/`, { "open-url": "https://bean.m.jd.com/" });
-                $.setdata('', `CookieJD${i ? i + 1 : "" }`); //cookie失效，故清空cookie。
-                if ($.isNode()) await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取cookie`);
+
+                if ($.isNode()) {
+                    await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
+                } else {
+                    $.setdata('', `CookieJD${i ? i + 1 : "" }`); //cookie失效，故清空cookie。$.setdata('', `CookieJD${i ? i + 1 : "" }`);//cookie失效，故清空cookie。
+                }
                 continue
             }
             message = '';
@@ -130,7 +134,7 @@ async function joyReward() {
                             if (ctrTemp) {
                                 $.msg($.name, `兑换${giftValue}京豆成功`, `【京东账号${$.index}】${$.nickName}\n【宠物等级】${data.level}\n【积分详情】消耗积分 ${salePrice}, 剩余积分 ${data.coin - salePrice}`);
                                 if ($.isNode()) {
-                                    await notify.sendNotify(`${$.name}`, `【京东账号${$.index}】 ${$.nickName}\n【兑换${giftValue}京豆】成功\n【宠物等级】${data.level}\n【积分详情】消耗积分 ${salePrice}, 剩余积分 ${data.coin - salePrice}`);
+                                    await notify.sendNotify(`${$.name} - 账号${$.index} - ${$.nickName}`, `【京东账号${$.index}】 ${$.nickName}\n【兑换${giftValue}京豆】成功\n【宠物等级】${data.level}\n【积分详情】消耗积分 ${salePrice}, 剩余积分 ${data.coin - salePrice}`);
                                 }
                             }
                             // if ($.isNode()) {

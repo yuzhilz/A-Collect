@@ -1,18 +1,18 @@
 /*
-京东摇钱树 ：https://raw.githubusercontent.com/lxk0301/scripts/master/jd_moneyTree.js
-更新时间：2020-11-03
+京东摇钱树 ：https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_moneyTree.js
+更新时间：2020-11-16
 京东摇钱树支持京东双账号
 注：如果使用Node.js, 需自行安装'crypto-js,got,http-server,tough-cookie'模块. 例: npm install crypto-js http-server tough-cookie got --save
 */
 // quantumultx
 // [task_local]
 // #京东摇钱树
-// 3 */2 * * * https://raw.githubusercontent.com/lxk0301/scripts/master/jd_moneyTree.js, tag=京东摇钱树, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdyqs.png, enabled=true
+// 3 */2 * * * https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_moneyTree.js, tag=京东摇钱树, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdyqs.png, enabled=true
 // Loon
 // [Script]
-// cron "3 */2 * * *" script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_moneyTree.js,tag=京东摇钱树
+// cron "3 */2 * * *" script-path=https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_moneyTree.js,tag=京东摇钱树
 // Surge
-//京东摇钱树 = type=cron,cronexp="3 */2 * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/scripts/master/jd_moneyTree.js
+//京东摇钱树 = type=cron,cronexp="3 */2 * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_moneyTree.js
 const $ = new Env('京东摇钱树');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
@@ -31,7 +31,6 @@ if ($.isNode()) {
     cookiesArr.push($.getdata('CookieJD2'));
 }
 
-const Notice = $.getdata('jdMoneyTreeNoticeTimes') * 1 || 2; //设置运行多少次才通知。默认运行两次脚本通知，其他设置请在BoxJs进行设置
 let jdNotify = true; //是否开启静默运行，默认true开启
 const JD_API_HOST = 'https://ms.jr.jd.com/gw/generic/uc/h5/m';
 let userInfo = null,
@@ -54,8 +53,12 @@ let userInfo = null,
             console.log(`\n开始【京东账号${$.index}】${$.nickName || $.UserName}\n`);
             if (!$.isLogin) {
                 $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/`, { "open-url": "https://bean.m.jd.com/" });
-                $.setdata('', `CookieJD${i ? i + 1 : "" }`); //cookie失效，故清空cookie。
-                if ($.isNode()) await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取cookie`);
+
+                if ($.isNode()) {
+                    await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
+                } else {
+                    $.setdata('', `CookieJD${i ? i + 1 : "" }`); //cookie失效，故清空cookie。$.setdata('', `CookieJD${i ? i + 1 : "" }`);//cookie失效，故清空cookie。
+                }
                 continue
             }
             message = '';
@@ -81,16 +84,10 @@ async function jd_moneyTree() {
     await stealFriendFruit()
     await msgControl();
 
-    console.log(`运行脚本次数和设置的次数是否相等::${($.getdata($.treeMsgTime) * 1) === Notice}`);
-    jdNotify = $.getdata('jdMoneyTreeNotify') ? $.getdata('jdMoneyTreeNotify') : jdNotify;
-    console.log(`box订阅静默运行-是否打开::${jdNotify || jdNotify === 'true'}`);
-    console.log(`是否弹窗通知::${(($.getdata($.treeMsgTime) * 1) === Notice) && (!jdNotify || jdNotify === 'false')}`);
     $.log(`\n${message}\n`);
     if (!jdNotify || jdNotify === 'false') {
-        if (($.getdata($.treeMsgTime) * 1) === Notice) {
-            $.msg($.name, subTitle, message);
-            $.setdata('0', $.treeMsgTime);
-        }
+        $.msg($.name, subTitle, message);
+        $.setdata('0', $.treeMsgTime);
     }
 }
 
@@ -121,39 +118,18 @@ function user_info() {
                                 userInfo = res.resultData.data;
                                 // userInfo.realName = null;
                                 if (userInfo.realName) {
-                                    console.log(`助力码sharePin为：：${userInfo.sharePin}`);
+                                    // console.log(`助力码sharePin为：：${userInfo.sharePin}`);
                                     $.treeMsgTime = userInfo.sharePin;
-                                    if ($.getdata($.treeMsgTime)) {
-                                        if ($.getdata($.treeMsgTime) >= Notice) {
-                                            $.setdata('0', $.treeMsgTime);
-                                        }
-                                    } else {
-                                        $.setdata('0', $.treeMsgTime);
-                                    }
                                     subTitle = `【${userInfo.nick}】${userInfo.treeInfo.treeName}`;
                                     // message += `【我的金果数量】${userInfo.treeInfo.fruit}\n`;
                                     // message += `【我的金币数量】${userInfo.treeInfo.coin}\n`;
                                     // message += `【距离${userInfo.treeInfo.level + 1}级摇钱树还差】${userInfo.treeInfo.progressLeft}\n`;
                                 } else {
-                                    $.msg($.name, `【提示】京东账号${$.index}${UserName}运行失败`, '此账号未实名认证或者未参与过此活动\n①如未参与活动,请先去京东app参加摇钱树活动\n入口：我的->游戏与互动->查看更多\n②如未实名认证,请进行实名认证', { "open-url": "openApp.jdMobile://" });
+                                    $.msg($.name, `【提示】京东账号${$.index}${$.UserName}运行失败`, '此账号未实名认证或者未参与过此活动\n①如未参与活动,请先去京东app参加摇钱树活动\n入口：我的->游戏与互动->查看更多\n②如未实名认证,请进行实名认证', { "open-url": "openApp.jdMobile://" });
                                 }
                             }
                         } else {
-                            if (res.resultCode === 3) {
-                                $.isLogin = false;
-                                $.msg($.name, `【提示】京东账号${$.index}${UserName}cookie已失效,请重新登录获取`, 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
-                                if ($.index === 1) {
-                                    $.setdata('', 'CookieJD'); //cookie失效，故清空cookie。
-                                } else if ($.index === 2) {
-                                    $.setdata('', 'CookieJD2'); //cookie失效，故清空cookie。
-                                }
-                                if ($.isNode()) {
-                                    await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                                }
-                                // if ($.isNode()) {
-                                //   await notify.BarkNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${UserName}\n请重新登录获取cookie`);
-                                // }
-                            }
+                            console.log(`其他情况::${JSON.stringify(res)}`);
                         }
                     } else {
                         console.log(`京豆api返回数据为空，请检查自身原因`)

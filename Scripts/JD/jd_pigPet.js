@@ -1,43 +1,26 @@
 /*
- * @Author: lxk0301 
- * @Date: 2020-11-03 20:35:07
- * @Last Modified by: lxk0301
- * @Last Modified time: 2020-10-12 20:37:10
- 摇京豆(京东APP首页-领京豆-摇京豆)
- 更新时间:2020-10-12
- Modified from https://github.com/Zero-S1/JD_tools/blob/master/JD_vvipclub.py
- 已支持IOS双京东账号,Node.js支持N个京东账号
- 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
- // QuantumultX
- [task_local]
- #摇京豆
- 5 0 * * * https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_club_lottery.js, tag=摇京豆, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jdyjd.png, enabled=true
- //Loon
- [Script]
- cron "5 0 * * *" script-path=https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_club_lottery.js,tag=摇京豆
- //Surge
- 摇京豆 = type=cron,cronexp="5 0 * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_club_lottery.js
- * */
+京东金融养猪猪
+一键开完所有的宝箱功能。耗时70秒
+抽奖
+喂食
+12 * * * *
+ */
 
-const $ = new Env('摇京豆');
+const $ = new Env('金融养猪');
+let cookiesArr = [],
+    cookie = '';
+const JD_API_HOST = 'https://ms.jr.jd.com/gw/generic/uc/h5/m';
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-
-//IOS等用户直接用NobyDa的jd cookie
-let cookiesArr = [],
-    cookie = '';
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
     })
     if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 } else {
-    cookiesArr.push($.getdata('CookieJD'));
-    cookiesArr.push($.getdata('CookieJD2'));
-}
-const JD_API_HOST = 'https://api.m.jd.com/client.action';
-!(async() => {
+    cookiesArr.push(...[$.getdata('CookieJD'), $.getdata('CookieJD2')])
+}!(async() => {
     if (!cookiesArr[0]) {
         $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', { "open-url": "https://bean.m.jd.com/" });
         return;
@@ -47,16 +30,12 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
             cookie = cookiesArr[i];
             $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
             $.index = i + 1;
-            $.freeTimes = 0;
-            $.prizeBeanCount = 0;
-            $.totalBeanCount = 0;
             $.isLogin = true;
             $.nickName = '';
             await TotalBean();
             console.log(`\n开始【京东账号${$.index}】${$.nickName || $.UserName}\n`);
             if (!$.isLogin) {
                 $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/`, { "open-url": "https://bean.m.jd.com/" });
-
                 if ($.isNode()) {
                     await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
                 } else {
@@ -64,8 +43,12 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
                 }
                 continue
             }
-            await clubLottery();
-            await showMsg();
+            message = '';
+            subTitle = '';
+            goodsUrl = '';
+            taskInfoKey = [];
+            option = {};
+            await jdPigPet();
         }
     }
 })()
@@ -75,153 +58,208 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
     .finally(() => {
         $.done();
     })
-
-async function clubLottery() {
-    await doTasks(); //做任务
-    await getFreeTimes(); //获取摇奖次数
-    await shaking(); //开始摇奖
+async function jdPigPet() {
+    await pigPetOpenBox();
+    await pigPetLotteryIndex();
+    await pigPetLottery();
+    await pigPetUserBag();
 }
-async function doTasks() {
-    const browseTaskRes = await getTask('browseTask');
-    if (browseTaskRes.success) {
-        const { totalPrizeTimes, currentFinishTimes, taskItems } = browseTaskRes.data[0];
-        const taskTime = totalPrizeTimes - currentFinishTimes;
-        if (taskTime > 0) {
-            let taskID = [];
-            taskItems.map(item => {
-                if (!item.finish) {
-                    taskID.push(item.id);
-                }
-            });
-            console.log(`开始做浏览页面任务`)
-            for (let i = 0; i < new Array(taskTime).fill('').length; i++) {
-                await $.wait(1000);
-                await doTask('browseTask', taskID[i]);
-            }
-        }
-    } else {
-        console.log(`${JSON.stringify(browseTaskRes)}`)
-    }
-    const attentionTaskRes = await getTask('attentionTask');
-    if (attentionTaskRes.success) {
-        const { totalPrizeTimes, currentFinishTimes, taskItems } = attentionTaskRes.data[0];
-        const taskTime = totalPrizeTimes - currentFinishTimes;
-        if (taskTime > 0) {
-            let taskID = [];
-            taskItems.map(item => {
-                if (!item.finish) {
-                    taskID.push(item.id);
-                }
-            });
-            console.log(`开始做关注店铺任务`)
-            for (let i = 0; i < new Array(taskTime).fill('').length; i++) {
-                await $.wait(1000);
-                await doTask('attentionTask', taskID[i].toString());
-            }
+async function pigPetLottery() {
+    if ($.currentCount > 0) {
+        for (let i = 0; i < $.currentCount; i++) {
+            await pigPetLotteryPlay();
         }
     }
 }
-async function shaking() {
-    for (let i = 0; i < new Array($.freeTimes).fill('').length; i++) {
-        console.log(`开始摇奖`)
-        await $.wait(1000);
-        const shakeBeanRes = await shakeBean();
-        if (shakeBeanRes.success) {
-            console.log(`剩余摇奖次数：${shakeBeanRes.data.luckyBox.freeTimes}`)
-            if (shakeBeanRes.data && shakeBeanRes.data.prizeBean) {
-                $.prizeBeanCount += shakeBeanRes.data.prizeBean.count;
-                $.totalBeanCount = shakeBeanRes.data.luckyBox.totalBeanCount;
-            }
-        }
-    }
-}
-
-function showMsg() {
-    if ($.prizeBeanCount) {
-        $.msg(`${$.name}`, `京东账号${$.index} ${$.nickName}`, `【获得】${$.prizeBeanCount}京豆\n【账号总计】${$.totalBeanCount}京豆`);
-    }
-}
-//====================API接口=================
-//查询多少次机会
-function getFreeTimes() {
-    return new Promise(resolve => {
-        $.get(taskUrl('vvipclub_luckyBox', { "info": "freeTimes" }), (err, resp, data) => {
+//查询背包食物
+function pigPetUserBag() {
+    return new Promise(async resolve => {
+        const body = { "source": 0, "channelLV": "yqs", "riskDeviceParam": "{}", "t": Date.now(), "skuId": "1001003004", "category": "1001" };
+        $.post(taskUrl('pigPetUserBag', body), async(err, resp, data) => {
             try {
                 if (err) {
-                    console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
-                    $.logErr(err);
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
                 } else {
-                    // console.log(data)
-                    data = JSON.parse(data);
-                    if (data.success) {
-                        $.freeTimes = data.data.freeTimes;
-                        console.log(`摇奖次数${$.freeTimes}`);
+                    if (data) {
+                        data = JSON.parse(data);
+                        if (data.resultCode === 0) {
+                            if (data.resultData.resultCode === 0) {
+                                if (data.resultData.resultData && data.resultData.resultData.goods) {
+                                    console.log(`\n食物名称     数量`);
+                                    for (let item of data.resultData.resultData.goods) {
+                                        console.log(`${item.goodsName}      ${item.count}g`);
+                                    }
+                                    for (let item of data.resultData.resultData.goods) {
+                                        if (item.count > 20) {
+                                            console.log(`10秒后开始喂食${item.goodsName}，当前数量为${item.count}g`)
+                                            await $.wait(10000);
+                                            await pigPetAddFood(item.sku);
+                                        }
+                                    }
+                                } else {
+                                    console.log(`暂无食物`)
+                                }
+                            } else {
+                                console.log(`开宝箱其他情况：${JSON.stringify(data)}`)
+                            }
+                        }
+                    } else {
+                        console.log(`京东服务器返回空数据`)
                     }
                 }
             } catch (e) {
-                $.logErr(e, resp);
+                $.logErr(e, resp)
             } finally {
                 resolve();
             }
         })
     })
 }
-
-function getTask(info) {
-    return new Promise(resolve => {
-        $.get(taskUrl('vvipclub_lotteryTask', { info, "withItem": true }), (err, resp, data) => {
+//喂食
+function pigPetAddFood(skuId) {
+    return new Promise(async resolve => {
+        console.log(`skuId::::${skuId}`)
+        const body = { "source": 0, "channelLV": "yqs", "riskDeviceParam": "{}", "t": 1605073588888, skuId, "category": "1001" }
+        $.post(taskUrl('pigPetAddFood', body), (err, resp, data) => {
             try {
                 if (err) {
-                    console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
-                    $.logErr(err);
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
                 } else {
-                    // console.log(data)
-                    data = JSON.parse(data);
+                    if (data) {
+                        // console.log(data)
+                        data = JSON.parse(data);
+                    } else {
+                        console.log(`京东服务器返回空数据`)
+                    }
                 }
             } catch (e) {
-                $.logErr(e, resp);
+                $.logErr(e, resp)
             } finally {
-                resolve(data);
+                resolve();
             }
         })
     })
 }
-
-function doTask(taskName, taskItemId) {
-    return new Promise(resolve => {
-        $.get(taskUrl('vvipclub_doTask', { taskName, taskItemId }), (err, resp, data) => {
+//开宝箱
+function pigPetOpenBox() {
+    return new Promise(async resolve => {
+        const body = { "source": 0, "channelLV": "yqs", "riskDeviceParam": "{}", "no": 5, "category": "1001", "t": Date.now() }
+        $.post(taskUrl('pigPetOpenBox', body), async(err, resp, data) => {
             try {
                 if (err) {
-                    console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
-                    $.logErr(err);
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
                 } else {
-                    // console.log(data)
-                    data = JSON.parse(data);
+                    if (data) {
+                        // console.log(data)
+                        data = JSON.parse(data);
+                        if (data.resultCode === 0) {
+                            if (data.resultData.resultCode === 0) {
+                                if (data.resultData.resultData && data.resultData.resultData.award) {
+                                    console.log(`开宝箱获得${data.resultData.resultData.award.content}，数量：${data.resultData.resultData.award.count}`);
+
+                                } else {
+                                    console.log(`开宝箱暂无奖励`)
+                                }
+                                await $.wait(2000);
+                                await pigPetOpenBox();
+                            } else if (data.resultData.resultCode === 420) {
+                                console.log(`开宝箱失败:${data.resultData.resultMsg}`)
+                            } else {
+                                console.log(`开宝箱其他情况：${JSON.stringify(data)}`)
+                            }
+                        }
+                    } else {
+                        console.log(`京东服务器返回空数据`)
+                    }
                 }
             } catch (e) {
-                $.logErr(e, resp);
+                $.logErr(e, resp)
             } finally {
-                resolve(data);
+                resolve();
             }
         })
     })
 }
-
-function shakeBean() {
-    return new Promise(resolve => {
-        $.get(taskUrl('vvipclub_shaking', { "type": '0' }), (err, resp, data) => {
+//查询大转盘的次数
+function pigPetLotteryIndex() {
+    $.currentCount = 0;
+    return new Promise(async resolve => {
+        const body = {
+            "source": 0,
+            "channelLV": "juheye",
+            "riskDeviceParam": "{}"
+        }
+        $.post(taskUrl('pigPetLotteryIndex', body), (err, resp, data) => {
             try {
                 if (err) {
-                    console.log(`\n${$.name}: API查询请求失败 ‼️‼️`)
-                    $.logErr(err);
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
                 } else {
-                    console.log(`摇奖结果:${data}`)
-                    data = JSON.parse(data);
+                    if (data) {
+                        console.log(data)
+                        data = JSON.parse(data);
+                        if (data.resultCode === 0) {
+                            if (data.resultData.resultCode === 0) {
+                                if (data.resultData.resultData) {
+                                    console.log(`当前大转盘剩余免费抽奖次数：：${data.resultData.resultData.currentCount}`);
+                                    $.currentCount = data.resultData.resultData.currentCount;
+                                }
+                            } else {
+                                console.log(`查询大转盘的次数：${JSON.stringify(data)}`)
+                            }
+                        }
+                    } else {
+                        console.log(`京东服务器返回空数据`)
+                    }
                 }
             } catch (e) {
-                $.logErr(e, resp);
+                $.logErr(e, resp)
             } finally {
-                resolve(data);
+                resolve();
+            }
+        })
+    })
+}
+//抽奖
+function pigPetLotteryPlay() {
+    return new Promise(async resolve => {
+        const body = {
+            "source": 0,
+            "channelLV": "juheye",
+            "riskDeviceParam": "{}",
+            "t": Date.now(),
+            "type": 0,
+        }
+        $.post(taskUrl('pigPetLotteryPlay', body), (err, resp, data) => {
+            try {
+                if (err) {
+                    console.log(`${JSON.stringify(err)}`)
+                    console.log(`${$.name} API请求失败，请检查网路重试`)
+                } else {
+                    if (data) {
+                        console.log(data)
+                        data = JSON.parse(data);
+                        if (data.resultCode === 0) {
+                            if (data.resultData.resultCode === 0) {
+                                if (data.resultData.resultData) {
+                                    // console.log(`当前大转盘剩余免费抽奖次数：：${data.resultData.resultData.currentCount}`);
+                                    $.currentCount = data.resultData.resultData.currentCount;
+                                }
+                            } else {
+                                console.log(`其他情况：${JSON.stringify(data)}`)
+                            }
+                        }
+                    } else {
+                        console.log(`京东服务器返回空数据`)
+                    }
+                }
+            } catch (e) {
+                $.logErr(e, resp)
+            } finally {
+                resolve();
             }
         })
     })
@@ -268,14 +306,21 @@ function TotalBean() {
     })
 }
 
-function taskUrl(function_id, body = {}) {
+function taskUrl(function_id, body) {
     return {
-        url: `${JD_API_HOST}?functionId=${function_id}&appid=vip_h5&body=${escape(JSON.stringify(body))}&_=${Date.now()}`,
+        url: `${JD_API_HOST}/${function_id}?_=${Date.now()}`,
+        body: `reqData=${encodeURIComponent(JSON.stringify(body))}`,
         headers: {
+            'Accept': `application/json`,
+            'Origin': `https://uua.jr.jd.com`,
+            'Accept-Encoding': `gzip, deflate, br`,
             'Cookie': cookie,
-            'Host': 'api.m.jd.com',
-            'User-Agent': `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`,
-            'Referer': 'https://vip.m.jd.com/newPage/reward/123dd/slideContent?page=focus',
+            'Content-Type': `application/x-www-form-urlencoded;charset=UTF-8`,
+            'Host': `ms.jr.jd.com`,
+            'Connection': `keep-alive`,
+            'User-Agent': `jdapp;iPhone;9.0.0;13.4.1;e35caf0a69be42084e3c97eef56c3af7b0262d01;network/4g;ADID/F75E8AED-CB48-4EAC-A213-E8CE4018F214;supportApplePay/3;hasUPPay/0;pushNoticeIsOpen/1;model/iPhone11,8;addressid/2005183373;hasOCPay/0;appBuild/167237;supportBestPay/0;jdSupportDarkMode/0;pv/1287.19;apprpd/MyJD_GameMain;ref/https%3A%2F%2Fuua.jr.jd.com%2Fuc-fe-wxgrowing%2Fmoneytree%2Findex%2F%3Fchannel%3Dyxhd%26lng%3D113.325843%26lat%3D23.204628%26sid%3D2d98e88cf7d182f60d533476c2ce777w%26un_area%3D19_1601_50258_51885;psq/1;ads/;psn/e35caf0a69be42084e3c97eef56c3af7b0262d01|3485;jdv/0|kong|t_1000170135|tuiguang|notset|1593059927172|1593059927;adk/;app_device/IOS;pap/JA2015_311210|9.0.0|IOS 13.4.1;Mozilla/5.0 (iPhone; CPU iPhone OS 13_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1`,
+            'Referer': `https://uua.jr.jd.com`,
+            'Accept-Language': `zh-cn`
         }
     }
 }
