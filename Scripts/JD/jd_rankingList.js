@@ -1,6 +1,6 @@
 /*
 京东排行榜
-更新时间：2020-11-05 16:07
+更新时间：2020-11-17 09:17
 脚本说明：京东排行榜签到得京豆
 活动入口：找不着了，点击脚本通知进入吧
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
@@ -276,7 +276,7 @@ function Env(t, e) { class s { constructor(t) { this.env = t }
                 this.got.post(s, i).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t;
                     e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => { const { message: s, response: i } = t;
                     e(s, i, i && i.body) }) } }
-        time(t) { let e = { "M+": (new Date).getMonth() + 1, "d+": (new Date).getDate(), "H+": (new Date).getHours(), "m+": (new Date).getMinutes(), "s+": (new Date).getSeconds(), "q+": Math.floor(((new Date).getMonth() + 3) / 3), S: (new Date).getMilliseconds() }; /(y+)/.test(t) && (t = t.replace(RegExp.$1, ((new Date).getFullYear() + "").substr(4 - RegExp.$1.length))); for (let s in e) new RegExp("(" + s + ")").test(t) && (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? e[s] : ("00" + e[s]).substr(("" + e[s]).length))); return t }
+        time(t, g = -8) { let f = new Date().getTimezoneOffset(); let d = new Date().getTime() + f * 60 * 1000 - (g * 60 * 60 * 1000); let n = new Date(d); let e = { "M+": n.getMonth() + 1, "d+": n.getDate(), "H+": n.getHours(), "m+": n.getMinutes(), "s+": n.getSeconds(), "q+": Math.floor((n.getMonth() + 3) / 3), S: n.getMilliseconds() }; /(y+)/.test(t) && (t = t.replace(RegExp.$1, (n.getFullYear() + "").substr(4 - RegExp.$1.length))); for (let s in e) new RegExp("(" + s + ")").test(t) && (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? e[s] : ("00" + e[s]).substr(("" + e[s]).length))); return t }
         msg(e = t, s = "", i = "", r) { const o = t => { if (!t) return t; if ("string" == typeof t) return this.isLoon() ? t : this.isQuanX() ? { "open-url": t } : this.isSurge() ? { url: t } : void 0; if ("object" == typeof t) { if (this.isLoon()) { let e = t.openUrl || t.url || t["open-url"],
                             s = t.mediaUrl || t["media-url"]; return { openUrl: e, mediaUrl: s } } if (this.isQuanX()) { let e = t["open-url"] || t.url || t.openUrl,
                             s = t["media-url"] || t.mediaUrl; return { "open-url": e, "media-url": s } } if (this.isSurge()) { let e = t.url || t.openUrl || t["open-url"]; return { url: e } } } };
