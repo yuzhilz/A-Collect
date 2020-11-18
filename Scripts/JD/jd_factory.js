@@ -41,7 +41,6 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
             await meetList();
             await shopList();
             await followList();
-            await masterHelpShare();
             await collectElectricity();
             await DailyElectricity();
             await addEnergy();
