@@ -356,7 +356,6 @@ async function DailyElectricity() {
 }
 
 function request(functionId, body, host, ContentType) {
-    await sleep(2000);
     return new Promise(resolve => {
         $.post(taskPostUrl(functionId, body, host, ContentType), (err, resp, data) => {
             try {
