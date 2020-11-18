@@ -39,7 +39,8 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
             $.errorMsg = '';
             $.index = i + 1;
             await activity_taskInfo();
-            await acitvity();
+            await activity();
+            await product();
         }
     }
 })()
@@ -87,6 +88,7 @@ async function activity_taskInfo() {
                     $.logErr(err);
                 } else {
                     $.taskInfo = JSON.parse(data);
+                    console.log($.taskInfo);
                 }
             } catch (e) {
                 $.logErr(e, resp);
@@ -123,6 +125,14 @@ async function product() {
 
 // 关注店铺
 async function shop() {
+    console.log('开始关注店铺');
+    if ($.data.taskInfo[2].finishNum === $.taskInfo.data.taskInfo[2].allValues.length) {
+        console.log('任务已经做过了');
+    } else {
+        for (i = 0; i < $.taskInfo.data.taskInfo[2].allValues.length; i++) {
+
+        }
+    }
 
 }
 
@@ -180,9 +190,13 @@ function taskGetUrl(functionId, body) {
     }
 }
 
-const sleep = (timeountMS) => new Promise((resolve) => {
-    setTimeout(resolve, timeountMS);
-});
+function sleep(s) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, s);
+    })
+}
 
 // prettier-ignore
 function Env(t, e) {
