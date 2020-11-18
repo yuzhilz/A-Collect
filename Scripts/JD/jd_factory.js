@@ -348,6 +348,7 @@ async function DailyElectricity() {
 }
 
 function request(functionId, body, host, ContentType) {
+    await sleep(2000)
     return new Promise(resolve => {
         $.post(taskPostUrl(functionId, body, host, ContentType), (err, resp, data) => {
             try {
@@ -402,9 +403,13 @@ function taskPostUrl(functionId, body, host, ContentType) {
     }
 }
 
-const sleep = (timeountMS) => new Promise((resolve) => {
-    setTimeout(resolve, timeountMS);
-});
+function sleep(s) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, s);
+    })
+}
 
 // prettier-ignore
 function Env(t, e) {
