@@ -56,6 +56,14 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
     $.done();
 })
 
+function sleep(s) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, s);
+    })
+}
+
 function showMsg() {
     if ($.isLogin) {
         $.log(`\n${message}\n`);
@@ -401,14 +409,6 @@ function taskPostUrl(functionId, body, host, ContentType) {
         },
         body: `functionId=${functionId}&body={${body}}&client=wh5&clientVersion=1.0.0`
     }
-}
-
-function sleep(s) {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            resolve();
-        }, s);
-    })
 }
 
 // prettier-ignore
