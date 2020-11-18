@@ -1,6 +1,6 @@
 // 东东工厂
 // Author: 799953468 https://github.com/799953468
-// 更新时间：2020-10-31 17:18
+// 更新时间：2020-11-18 8:57
 
 // [task_local]
 // # 东东工厂
@@ -356,7 +356,7 @@ async function DailyElectricity() {
 }
 
 function request(functionId, body, host, ContentType) {
-    await sleep(2000)
+    await sleep(2000);
     return new Promise(resolve => {
         $.post(taskPostUrl(functionId, body, host, ContentType), (err, resp, data) => {
             try {
