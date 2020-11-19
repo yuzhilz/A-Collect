@@ -21,7 +21,8 @@ if ($.isNode()) {
     cookiesArr.push($.getdata('CookieJD2'));
 }
 let message = '',
-    UserName = ''
+    UserName = '',
+    subTitle = ''
 const JD_API_HOST = 'https://api.m.jd.com/api';
 !(async() => {
     if (!cookiesArr[0]) {
@@ -67,7 +68,7 @@ function showMsg() {
 // 获取任务信息
 async function activity_taskInfo() {
     const functionId = `activity_taskInfo`;
-    const body = `body={}`;
+    const body = `body=%7b%7d`;
     $.taskInfo = await get(functionId, body);
 }
 
@@ -146,13 +147,13 @@ async function rank() {
     if ($.activity_info) {
         console.log('当前积分：' + $.activity_info.data.prizeInfo.score + '\n排名: ' + $.activity_info.data.prizeInfo.rank);
     }
-    $.msg('泡泡大战', '\n 当前积分 :' + $.activity_info.data.prizeInfo.score + ' 排名:' + $.activity_info.data.prizeInfo.rank);
+    $.msg('泡泡大战', subTitle, '\n 当前积分 :' + $.activity_info.data.prizeInfo.score + ' 排名:' + $.activity_info.data.prizeInfo.rank);
 }
 
 // 查询排行API
 async function activity_info() {
     const functionId = `activity_info`;
-    const body = `body={}`;
+    const body = `body=%7b%7d`;
     $.activity_info = await get(functionId, body);
     console.log($.activity_Info);
 }
@@ -160,7 +161,7 @@ async function activity_info() {
 // 查看奖品
 async function prize_list() {
     const functionId = `prize_list`;
-    const body = `body={}`;
+    const body = `body=%7b%7d`;
     $.list = await get(functionId, body);
     if ($.list.data != '') {
         console.log($.list.data);
@@ -170,7 +171,7 @@ async function prize_list() {
 // 分享API
 async function shareTask() {
     const functionId = `activity_shareTask`;
-    const body = `body={}`;
+    const body = `body=%7b%7d`;
     $.shareInfo = await get(functionId, body);
 }
 
@@ -178,7 +179,7 @@ async function shareTask() {
 async function meetForactivity() {
     const functionId = `activity_taskInfo`;
     const value = $.taskInfo.data.taskInfo[0].allValues.value;
-    const body = `body={"hallld":"${value}"}`;
+    const body = `body=%7b'hallld':'${value}'%7d`;
     $.meetInfo = await get(functionId, body);
 }
 
@@ -186,7 +187,7 @@ async function meetForactivity() {
 async function productForactivity(i) {
     const functionId = `activity_followGood`;
     const value = $.taskInfo.data.taskInfo[1].allValues[i].value;
-    const body = `body={"goodId":"${value}"}`;
+    const body = `body=%7b'goodId':'${value}'%7d`;
     $.productInfo = await get(functionId, body);
 }
 
@@ -194,7 +195,7 @@ async function productForactivity(i) {
 async function shopForactivity(i) {
     const functionId = `activity_followShop`;
     const value = $.taskInfo.data.shopInfo.shopId;
-    const body = `body={"shopId":"${value}"}`;
+    const body = `body=%7b'shopId':'${value}'%7d`;
     $.shopInfo = await get(functionId, body);
 }
 
