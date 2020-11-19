@@ -59,7 +59,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 function showMsg() {
     if ($.isLogin) {
         $.log(`\n${message}\n`);
-        jdNotify = $.getdata('jdSpeedNotify') ? $.getdata('jdSpeedNotify') : jdNotify;
+        jdNotify = $.getdata('jdfactory') ? $.getdata('jdfactory') : jdNotify;
         if (!jdNotify || jdNotify === 'false') {
             $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n` + message);
         }

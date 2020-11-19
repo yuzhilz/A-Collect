@@ -8,6 +8,8 @@ Author: 799953468 https://github.com/799953468
 2 0 * * * ./JD/jd_paopao.js, tag=京东抽奖机, img-url=https://raw.githubusercontent.com/Orz-3/task/master/jd.png, enabled=true
 */
 
+const { info } = require('console');
+
 const $ = new Env('京东泡泡大战');
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -40,7 +42,12 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
             $.index = i + 1;
             await activity_taskInfo();
             await activity();
+            await share();
             await product();
+            await shop();
+            await prize_list();
+            await rank();
+            await showMsg();
         }
     }
 })()
@@ -55,7 +62,7 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
 function showMsg() {
     if ($.isLogin) {
         $.log(`\n${message}\n`);
-        jdNotify = $.getdata('jdSpeedNotify') ? $.getdata('jdSpeedNotify') : jdNotify;
+        jdNotify = $.getdata('jdpaopao') ? $.getdata('jdpaopao') : jdNotify;
         if (!jdNotify || jdNotify === 'false') {
             $.msg($.name, subTitle, `【京东账号${$.index}】${UserName}\n` + message);
         }
@@ -64,61 +71,61 @@ function showMsg() {
 
 // 获取任务信息
 async function activity_taskInfo() {
-    return new Promise(resolve => {
-        let url = {
-            url: `${JD_API_HOST}?activity_taskInfo&body`,
-            headers: {
-                'Origin': `https://jingqih5.m.jd.com`,
-                'Cookie': cookie,
-                'Connection': `keep-alive`,
-                'Accept': `application/json`,
-                'Host': `api.m.jd.com`,
-                'User-Agent': `jdapp;iPhone;9.2.2;14.2;`,
-                'Accept-Encoding': `gzip, deflate, br`,
-                'Accept-Language': `zh-cn`
-            },
-            body: `functionId=activity_taskInfo&body={}&client=H5&clientVersion=8.8.8&appid=zuma-web`
-        }
+    const functionId = `activity_taskInfo`;
+    const body = `body={}`;
+    $.taskInfo = await get(functionId, body);
+}
 
-        $.get(url, async(err, resq, data) => {
-            try {
-                if (err) {
-                    console.log('\n京东泡泡大战: API查询请求失败 ‼️‼️')
-                    console.log(JSON.stringify(err));
-                    $.logErr(err);
-                } else {
-                    $.taskInfo = JSON.parse(data);
-                    console.log($.taskInfo);
-                }
-            } catch (e) {
-                $.logErr(e, resp);
-            } finally {
-                resolve(data);
+// 分享
+async function share() {
+    console.log('开始分享');
+    if ($.taskInfo.data.shareTaskInfo.hasSharedTimes === $.taskInfo.data.shareTaskInfo.shareLimit) {
+        console.log('任务已经做过了');
+    } else {
+        for (i = $.taskInfo.data.shareTaskInfo.shareLimit - $.taskInfo.data.shareTaskInfo.hasSharedTimes; i < $.taskInfo.data.shareTaskInfo.shareLimit; i++) {
+            await shareTask();
+            await activity_taskInfo();
+            console.log('任务进度： ' + $.taskInfo.data.shareTaskInfo.hasSharedTimes + '/' + $.taskInfo.data.shareTaskInfo.shareLimit);
+            if ($.shareInfo) {
+                console.log($.shareInfo.errMsg);
             }
-        })
-    })
+            if ($.taskInfo.data.shareTaskInfo.hasSharedTimes === $.taskInfo.data.shareTaskInfo.shareLimit) {
+                break;
+            }
+            await sleep(2000);
+        }
+    }
 }
 
 // 逛会场
 async function activity() {
-    await meetForactivity();
-    if ($.activityInfo) {
-        console.log(`任务执行结果:` + $.activityInfo.errMsg);
+    console.log('开始逛会场');
+    if ($.taskInfo.data.taskInfo[0].finishNum === $.taskInfo.data.taskInfo[0].allValues.length) {
+        console.log('任务已经做过了');
+    } else {
+        await meetForactivity();
+        if ($.activityInfo) {
+            console.log(`任务执行结果:` + $.activityInfo.errMsg);
+        }
+        await sleep(2000);
+        console.log('休息一下');
     }
 }
 
-// 逛商品
+// 关注商品
 async function product() {
-    console.log('开始逛商品');
-    if ($.data.taskInfo[1].finishNum === $.taskInfo.data.taskInfo[1].allValues.length) {
+    console.log('开始关注商品');
+    if ($.taskInfo.data.taskInfo[1].finishNum === $.taskInfo.data.taskInfo[1].allValues.length) {
         console.log('任务已经做过了');
     } else {
-        for (i = 0; i < $.taskInfo.data.taskInfo[1].allValues.length; i++) {
-            await shopForactivity(i);
+        for (i = 0 + $.taskInfo.data.taskInfo[1].allValues.length - $.taskInfo.data.taskInfo[1].finishNum; i < $.taskInfo.data.taskInfo[1].allValues.length; i++) {
+            await productForactivity(i);
             await activity_taskInfo();
-            if ($.meetInfo) {
-                console.log($.meetInfo.errMsg);
+            console.log($.taskInfo.data.taskInfo[1].allValues[i].id + ' ' + $.taskInfo.data.taskInfo[1].finishNum + '/' + $.taskInfo.data.taskInfo[1].allValues.length);
+            if ($.productInfo) {
+                console.log($.productInfo.errMsg);
             }
+            await sleep(2000);
         }
     }
 }
@@ -126,30 +133,77 @@ async function product() {
 // 关注店铺
 async function shop() {
     console.log('开始关注店铺');
-    if ($.data.taskInfo[2].finishNum === $.taskInfo.data.taskInfo[2].allValues.length) {
+    if ($.taskInfo.data.taskInfo[2].finishNum === $.taskInfo.data.taskInfo[2].allValues.length) {
         console.log('任务已经做过了');
     } else {
-        for (i = 0; i < $.taskInfo.data.taskInfo[2].allValues.length; i++) {
-
+        for (i = 0 + $.taskInfo.data.taskInfo[2].allValues.length - $.taskInfo.data.taskInfo[2].finishNum; i < $.taskInfo.data.taskInfo[2].allValues.length; i++) {
+            await shopForactivity(i);
+            await activity_taskInfo();
+            console.log($.taskInfo.data.taskInfo[2].allValues[i].id + ' ' + $.taskInfo.data.taskInfo[2].finishNum + '/' + $.taskInfo.data.taskInfo[2].allValues.length);
+            if ($.shopInfo) {
+                console.log($.shopInfo.errMsg);
+            }
+            await sleep(2000);
         }
     }
+}
 
+// 查询排行榜
+async function rank() {
+    await activity_info();
+    if ($.activity_info) {
+        console.log('当前积分：' + $.activity_info.data.prizeInfo.score + '\n排名: ' + $.activity_info.data.prizeInfo.rank);
+    }
+    $.msg('泡泡大战', '\n 当前积分 :' + $.activity_info.data.prizeInfo.score + ' 排名:' + $.activity_info.data.prizeInfo.rank);
+}
+
+// 查询排行API
+async function activity_info() {
+    const functionId = `activity_info`;
+    const body = ``;
+    $.activity_info = await get(functionId, body);
+    console.log($.activity_Info);
+}
+
+// 查看奖品
+async function prize_list() {
+    const functionId = `prize_list`;
+    const body = `body={}`;
+    $.list = await get(functionId, body);
+    if ($.list.data != '') {
+        console.log($.list.data);
+    }
+}
+
+// 分享API
+async function shareTask() {
+    const functionId = `activity_shareTask`;
+    const body = `body={}`;
+    $.shareInfo = await get(functionId, body);
 }
 
 // 逛会场API
 async function meetForactivity() {
-    const funcitonId = activity_taskInfo;
+    const functionId = `activity_taskInfo`;
     const value = $.taskInfo.data.taskInfo[0].allValues.value;
-    const body = `functionId=${funcitonId}&body={}&client=H5&clientVersion=8.8.8&appid=zuma-web`;
-    $.meetInfo = await get(funcitonId, body);
+    const body = `body={"hallld":"${value}"}`;
+    $.meetInfo = await get(functionId, body);
 }
 
-// 逛商品API
-async function shopForactivity(i) {
-    const funcitonId = activity_taskInfo;
+// 关注商品API
+async function productForactivity(i) {
+    const functionId = `activity_followGood`;
     const value = $.taskInfo.data.taskInfo[1].allValues[i].value;
-    const body = `functionId=${funcitonId}&body={"goodId":"${value}"}&client=H5&clientVersion=8.8.8&appid=zuma-web`;
-    $.shopInfo = await get(funcitonId, body);
+    const body = `body={"goodId":"${value}"}`;
+    $.productInfo = await get(functionId, body);
+}
+
+// 关注店铺API
+async function shopForactivity(i) {
+    const functionId = `activity_followShop`;
+    const value = $.taskInfo.data.shopInfo.shopId;
+    const body = `body={"shopId":"${value}"}`;
+    $.shopInfo = await get(functionId, body);
 }
 
 function get(functionId, body) {
@@ -174,7 +228,7 @@ function get(functionId, body) {
 
 function taskGetUrl(functionId, body) {
     return {
-        url: `${JD_API_HOST}?functionId=${functionId}`,
+        url: `${JD_API_HOST}?${body}&client=H5&clientVersion=8.8.8&appid=zuma-web&functionId=${functionId}`,
         headers: {
             'Origin': `https://jingqih5.m.jd.com`,
             'Cookie': cookie,
@@ -186,7 +240,6 @@ function taskGetUrl(functionId, body) {
             'Accept-Language': `zh-cn`,
             'User-Agent': `jdapp;iPhone;9.2.2;14.2;`
         },
-        body: `body={${body}}&client=H5&clientVersion=8.8.8&appid=zuma-web&functionId=${functionId}`
     }
 }
 
