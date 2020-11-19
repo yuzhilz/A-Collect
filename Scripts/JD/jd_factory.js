@@ -21,7 +21,8 @@ if ($.isNode()) {
 }
 let message = '',
     subTitle = '',
-    UserName = '';
+    UserName = '',
+    addEnergy = false;
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async() => {
     if (!cookiesArr[0]) {
@@ -261,33 +262,35 @@ async function finishfollow() {
 
 // 充电
 async function addEnergy() {
-    if ($.factoryInfo.data.result.factoryInfo.totalScore === $.homeData.data.result.userScore) {
-        return new Promise(resolve => {
-            $.get(taskUrl('jdfactory_addEnergy'), async(err, resp, data) => {
-                try {
-                    if (err) {
-                        console.log(`${JSON.stringify(err)}`)
-                        console.log(`${$.name} API请求失败，请检查网路重试`)
-                    } else {
-                        if (data) {
-                            $.addEnergy = JSON.parse(data);
-                            console.log($.addEnergy);
-                            if ($.addEnergy.data.bizCode === 0) {
-                                console.log('充电成功');
-                            } else {
-                                console.log($.addEnergy.data.bizMsg);
-                            }
+    if (addEnergy) {
+        if ($.factoryInfo.data.result.factoryInfo.totalScore === $.homeData.data.result.userScore) {
+            return new Promise(resolve => {
+                $.get(taskUrl('jdfactory_addEnergy'), async(err, resp, data) => {
+                    try {
+                        if (err) {
+                            console.log(`${JSON.stringify(err)}`)
+                            console.log(`${$.name} API请求失败，请检查网路重试`)
                         } else {
-                            console.log(`京东服务器返回空数据`)
+                            if (data) {
+                                $.addEnergy = JSON.parse(data);
+                                console.log($.addEnergy);
+                                if ($.addEnergy.data.bizCode === 0) {
+                                    console.log('充电成功');
+                                } else {
+                                    console.log($.addEnergy.data.bizMsg);
+                                }
+                            } else {
+                                console.log(`京东服务器返回空数据`)
+                            }
                         }
+                    } catch (e) {
+                        $.logErr(e, resp)
+                    } finally {
+                        resolve();
                     }
-                } catch (e) {
-                    $.logErr(e, resp)
-                } finally {
-                    resolve();
-                }
+                })
             })
-        })
+        }
     } else {
         await jdfactory_getTaskDetail();
         console.log('当前电量⚡ :' + $.homeData.data.result.userScore + '  需要电量⚡ :' + $.factoryInfo.data.result.factoryInfo.totalScore);
