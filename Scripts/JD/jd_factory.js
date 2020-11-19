@@ -22,7 +22,7 @@ if ($.isNode()) {
 let message = '',
     subTitle = '',
     UserName = '',
-    addEnergy = false;
+    addEnergy = false; // 是否自动注入电量
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 !(async() => {
     if (!cookiesArr[0]) {
