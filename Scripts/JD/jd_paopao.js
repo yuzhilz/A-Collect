@@ -24,9 +24,7 @@ if ($.isNode()) {
     cookiesArr.push($.getdata('CookieJD2'));
 }
 let message = '',
-    subTitle = '',
-    UserName = '',
-    finish = false;
+    UserName = ''
 const JD_API_HOST = 'https://api.m.jd.com/api';
 !(async() => {
     if (!cookiesArr[0]) {
@@ -88,9 +86,6 @@ async function share() {
             console.log('任务进度： ' + $.taskInfo.data.shareTaskInfo.hasSharedTimes + '/' + $.taskInfo.data.shareTaskInfo.shareLimit);
             if ($.shareInfo) {
                 console.log($.shareInfo.errMsg);
-            }
-            if ($.taskInfo.data.shareTaskInfo.hasSharedTimes === $.taskInfo.data.shareTaskInfo.shareLimit) {
-                break;
             }
             await sleep(2000);
         }
@@ -160,7 +155,7 @@ async function rank() {
 // 查询排行API
 async function activity_info() {
     const functionId = `activity_info`;
-    const body = ``;
+    const body = `body={}`;
     $.activity_info = await get(functionId, body);
     console.log($.activity_Info);
 }
