@@ -7,9 +7,6 @@ Author: 799953468 https://github.com/799953468
 # 京东抽奖机
 2 0 * * * ./JD/jd_paopao.js, tag=京东泡泡大战, img-url=https://raw.githubusercontent.com/Orz-3/task/master/jd.png, enabled=true
 */
-
-const { info } = require('console');
-
 const $ = new Env('京东泡泡大战');
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
