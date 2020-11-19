@@ -256,7 +256,7 @@ async function finishfollow() {
 
 // 充电
 async function addEnergy() {
-    if (autoAdd && $.factoryInfo.data.result.factoryInfo.totalScore <= $.homeData.data.result.userScore) {
+    if (autoAdd && parseInt($.factoryInfo.data.result.factoryInfo.totalScore) <= parseInt($.homeData.data.result.userScore)) {
         return new Promise(resolve => {
             $.get(taskUrl('jdfactory_addEnergy'), async(err, resp, data) => {
                 try {
