@@ -1,7 +1,6 @@
 // 东东工厂
 // Author: 799953468 https://github.com/799953468
 // 更新时间：2020-11-18 8:57
-
 // [task_local]
 // # 东东工厂
 // 0 */3 * * * ./JD/jd_factory.js, tag=东东工厂, img-url=https://raw.githubusercontent.com/Orz-3/task/master/jd.png, enabled=true
@@ -10,7 +9,8 @@ const $ = new Env('东东工厂');
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [],
-    cookie = '';
+    cookie = '',
+    sharecode = ['P04z54XCjVWnYaS5m9cZ2esjHVDlwcfuXNvEN4'];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
@@ -38,12 +38,14 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
             $.index = i + 1;
             await jdFactory();
             await jdfactory_getTaskDetail();
+            console.log('互助码: ' + $.homeData.data.result.taskVos[1].assistTaskDetailVo.taskToken);
             await doDailyTask();
             await meetList();
             await shopList();
             await followList();
             await collectElectricity();
             await DailyElectricity();
+            await share();
             await addEnergy();
             await showMsg();
         }
@@ -206,6 +208,19 @@ async function followList() {
             }
             await sleep(2000);
         }
+    }
+}
+
+// 互助
+async function share() {
+    for (i = 0; i < sharecode.length; i++) {
+        console.log('开始助力第' + (i + 1) + '个好友');
+        const functionId = 'jdfactory_collectScore';
+        const taskToken = sharecode[i];
+        const body = `'taskToken':'${taskToken}'`;
+        const host = `api.m.jd.com`;
+        $.shareInfo = await request(functionId, body, host);
+        console.log($.shareInfo.data.bizMsg);
     }
 }
 
