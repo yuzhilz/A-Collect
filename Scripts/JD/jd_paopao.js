@@ -145,17 +145,16 @@ async function shop() {
 async function rank() {
     await activity_info();
     if ($.activity_info) {
-        console.log('当前积分：' + $.activity_info.data.prizeInfo.score + '\n排名: ' + $.activity_info.data.prizeInfo.rank);
+        console.log('当前积分：' + $.activity_info.data.score + '\n排名: ' + $.activity_info.data.rank);
     }
-    $.msg('泡泡大战', subTitle, '\n 当前积分 :' + $.activity_info.data.prizeInfo.score + ' 排名:' + $.activity_info.data.prizeInfo.rank);
+    $.msg('泡泡大战', subTitle, '\n 当前积分 :' + $.activity_info.data.score + ' 排名:' + $.activity_info.data.rank);
 }
 
 // 查询排行API
 async function activity_info() {
     const functionId = `activity_info`;
-    const body = `body=%7b%7d`;
+    const body = `body={}`;
     $.activity_info = await get(functionId, body);
-    console.log($.activity_Info);
 }
 
 // 查看奖品
