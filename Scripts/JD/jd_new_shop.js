@@ -13,7 +13,7 @@ const $ = new Env('新店福利');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [],
     cookie = '',
-    shareCode = ['P04z54XCjVXmIaW5m9cZ2esjHVDlzxvdLVQQM0'];
+    shareCode = ['P04z54XCjVXmIaW5m9cZ2esjHVDlzxvdLVQQM0', 'P04z54XCjVXmIaW5m9cZ2aujioYkmbOWXxVrt4'];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
@@ -136,7 +136,7 @@ async function meet() {
     if ($.meetInfo.code === 0) {
         console.log($.meetInfo.data.bizMsg);
     }
-
+    await sleep(2000);
 }
 
 // 互助
@@ -151,6 +151,7 @@ async function share() {
             const body = `'appId':'1EFRQxA','taskToken':'${taskToken}'`;
             $.shareInfo = await request(functionId, body);
             console.log($.shareInfo.data.bizMsg);
+            await sleep(1000);
         }
     }
 }
@@ -170,6 +171,7 @@ async function lottery() {
             console.log('获得优惠券: 满' + $.lottery.data.result.userAwardsCacheDto.couponVo.usageThreshold + '减' + $.lottery.data.result.userAwardsCacheDto.couponVo.quota);
         }
         await getHomeData();
+        await sleep(1000);
     }
     console.log('金币不足无法抽奖');
     $.msg('新店福利', subTitle, '\n 获得京豆' + beanCount + '个,优惠券前往个人中心查看')
