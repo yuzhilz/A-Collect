@@ -23,13 +23,13 @@ if ($.isNode()) {
     const $ENV_SHARECODES = process.env.FACTORY_SHARECODES;
     if ($ENV_SHARECODES) {
         $ENV_SHARECODES.trim()
-        .split(/([\n\r]|\\n|\\r)+|&/) //用 & 代替换行分隔多账号，可留空。
-        .map(str => (str || '').trim())
-        .forEach((str, i) => {
-            if(!sharecodes[i])
-                sharecodes[i] = '';
-            sharecodes[i] = str + '@' + sharecodes[i];
-        });
+            .split(/([\n\r]|\\n|\\r)+|&/) //用 & 代替换行分隔多账号，可留空。
+            .map(str => (str || '').trim())
+            .forEach((str, i) => {
+                if (!sharecodes[i])
+                    sharecodes[i] = '';
+                sharecodes[i] = str + '@' + sharecodes[i];
+            });
     }
 } else {
     cookiesArr.push($.getdata('CookieJD'));
@@ -237,15 +237,14 @@ async function share() {
     const sharecode = sharecodes[$.index - 1];
     for (i = 0; i < sharecode.length; i++) {
         const taskToken = sharecode[i];
-        if(taskToken === $.homeData.data.result.taskVos[1].assistTaskDetailVo.taskToken){
+        if (taskToken === $.homeData.data.result.taskVos[1].assistTaskDetailVo.taskToken) {
             console.log('跳过自己的助力码');
             continue;
         }
         console.log('开始助力第' + (i + 1) + '个好友');
         const functionId = 'jdfactory_collectScore';
         const body = `'taskToken':'${taskToken}'`;
-        const host = `api.m.jd.com`;
-        $.shareInfo = await request(functionId, body, host);
+        $.shareInfo = await request(functionId, body);
         console.log($.shareInfo.data.bizMsg);
     }
 }
@@ -255,8 +254,7 @@ async function signForFactory() {
     const functionId = 'jdfactory_collectScore';
     const taskToken = $.homeData.data.result.taskVos[0].simpleRecordInfoVo.taskToken;
     const body = `'taskToken':'${taskToken}'`;
-    const host = `api.m.jd.com`;
-    $.signResult = await request(functionId, body, host, 'application/x-www-form-urlencoded');
+    $.signResult = await request(functionId, body);
 }
 
 // 逛一逛API
@@ -264,8 +262,7 @@ async function meetForFactory(i) {
     const functionId = 'jdfactory_collectScore';
     const taskToken = $.homeData.data.result.taskVos[3].shoppingActivityVos[i].taskToken;
     const body = `'taskToken':'${taskToken}'`;
-    const host = `api.m.jd.com`;
-    $.meetResult = await request(functionId, body, host);
+    $.meetResult = await request(functionId, body);
 }
 
 // 逛商品API
@@ -273,17 +270,15 @@ async function shopForFactory(i) {
     const functionId = 'jdfactory_collectScore';
     const taskToken = $.homeData.data.result.taskVos[4].productInfoVos[i].taskToken;
     const body = `'taskToken':'${taskToken}'`;
-    const host = `api.m.jd.com`;
-    $.shopResult = await request(functionId, body, host);
+    $.shopResult = await request(functionId, body);
 }
 
 //关注店铺api
 async function followShop(i) {
     const functionId = 'followShop';
     const shopId = $.homeData.data.result.taskVos[5].followShopVo[i].shopId;
-    const host = `api.m.jd.com`;
     const body = `"follow":"true",'shopId':'${shopId}',"award":"false","sourceRpc":"shop_app_home_follow"`;
-    $.followShop = await request(functionId, body, host);
+    $.followShop = await request(functionId, body);
     await finishfollow(i);
 }
 
@@ -291,8 +286,7 @@ async function finishfollow() {
     const functionId = 'jdfactory_collectScore';
     const taskToken = $.homeData.data.result.taskVos[5].followShopVo[i].taskToken;
     const body = `'taskToken':'${taskToken}'`;
-    const host = `api.m.jd.com`;
-    $.finishfollow = await request(functionId, body, host);
+    $.finishfollow = await request(functionId, body);
 }
 
 // 充电
@@ -428,10 +422,10 @@ function taskPostUrl(functionId, body, host, ContentType) {
             'Cookie': cookie,
             'Connection': `keep-alive`,
             'Referer': `https://h5.m.jd.com/babelDiy/Zeus/2uSsV2wHEkySvompfjB43nuKkcHp/index.html`,
-            'Host': host,
+            'Host': 'api.m.jd.com',
             'Accept-Encoding': `gzip, deflate, br`,
             'Accept-Language': `zh-cn`,
-            'Content-Type': ContentType,
+            'Content-Type': 'application/x-www-form-urlencoded',
             'User-Agent': `jdapp;iPhone;9.2.0;14.1;`
         },
         body: `functionId=${functionId}&body={${body}}&client=wh5&clientVersion=1.0.0`
