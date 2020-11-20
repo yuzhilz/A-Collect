@@ -75,69 +75,54 @@ async function activity_taskInfo() {
 // 分享
 async function share() {
     console.log('开始分享');
-    if ($.taskInfo.data.shareTaskInfo.hasSharedTimes === $.taskInfo.data.shareTaskInfo.shareLimit) {
-        console.log('任务已经做过了');
-    } else {
-        for (i = $.taskInfo.data.shareTaskInfo.shareLimit - $.taskInfo.data.shareTaskInfo.hasSharedTimes; i < $.taskInfo.data.shareTaskInfo.shareLimit; i++) {
-            await shareTask();
-            await activity_taskInfo();
-            console.log('任务进度： ' + $.taskInfo.data.shareTaskInfo.hasSharedTimes + '/' + $.taskInfo.data.shareTaskInfo.shareLimit);
-            if ($.shareInfo) {
-                console.log($.shareInfo.errMsg);
-            }
-            await sleep(2000);
+    for (i = $.taskInfo.data.shareTaskInfo.shareLimit - $.taskInfo.data.shareTaskInfo.hasSharedTimes; i < $.taskInfo.data.shareTaskInfo.shareLimit; i++) {
+        await shareTask();
+        await activity_taskInfo();
+        console.log('任务进度： ' + $.taskInfo.data.shareTaskInfo.hasSharedTimes + '/' + $.taskInfo.data.shareTaskInfo.shareLimit);
+        if ($.shareInfo) {
+            console.log($.shareInfo.errMsg);
         }
+        await sleep(2000);
     }
 }
 
 // 逛会场
 async function activity() {
     console.log('开始逛会场');
-    if ($.taskInfo.data.taskInfo[0].finishNum === $.taskInfo.data.taskInfo[0].allValues.length) {
-        console.log('任务已经做过了');
-    } else {
-        await meetForactivity();
-        if ($.activityInfo) {
-            console.log(`任务执行结果:` + $.activityInfo.errMsg);
-        }
-        await sleep(2000);
-        console.log('休息一下');
+    await meetForactivity();
+    if ($.meetInfo) {
+        console.log(`任务执行结果:` + $.meetInfo.errMsg);
+        console.log($.meetInfo.errMsg);
     }
+    await sleep(2000);
+    console.log('休息一下');
 }
 
 // 关注商品
 async function product() {
     console.log('开始关注商品');
-    if ($.taskInfo.data.taskInfo[1].finishNum === $.taskInfo.data.taskInfo[1].allValues.length) {
-        console.log('任务已经做过了');
-    } else {
-        for (i = 0 + $.taskInfo.data.taskInfo[1].allValues.length - $.taskInfo.data.taskInfo[1].finishNum; i < $.taskInfo.data.taskInfo[1].allValues.length; i++) {
-            await productForactivity(i);
-            await activity_taskInfo();
-            console.log($.taskInfo.data.taskInfo[1].allValues[i].id + ' ' + $.taskInfo.data.taskInfo[1].finishNum + '/' + $.taskInfo.data.taskInfo[1].allValues.length);
-            if ($.productInfo) {
-                console.log($.productInfo.errMsg);
-            }
-            await sleep(2000);
+    for (i = 0 + $.taskInfo.data.taskInfo[1].allValues.length - $.taskInfo.data.taskInfo[1].finishNum; i < $.taskInfo.data.taskInfo[1].allValues.length; i++) {
+        await productForactivity(i);
+        await activity_taskInfo();
+        console.log($.taskInfo.data.taskInfo[1].allValues[i].id + ' ' + $.taskInfo.data.taskInfo[1].finishNum + '/' + $.taskInfo.data.taskInfo[1].allValues.length);
+        if ($.productInfo) {
+            console.log($.productInfo.errMsg);
         }
+        await sleep(2000);
     }
 }
 
 // 关注店铺
 async function shop() {
     console.log('开始关注店铺');
-    if ($.taskInfo.data.taskInfo[2].finishNum === $.taskInfo.data.taskInfo[2].allValues.length) {
-        console.log('任务已经做过了');
-    } else {
-        for (i = 0 + $.taskInfo.data.taskInfo[2].allValues.length - $.taskInfo.data.taskInfo[2].finishNum; i < $.taskInfo.data.taskInfo[2].allValues.length; i++) {
-            await shopForactivity(i);
-            await activity_taskInfo();
-            console.log($.taskInfo.data.taskInfo[2].allValues[i].id + ' ' + $.taskInfo.data.taskInfo[2].finishNum + '/' + $.taskInfo.data.taskInfo[2].allValues.length);
-            if ($.shopInfo) {
-                console.log($.shopInfo.errMsg);
-            }
-            await sleep(2000);
+    for (i = 0 + $.taskInfo.data.taskInfo[2].allValues.length - $.taskInfo.data.taskInfo[2].finishNum; i < $.taskInfo.data.taskInfo[2].allValues.length; i++) {
+        await shopForactivity(i);
+        await activity_taskInfo();
+        console.log($.taskInfo.data.taskInfo[2].allValues[i].id + ' ' + $.taskInfo.data.taskInfo[2].finishNum + '/' + $.taskInfo.data.taskInfo[2].allValues.length);
+        if ($.shopInfo) {
+            console.log($.shopInfo.errMsg);
         }
+        await sleep(2000);
     }
 }
 
@@ -153,14 +138,14 @@ async function rank() {
 // 查询排行API
 async function activity_info() {
     const functionId = `activity_info`;
-    const body = `body=%7b%7d`;
+    const body = ``;
     $.activity_info = await get(functionId, body);
 }
 
 // 查看奖品
 async function prize_list() {
     const functionId = `prize_list`;
-    const body = `body=%7b%7d`;
+    const body = ``;
     $.list = await get(functionId, body);
     if ($.list.data != '') {
         console.log($.list.data);
@@ -170,7 +155,7 @@ async function prize_list() {
 // 分享API
 async function shareTask() {
     const functionId = `activity_shareTask`;
-    const body = `body=%7b%7d`;
+    const body = ``;
     $.shareInfo = await get(functionId, body);
 }
 
@@ -178,7 +163,7 @@ async function shareTask() {
 async function meetForactivity() {
     const functionId = `activity_taskInfo`;
     const value = $.taskInfo.data.taskInfo[0].allValues.value;
-    const body = `body=%7b'hallld':'${value}'%7d`;
+    const body = `'hallld':'${value}'`;
     $.meetInfo = await get(functionId, body);
 }
 
@@ -186,7 +171,7 @@ async function meetForactivity() {
 async function productForactivity(i) {
     const functionId = `activity_followGood`;
     const value = $.taskInfo.data.taskInfo[1].allValues[i].value;
-    const body = `body=%7b'goodId':'${value}'%7d`;
+    const body = `'goodId':'${value}'`;
     $.productInfo = await get(functionId, body);
 }
 
@@ -194,7 +179,7 @@ async function productForactivity(i) {
 async function shopForactivity(i) {
     const functionId = `activity_followShop`;
     const value = $.taskInfo.data.shopInfo.shopId;
-    const body = `body=%7b'shopId':'${value}'%7d`;
+    const body = `shopId':'${value}'`;
     $.shopInfo = await get(functionId, body);
 }
 
@@ -220,7 +205,7 @@ function get(functionId, body) {
 
 function taskGetUrl(functionId, body) {
     return {
-        url: `${JD_API_HOST}?${body}&client=H5&clientVersion=8.8.8&appid=zuma-web&functionId=${functionId}`,
+        url: `${JD_API_HOST}?functionId=${functionId}&client=H5&clientVersion=8.8.8&appid=zuma-web&body={${body}}`,
         headers: {
             'Origin': `https://jingqih5.m.jd.com`,
             'Cookie': cookie,
