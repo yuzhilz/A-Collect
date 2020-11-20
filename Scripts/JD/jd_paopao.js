@@ -153,7 +153,7 @@ async function rank() {
 // 查询排行API
 async function activity_info() {
     const functionId = `activity_info`;
-    const body = `body={}`;
+    const body = `body=%7b%7d`;
     $.activity_info = await get(functionId, body);
 }
 
