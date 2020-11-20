@@ -12,7 +12,8 @@ const $ = new Env('新店福利');
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [],
-    cookie = '';
+    cookie = '',
+    shareCode = ['P04z54XCjVXmIaW5m9cZ2esjHVDlzxvdLVQQM0'];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
@@ -38,9 +39,11 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
             $.errorMsg = '';
             $.index = i + 1;
             await getHomeData();
+            console.log('互助码: ' + $.homeData.data.result.taskVos[0].assistTaskDetailVo.taskToken);
             await shop();
             await product();
-            //await meet();
+            await meet();
+            await share();
             await showMsg();
         }
     }
@@ -78,16 +81,19 @@ async function shop() {
     } else {
         for (i = 0; i < $.homeData.data.result.taskVos[1].followShopVo.length; i++) {
             await getHomeData();
+            if ($.homeData.data.result.taskVos[1].times === $.homeData.data.result.taskVos[1].maxTimes) {
+                break;
+            }
             let functionId = `followShop`;
             const shopId = $.homeData.data.result.taskVos[1].followShopVo[i].shopId;
             const body = `"follow":"true",'shopId':'${shopId}'`
             $.followInfo = await request(functionId, body);
-            if ($.followInfo.code === 0) {
+            if ($.followInfo.code === '0') {
                 functionId = 'harmony_collectScore';
                 const taskToken = $.homeData.data.result.taskVos[1].followShopVo[i].taskToken;
-                const taskId = $.homeData.data.result.taskVos[1].taskId;
                 const body = `'appId':'1EFRQxA','taskToken':'${taskToken}'`;
                 $.finishfollow = await request(functionId, body);
+                await getHomeData();
                 console.log('关注' + $.homeData.data.result.taskVos[1].followShopVo[i].shopName + ' ' + $.homeData.data.result.taskVos[1].times + '/' + $.homeData.data.result.taskVos[1].maxTimes);
                 await sleep(2000);
             }
@@ -118,52 +124,34 @@ async function product() {
     }
 }
 
-
 // 浏览会场
 async function meet() {
-    // console.log('开始逛会场');
-    // await shoppingActivit();
-    // console.log($.shoppingInfo);
-    // const functionId = `harmony_collectScore`;
-    // const taskToken = $.homeData.data.result.taskVos[3].shoppingActivityVos[0].taskToken;
-    // const body = `'appId':'1EFRQxA','taskToken':'${taskToken}'`;
-    // $.meetInfo = await request(functionId, body);
-    // //console.log($.meetInfo);
-    const subtitle = $.homeData.data.result.taskVos[3].shoppingActivityVos[0].subtitle;
-    const reg = /\/active[^\/]*\/([^\/]+)/;
-    const encrypt = subtitle.match(reg)[1];
-    await shoppingActivit(subtitle, encrypt);
+    console.log('开始逛会场');
+    const functionId = `harmony_collectScore`;
+    const taskToken = $.homeData.data.result.taskVos[3].shoppingActivityVos[0].taskToken;
+    const body = `'appId':'1EFRQxA','taskToken':'${taskToken}'`;
+    $.meetInfo = await request(functionId, body);
+    if ($.meetInfo.code === 0) {
+        console.log($.meetInfo.data.bizMsg);
+    }
+
 }
 
-function shoppingActivit(subtitle, encrypt) {
-    return new Promise(resolve => {
-        const options = {
-            url: `https://h5speed.m.jd.com/?encrypt=${encrypt}`,
-            headers: {
-                'User-Agent': 'jdapp;iPhone;9.2.2;14.2;',
-                'Host': 'h5speed.m.jd.com',
-                'Cookie': cookie,
-                'Accept-Encoding': `gzip, deflate, br`,
-                'Accept-Language': `zh-cn`,
-                'Connection': `keep-alive`,
-                'Referer': subtitle
-            }
+// 互助
+async function share() {
+    for (i = 0; i < shareCode.length; i++) {
+        if (shareCode[i] === $.homeData.data.result.taskVos[0].assistTaskDetailVo.taskToken) {
+            console.log('跳过自己的助力码');
+        } else {
+            console.log('开始助力第' + (i + 1) + '个好友');
+            const functionId = 'interact_template_getHomeData';
+            const taskToken = shareCode[i];
+            const body = `'appId':'1EFRQxA','taskToken':'${taskToken}'`;
+            const host = `api.m.jd.com`;
+            $.shareInfo = await request(functionId, body, host);
+            console.log($.shareInfo.data.bizMsg);
         }
-        $.get(options, (err, resp, data) => {
-            try {
-                if (err) {
-                    $.logErr(err);
-                } else {
-                    // console.log(data)
-                    data = JSON.parse(data);
-                }
-            } catch (e) {
-                $.logErr(e, resp);
-            } finally {
-                resolve(data);
-            }
-        })
-    })
+    }
 }
 
 function sleep(s) {
