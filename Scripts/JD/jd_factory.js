@@ -11,8 +11,8 @@ const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [],
     cookie = '',
     sharecodes = [
-        'P04z54XCjVWnYaS5m9cZ2esjHVDlwcfuXNvEN4@P04z54XCjVWnYaS5khRQiW7', //账号 1
-        'P04z54XCjVWnYaS5m9cZ2esjHVDlwcfuXNvEN4@P04z54XCjVWnYaS5khRQiW7', //账号 2
+        'P04z54XCjVWnYaS5m9cZ2esjHVDlwcfuXNvEN4', //账号 1
+        'P04z54XCjVWnYaS5m9cZ2esjHVDlwcfuXNvEN4', //账号 2
     ];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
@@ -179,8 +179,12 @@ async function meetList() {
         console.log('任务已经做过了');
     } else {
         for (i = 0; i < $.homeData.data.result.taskVos[3].maxTimes; i++) {
-            await meetForFactory(i);
             await jdfactory_getTaskDetail();
+            if ($.homeData.data.result.taskVos[3].times === $.homeData.data.result.taskVos[3].maxTimes) {
+                console.log('任务已经做完');
+                break;
+            }
+            await meetForFactory(i);
             console.log($.homeData.data.result.taskVos[3].shoppingActivityVos[i].title + '  ' + $.homeData.data.result.taskVos[3].times + '/' + $.homeData.data.result.taskVos[3].maxTimes);
             if ($.meetResult.data.bizMsg === "0") {
                 console.log(`任务执行成功获得${$.meetResult.result.score}⚡电量`)
@@ -219,8 +223,12 @@ async function followList() {
         console.log('任务已经做过了');
     } else {
         for (i = 0; i < $.homeData.data.result.taskVos[5].maxTimes; i++) {
-            await followShop(i);
             await jdfactory_getTaskDetail();
+            if ($.homeData.data.result.taskVos[5].times === $.homeData.data.result.taskVos[5].maxTimes) {
+                console.log('任务已经做完');
+                break;
+            }
+            await followShop(i);
             console.log('任务次数: ' + $.homeData.data.result.taskVos[5].times + '/' + $.homeData.data.result.taskVos[5].maxTimes);
             if ($.finishfollow.data.bizMsg === "0") {
                 console.log(`任务执行成功获得${$.finishfollow.data.result.score}⚡电量`);
@@ -367,7 +375,7 @@ async function DailyElectricity() {
             const taskToken = $.homeData.data.result.taskVos[7].threeMealInfoVos.taskToken;
             const body = `'taskToken':'${taskToken}'`;
             const host = `api.m.jd.com`;
-            $.DailyElectricityResult = await request(functionId, body, host);
+            $.DailyElectricityResult = await request(functionId, body);
             if ($.DailyElectricityResult.data.bizCode === 0) {
                 console.log($.DailyElectricityResult.data.bizMsg);
             } else {
@@ -377,9 +385,9 @@ async function DailyElectricity() {
     }
 }
 
-function request(functionId, body, host, ContentType) {
+function request(functionId, body) {
     return new Promise(resolve => {
-        $.post(taskPostUrl(functionId, body, host, ContentType), (err, resp, data) => {
+        $.post(taskPostUrl(functionId, body), (err, resp, data) => {
             try {
                 if (err) {
                     console.log('\n京东工厂: API查询请求失败 ‼️‼️')
@@ -414,7 +422,7 @@ function taskUrl(function_id, body = {}) {
     }
 }
 
-function taskPostUrl(functionId, body, host, ContentType) {
+function taskPostUrl(functionId, body) {
     return {
         url: `${JD_API_HOST}?functionId=${functionId}`,
         headers: {
@@ -433,7 +441,7 @@ function taskPostUrl(functionId, body, host, ContentType) {
 }
 
 function sleep(s) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         setTimeout(() => {
             resolve();
         }, s);

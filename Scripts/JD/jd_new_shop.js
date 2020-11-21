@@ -14,8 +14,8 @@ const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [],
     cookie = '',
     sharecodes = [
-        'P04z54XCjVXmIaW5m9cZ2esjHVDlzxvdLVQQM0@P04z54XCjVXmIaW5m9cZ2aujioYkmbOWXxVrt4@P04z54XCjVXmIaW5khRQiW7', //账号 1
-        'P04z54XCjVXmIaW5m9cZ2esjHVDlzxvdLVQQM0@P04z54XCjVXmIaW5m9cZ2aujioYkmbOWXxVrt4@P04z54XCjVXmIaW5khRQiW7', //账号 2
+        'P04z54XCjVXmIaW5m9cZ2esjHVDlzxvdLVQQM0', //账号 1
+        'P04z54XCjVXmIaW5m9cZ2esjHVDlzxvdLVQQM0', //账号 2
     ];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
@@ -26,13 +26,13 @@ if ($.isNode()) {
     const $ENV_SHARECODES = process.env.NEWSHOP_SHARECODES;
     if ($ENV_SHARECODES) {
         $ENV_SHARECODES.trim()
-        .split(/([\n\r]|\\n|\\r)+|&/) //用 & 代替换行分隔多账号，可留空。
-        .map(str => (str || '').trim())
-        .forEach((str, i) => {
-            if(!sharecodes[i])
-                sharecodes[i] = '';
-            sharecodes[i] = str + '@' + sharecodes[i];
-        });
+            .split(/([\n\r]|\\n|\\r)+|&/) //用 & 代替换行分隔多账号，可留空。
+            .map(str => (str || '').trim())
+            .forEach((str, i) => {
+                if (!sharecodes[i])
+                    sharecodes[i] = '';
+                sharecodes[i] = str + '@' + sharecodes[i];
+            });
     }
 } else {
     cookiesArr.push($.getdata('CookieJD'));
