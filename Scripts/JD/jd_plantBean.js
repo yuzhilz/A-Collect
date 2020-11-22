@@ -87,6 +87,7 @@ let randomCount = 20;
 async function jdPlantBean() {
     console.log(`获取任务及基本信息`)
     await plantBeanIndex();
+    // console.log(plantBeanIndexResult.data.taskList);
     if ($.plantBeanIndexResult.code === '0') {
         const shareUrl = $.plantBeanIndexResult.data.jwordShareInfo.shareUrl
         $.myPlantUuid = getParam(shareUrl, 'plantUuid')
@@ -445,6 +446,7 @@ async function collectUserNutr(paradiseUuid) {
 }
 async function receiveNutrients() {
     $.receiveNutrientsRes = await request('receiveNutrients', { "roundId": currentRoundId, "monitor_refer": "plant_receiveNutrients" })
+        // console.log(`定时领取营养液结果:${JSON.stringify($.receiveNutrientsRes)}`)
 }
 async function plantEggDoLottery() {
     $.plantEggDoLotteryResult = await requestGet('plantEggDoLottery');
@@ -460,10 +462,12 @@ async function productTaskList() {
 async function plantChannelTaskList() {
     let functionId = arguments.callee.name.toString();
     $.plantChannelTaskList = await requestGet(functionId);
+    // console.log('$.plantChannelTaskList', $.plantChannelTaskList)
 }
 async function shopTaskList() {
     let functionId = arguments.callee.name.toString();
     $.shopTaskListRes = await requestGet(functionId, { "monitor_refer": "plant_receiveNutrients" });
+    // console.log('$.shopTaskListRes', $.shopTaskListRes)
 }
 async function receiveNutrientsTask(awardType) {
     const functionId = arguments.callee.name.toString();
@@ -510,10 +514,8 @@ async function plantBeanIndex() {
 function shareCodesFormat() {
     return new Promise(async resolve => {
         newShareCodes = [];
-        if (jdPlantBeanShareArr[$.index - 1]) {
-            newShareCodes = jdPlantBeanShareArr[$.index - 1].split('@');
-        }
-        console.log(`第${$.index}个京东账号将要助力的好友${JSON.stringify(newShareCodes)}`)
+        const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
+        newShareCodes = shareCodes[tempIndex].split('@');
         resolve();
     })
 }
@@ -563,7 +565,7 @@ function requestGet(function_id, body = {}) {
                 'Host': 'api.m.jd.com',
                 'Accept': '*/*',
                 'Connection': 'keep-alive',
-                'User-Agent': 'JD4iPhone/167414 (iPhone;iOS 14.1;Scale/3.00)',
+                'User-Agent': 'JD4iPhone/167283 (iPhone;iOS 13.6.1;Scale/3.00)',
                 'Accept-Language': 'zh-Hans-CN;q=1,en-CN;q=0.9',
                 'Accept-Encoding': 'gzip, deflate, br',
                 'Content-Type': "application/x-www-form-urlencoded"
@@ -660,7 +662,7 @@ function taskUrl(function_id, body) {
             'Host': 'api.m.jd.com',
             'Accept': '*/*',
             'Connection': 'keep-alive',
-            'User-Agent': 'JD4iPhone/167414 (iPhone;iOS 14.1;Scale/3.00)',
+            'User-Agent': 'JD4iPhone/167249 (iPhone;iOS 13.6.1;Scale/3.00)',
             'Accept-Language': 'zh-Hans-CN;q=1,en-CN;q=0.9',
             'Accept-Encoding': 'gzip, deflate, br',
             'Content-Type': "application/x-www-form-urlencoded"

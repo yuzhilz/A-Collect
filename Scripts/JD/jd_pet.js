@@ -440,10 +440,8 @@ async function showMsg() {
 function shareCodesFormat() {
     return new Promise(async resolve => {
         newShareCodes = [];
-        if (jdPetShareArr[$.index - 1]) {
-            newShareCodes = jdPetShareArr[$.index - 1].split('@');
-        }
-        console.log(`第${$.index}个京东账号将要助力的好友${JSON.stringify(newShareCodes)}`)
+        const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
+        newShareCodes = shareCodes[tempIndex].split('@');
         resolve();
     })
 }
