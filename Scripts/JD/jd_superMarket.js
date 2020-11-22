@@ -25,7 +25,6 @@ const $ = new Env('东东超市');
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [],
     cookie = '',
-    jdSuperMarketShareArr = [],
     notify, newShareCodes;
 
 let jdNotify = true; //用来是否关闭弹窗通知，true表示关闭，false表示开启。
@@ -649,11 +648,8 @@ async function manageProduct() {
             productList2.push(item1);
           }
         }
-        // console.log(`productNow${JSON.stringify(productNow)}`)
-        // console.log(`productList2${JSON.stringify(productList2)}`)
         if (productList2 && productList2.length > 0) {
           productList2.sort(sortTotalPriceGold);
-          // console.log(productList2)
           if (productNow && productNow.length > 0) {
             if (productList2.slice(-1)[0]['productId'] === productNow[0]['productId']) {
               console.log(`货架[${item.shelfId}]${productNow[0]['name']}已上架\n`)
@@ -1343,21 +1339,7 @@ function sortSyData(a, b) {
 function sortTotalPriceGold(a, b) {
   return a['previewTotalPriceGold'] - b['previewTotalPriceGold']
 }
-//格式化助力码
-function shareCodesFormat() {
-  return new Promise(resolve => {
-    console.log(`第${$.index}个京东账号的助力码:::${jdSuperMarketShareArr[$.index - 1]}`)
-    if (jdSuperMarketShareArr[$.index - 1]) {
-      newShareCodes = jdSuperMarketShareArr[$.index - 1].split('@');
-    } else {
-      console.log(`由于您未提供与京京东账号相对应的shareCode,下面助力将采纳本脚本自带的助力码\n`)
-      const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
-      newShareCodes = shareCodes[tempIndex].split('@');
-    }
-    console.log(`格式化后第${$.index}个京东账号的助力码${JSON.stringify(newShareCodes)}`)
-    resolve();
-  })
-}
+
 function requireConfig() {
   return new Promise(resolve => {
     // console.log('\n开始获取京小超配置文件\n')
@@ -1377,8 +1359,6 @@ function requireConfig() {
     }
     console.log(`共${cookiesArr.length}个京东账号\n`);
     console.log(`京小超已改版,目前暂不用助力, 故无助力码`)
-    // console.log(`\n京小超商圈助力码::${JSON.stringify(jdSuperMarketShareArr)}`);
-    // console.log(`您提供了${jdSuperMarketShareArr.length}个账号的助力码\n`);
     resolve()
   })
 }
