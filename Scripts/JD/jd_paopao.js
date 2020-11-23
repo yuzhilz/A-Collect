@@ -215,7 +215,7 @@ function taskGetUrl(functionId, body) {
             'Host': `api.m.jd.com`,
             'Accept-Encoding': `gzip, deflate, br`,
             'Accept-Language': `zh-cn`,
-            'User-Agent': `jdapp;iPhone;9.2.2;14.2;`
+            'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : "jdapp;iPhone;9.2.2;14.2;") : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.2.2;14.2;")
         },
     }
 }
