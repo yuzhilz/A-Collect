@@ -151,7 +151,7 @@ function queryByUserId() {
 async function doChannelsListTask(taskId, taskType) {
     await queryChannelsList(taskId);
     for (let item of $.queryChannelsList) {
-        if (item.showOrder !== 1) {
+        if (item.showOrder === 1) {
             await $.wait(1000)
             await followChannel(taskId, item.id)
             await queryDoneTaskRecord(taskId, taskType);
@@ -703,7 +703,7 @@ function login(userName) {
     })
 }
 
-function updateInviteCode(url = 'https://raw.githubusercontent.com/799953468/updateTeam/master/jd_updateSmallHomeInviteCode.json') {
+function updateInviteCode(url = 'https://raw.githubusercontent.com/799953468/JD_ShareCode/master/jd_updateSmallHomeInviteCode.json') {
     return new Promise(resolve => {
         $.get({ url }, async(err, resp, data) => {
             try {
@@ -721,7 +721,7 @@ function updateInviteCode(url = 'https://raw.githubusercontent.com/799953468/upd
     })
 }
 
-function updateInviteCodeCDN(url = 'https://cdn.jsdelivr.net/gh/799953468/updateTeam@master/jd_updateSmallHomeInviteCode.json') {
+function updateInviteCodeCDN(url = 'https://cdn.jsdelivr.net/gh/799953468/JD_ShareCode@master/jd_updateSmallHomeInviteCode.json') {
     return new Promise(resolve => {
         $.get({ url }, async(err, resp, data) => {
             try {
