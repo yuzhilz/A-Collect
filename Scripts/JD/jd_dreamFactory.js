@@ -287,7 +287,7 @@ function hireAward() {
 
 async function helpFriends() {
     await updateInviteCode();
-    if (!$.updatePkActivityIdRes) await updateInviteCodeCDN();
+    if (!$.inviteCodes) await updateInviteCodeCDN();
     for (let item of $.inviteCodes.inviteCode) {
         if (!item) continue
         await assistFriend(item, $.createAssistUserID);
