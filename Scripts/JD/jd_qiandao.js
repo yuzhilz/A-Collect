@@ -63,23 +63,30 @@ async function activity_taskInfo() {
     const functionId = `queryTrumpTask`;
     const body = `'sign':2`;
     $.taskInfo = await get(functionId, body);
+    //console.log($.taskInfo.result.taskList);
 }
 
 // 逛店铺
 async function doTrumpTask() {
+    console.log('开始逛商品');
     const functionId = `doTrumpTask`;
-    for (i = 0; i < $.taskInfo.result.signTask.length; i++) {
-        const itemId = $.taskInfo.result.signTask[i].taskItemInfo.itemId;
-        const taskId = $.taskInfo.result.signTask[i].taskId;
-        const taskToken = $.taskInfo.result.signTask[i].taskItemInfo.taskToken
-        const body = `'taskId':'${taskId}';'taskId':'${itemId}'`;
-        $.doInfo = await post(functionId, body);
+    for (i = 0; i < $.taskInfo.result.taskList.length; i++) {
+        if ($.taskInfo.result.taskList[i].taskId === 1) {
+            const itemId = $.taskInfo.result.taskList[i].taskItemInfo.itemId;
+            const taskId = $.taskInfo.result.taskList[i].taskId;
+            const skuName = $.taskInfo.result.taskList[i].taskItemInfo.skuName;
+            const body = `'taskId':${taskId},'itemId':'${itemId}','sign':2`;
+            console.log(body);
+            $.doInfo = await get(functionId, body);
+            console.log($.doInfo);
+        }
+
     }
 
 }
 
 function post(functionId, body) {
-    return new prompt(resolve => {
+    return new Promise(resolve => {
         $.post(taskPostUrl(functionId, body), (err, resp, data) => {
             try {
                 if (err) {
@@ -120,7 +127,7 @@ function get(functionId, body) {
 
 function taskPostUrl(functionId, body) {
     return {
-        url: `${JD_API_HOST}?functionId=${functionId}&body=%7B${body}%7D&appid=content_ecology&client=wh5&clientVersion=9.2.4`,
+        url: `${JD_API_HOST}?functionId=${functionId}`,
         headers: {
             'Origin': `https://h5.m.jd.com`,
             'Cookie': cookie,
@@ -131,7 +138,8 @@ function taskPostUrl(functionId, body) {
             'Accept-Encoding': `gzip, deflate, br`,
             'Accept-Language': `zh-cn`,
             'User-Agent': `jdapp;iPhone;9.2.4;14.2;`
-        }
+        },
+        body: `functionId=${functionId}&body=%7B${body}%7D&appid=content_ecology&client=wh5&clientVersion=9.2.4`
     }
 }
 
@@ -148,7 +156,7 @@ function taskGetUrl(functionId, body) {
             'Accept-Encoding': `gzip, deflate, br`,
             'Accept-Language': `zh-cn`,
             'User-Agent': `jdapp;iPhone;9.2.4;14.2;`
-        },
+        }
     }
 }
 
