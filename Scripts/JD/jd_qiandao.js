@@ -61,7 +61,7 @@ function showMsg() {
 // 获取任务信息
 async function activity_taskInfo() {
     const functionId = `queryTrumpTask`;
-    const body = ``;
+    const body = `'sign':2`;
     $.taskInfo = await get(functionId, body);
 }
 
@@ -120,7 +120,7 @@ function get(functionId, body) {
 
 function taskPostUrl(functionId, body) {
     return {
-        url: `${JD_API_HOST}?body=%7B${body}%7D&client=wh5&clientVersion=9.2.4&functionId=${functionId}`,
+        url: `${JD_API_HOST}?functionId=${functionId}&body=%7B${body}%7D&appid=content_ecology&client=wh5&clientVersion=9.2.4`,
         headers: {
             'Origin': `https://h5.m.jd.com`,
             'Cookie': cookie,
@@ -137,7 +137,7 @@ function taskPostUrl(functionId, body) {
 
 function taskGetUrl(functionId, body) {
     return {
-        url: `${JD_API_HOST}?body=%7B${body}%7D&client=wh5&clientVersion=9.2.4&functionId=${functionId}`,
+        url: `${JD_API_HOST}?functionId=${functionId}&body=%7B${body}%7D&appid=content_ecology&client=wh5&clientVersion=9.2.4`,
         headers: {
             'Origin': `https://h5.m.jd.com`,
             'Cookie': cookie,
