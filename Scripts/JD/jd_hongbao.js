@@ -11,15 +11,35 @@ const $ = new Env('双12红包');
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [],
-    cookie = '';
+    cookie = '',
+    sharecodes = [
+        'P04z54XCjVUnIaW5m9cZ2esjHVDl4-6ktbt2eQ', //账号 1
+        'P04z54XCjVUnIaW5m9cZ2esjHVDl4-6ktbt2eQ', //账号 2
+    ];
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
         cookiesArr.push(jdCookieNode[item])
-    })
+    });
+    // github actions 用户的好友互助码 Secret 变量: FACTORY_SHARECODES (格式参考农村、萌宠)
+    const $ENV_SHARECODES = process.env.FACTORY_SHARECODES;
+    if ($ENV_SHARECODES) {
+        $ENV_SHARECODES.trim()
+            .split(/([\n\r]|\\n|\\r)+|&/) //用 & 代替换行分隔多账号，可留空。
+            .map(str => (str || '').trim())
+            .forEach((str, i) => {
+                if (!sharecodes[i])
+                    sharecodes[i] = '';
+                sharecodes[i] = str + '@' + sharecodes[i];
+            });
+    }
 } else {
     cookiesArr.push($.getdata('CookieJD'));
     cookiesArr.push($.getdata('CookieJD2'));
 }
+sharecodes = sharecodes.map(str => {
+    return [...new Set(str.trim().split('@').filter(Boolean))];
+});
+
 let message = '',
     UserName = '',
     subTitle = '',
@@ -38,6 +58,8 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
             $.errorMsg = '';
             $.index = i + 1;
             await getHomeData();
+            console.log('互助码:' + $.homeData.data.result.taskVos[5].assistTaskDetailVo.taskToken);
+            await share();
             await meet();
             await meet2();
             await shop();
@@ -158,6 +180,23 @@ async function openRedpacket() {
         console.log($.openinfo.data.result.userAwardsCacheDto.name);
         total = total + $.openinfo.data.result.userAwardsCacheDto.value;
         await sleep(1000);
+    }
+}
+
+// 互助
+async function share() {
+    const sharecode = sharecodes[$.index - 1];
+    for (i = 0; i < sharecode.length; i++) {
+        const taskToken = sharecode[i];
+        if (taskToken === $.homeData.data.result.taskVos[5].assistTaskDetailVo.taskToken) {
+            console.log('跳过自己的助力码');
+            continue;
+        }
+        console.log('开始助力第' + (i + 1) + '个好友');
+        const functionId = 'splitHongbao_getHomeData';
+        const body = `"appId":"1EFRTwA","taskToken":"${taskToken}"`;
+        $.shareInfo = await request(functionId, body);
+        console.log($.shareInfo.data.bizMsg);
     }
 }
 
