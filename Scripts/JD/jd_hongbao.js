@@ -104,7 +104,7 @@ async function meet() {
     const taskId = $.homeData.data.result.taskVos[0].taskId;
     const body = `"appId":"1EFRTwA","taskToken":"${taskToken}","taskId":${taskId},"actionType":1`
     $.meetInfo = await request(functionId, body)
-    console.log($.meetInfo);
+    console.log($.meetInfo.data.bizMsg);
 }
 
 // 逛金榜
