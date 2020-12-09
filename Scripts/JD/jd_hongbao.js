@@ -105,7 +105,7 @@ async function meet() {
     const body = `"appId":"1EFRTwA","taskToken":"${taskToken}","taskId":${taskId},"actionType":1`
     await request(functionId, body);
     await sleep(5000);
-    await finish(functionId, taskId, itemId, taskToken);
+    await finish(functionId, taskId, taskToken);
     console.log($.meetInfo.data.bizMsg);
 }
 
