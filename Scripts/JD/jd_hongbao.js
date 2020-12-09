@@ -106,12 +106,10 @@ async function meet() {
     await request(functionId, body);
     await sleep(5000);
     await finish(functionId, taskId, taskToken);
-    console.log($.meetInfo.data.bizMsg);
 }
 
 // 逛金榜
 async function meet2() {
-    console.log('开始逛金榜');
     for (i = 0; i < $.homeData.data.result.taskVos[1].shoppingActivityVos.length; i++) {
         console.log($.homeData.data.result.taskVos[1].shoppingActivityVos[i].title);
         const functionId = `harmony_collectScore`;
@@ -127,7 +125,6 @@ async function meet2() {
 
 // 逛入榜商品
 async function shop() {
-    console.log('开始逛京东入榜商品');
     for (i = 0; i < $.homeData.data.result.taskVos[2].productInfoVos.length; i++) {
         console.log($.homeData.data.result.taskVos[2].productInfoVos[i].skuName);
         const functionId = `harmony_collectScore`;
@@ -143,7 +140,6 @@ async function shop() {
 
 // 浏览3
 async function meet3() {
-    console.log('开始逛京东入榜商品');
     for (var i = 0; i < $.homeData.data.result.taskVos[3].shoppingActivityVos.length; i++) {
         console.log($.homeData.data.result.taskVos[3].shoppingActivityVos[i].title);
         const functionId = `harmony_collectScore`;
@@ -159,7 +155,6 @@ async function meet3() {
 
 // 浏览4
 async function meet4() {
-    console.log('开始逛京东入榜商品');
     for (var i = 0; i < $.homeData.data.result.taskVos[4].shoppingActivityVos.length; i++) {
         console.log($.homeData.data.result.taskVos[4].shoppingActivityVos[i].title);
         const functionId = `harmony_collectScore`;
