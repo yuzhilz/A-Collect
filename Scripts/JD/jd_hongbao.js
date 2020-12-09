@@ -103,7 +103,9 @@ async function meet() {
     const taskToken = $.homeData.data.result.taskVos[0].shoppingActivityVos[0].taskToken;
     const taskId = $.homeData.data.result.taskVos[0].taskId;
     const body = `"appId":"1EFRTwA","taskToken":"${taskToken}","taskId":${taskId},"actionType":1`
-    $.meetInfo = await request(functionId, body)
+    await request(functionId, body);
+    await sleep(5000);
+    await finish(functionId, taskId, itemId, taskToken);
     console.log($.meetInfo.data.bizMsg);
 }
 
@@ -177,7 +179,7 @@ async function openRedpacket() {
         const functionId = `splitHongbao_getLotteryResult`;
         const body = `"appId":"1EFRTwA","taskId":${i}`
         $.openinfo = await request(functionId, body);
-        console.log($.openinfo.data.result.userAwardsCacheDto.name);
+        console.log($.openinfo.data.result);
         total = total + $.openinfo.data.result.userAwardsCacheDto.value;
         await sleep(1000);
     }
