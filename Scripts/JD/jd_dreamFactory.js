@@ -36,7 +36,7 @@ const jxOpenUrl = `openjd://virtual?params=%7B%20%22category%22:%20%22jump%22,%2
 let cookiesArr = [],
     cookie = '',
     message = '';
-const inviteCodes = [];
+const inviteCodes = ['V5LkjP4WRyjeCKR9VRwcRX0bBuTz7MEK0-E99EJ7u0k=', 'PDPM257r_KuQhil2Y7koNw==', "gB99tYLjvPcEFloDgamoBw==", '-OvElMzqeyeGBWazWYjI1Q=='];
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
@@ -114,6 +114,10 @@ async function jdDreamFactory() {
 // 收取发电机的电力
 function collectElectricity(facId = $.factoryId, help = false, master) {
     return new Promise(async resolve => {
+        // let url = `/dreamfactory/generator/CollectCurrentElectricity?zone=dream_factory&apptoken=&pgtimestamp=&phoneID=&factoryid=${facId}&doubleflag=1&sceneval=2&g_login_type=1`;
+        // if (help && master) {
+        //   url = `/dreamfactory/generator/CollectCurrentElectricity?zone=dream_factory&factoryid=${facId}&master=${master}&sceneval=2&g_login_type=1`;
+        // }
         let body = `factoryid=${facId}&apptoken=&pgtimestamp=&phoneID=&doubleflag=1`;
         if (help && master) {
             body += `factoryid=${facId}&master=${master}`;
@@ -580,6 +584,7 @@ function userInfo() {
 //查询当前生产的商品名称
 function GetCommodityDetails() {
     return new Promise(async resolve => {
+        // const url = `/dreamfactory/diminfo/GetCommodityDetails?zone=dream_factory&sceneval=2&g_login_type=1&commodityId=${$.commodityDimId}`;
         $.get(taskurl('diminfo/GetCommodityDetails', `commodityId=${$.commodityDimId}`), (err, resp, data) => {
             try {
                 if (err) {
@@ -647,6 +652,14 @@ function DrawProductionStagePrize() {
                     console.log(`${$.name} API请求失败，请检查网路重试`)
                 } else {
                     console.log(`领取红包功能(测试中)：${data}`);
+                    // if (safeGet(data)) {
+                    //   data = JSON.parse(data);
+                    //   if (data['ret'] === 0) {
+                    //
+                    //   } else {
+                    //     console.log(`异常：${JSON.stringify(data)}`)
+                    //   }
+                    // }
                 }
             } catch (e) {
                 $.logErr(e, resp)
@@ -733,6 +746,22 @@ function PickUpComponent(index, encryptPin) {
                 } else {
                     if (safeGet(data)) {
                         data = JSON.parse(data);
+                        // if (data['ret'] === 0) {
+                        //   data = data['data'];
+                        //   if (help) {
+                        //     console.log(`收取好友[${encryptPin}]零件成功:获得${data['increaseElectric']}电力\n`);
+                        //     $.pickFriendEle += data['increaseElectric'];
+                        //   } else {
+                        //     console.log(`收取自家零件成功:获得${data['increaseElectric']}电力\n`);
+                        //     $.pickEle += data['increaseElectric'];
+                        //   }
+                        // } else {
+                        //   if (help) {
+                        //     console.log(`收好友[${encryptPin}]零件失败：${JSON.stringify(data)}`)
+                        //   } else {
+                        //     console.log(`收零件失败：${JSON.stringify(data)}`)
+                        //   }
+                        // }
                     }
                 }
             } catch (e) {
@@ -1267,7 +1296,30 @@ async function showMsg() {
     resolve()
   })
 }
-
+function readShareCode() {
+  console.log(`开始`)
+  return new Promise(async resolve => {
+    $.get({url: `http://api.turinglabs.net/api/v1/jd/jxfactory/read/${randomCount}/`}, (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          if (data) {
+            console.log(`随机取${randomCount}个码放到您固定的互助码后面`)
+            data = JSON.parse(data);
+          }
+        }
+      } catch (e) {
+        $.logErr(e, resp)
+      } finally {
+        resolve(data);
+      }
+    })
+    await $.wait(10000);
+    resolve()
+  })
+}
 //格式化助力码
 function shareCodesFormat() {
     return new Promise(async resolve => {
@@ -1292,6 +1344,7 @@ function requireConfig() {
         }
       })
     }
+    // console.log(`\n种豆得豆助力码::${JSON.stringify($.shareCodesArr)}`);
     console.log(`您提供了${$.shareCodesArr.length}个账号的${$.name}助力码\n`);
     resolve()
   })
