@@ -2,14 +2,14 @@
 import invite,os
 from  flask import Flask,jsonify,request
 app = Flask(__name__)
-@app.route("/disco/<invitecode>",methods=["GET"])
+@app.route("/pjj/<invitecode>",methods=["GET"])
 def disco(invitecode):
     a=invite.write_code(invitecode)
     if a:
         return jsonify({'code' :200, 'msg': '已提交！请勿重复提交！'})
     else:
         return jsonify({'code': 404, 'msg': '提交错误！'})           
-
+@app.route("/pjj/delete>",methods=["GET"])
 def delete_code():
     a=invite.delete_code()
     if a:
