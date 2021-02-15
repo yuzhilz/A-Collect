@@ -24,6 +24,10 @@ def disco_log():
 def log():
         log = open('logg.log', 'r')
         return log.read()
+@app.route("/log1",methods=["GET"])
+def logg():
+        log = open('log1.log', 'r')
+        return log.read()
 @app.route("/invitecode",methods=["GET"])
 def invitelog():
     log = open('invitecode.txt', 'r')
