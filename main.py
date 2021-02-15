@@ -9,7 +9,7 @@ def disco(invitecode):
         return jsonify({'code' :200, 'msg': '已提交！请勿重复提交！'})
     else:
         return jsonify({'code': 404, 'msg': '提交错误！'})           
-@app.route("/pjj/delete>",methods=["GET"])
+@app.route("/pjj/delete",methods=["GET"])
 def delete_code():
     a=invite.delete_code()
     if a:
