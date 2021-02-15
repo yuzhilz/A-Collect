@@ -39,4 +39,4 @@ def mun(num):
     else:
         return jsonify({'msg':'false'})
 if __name__ == '__main__':
-    app.run(host='10.170.0.8',port=5000, debug=True)
+    app.run(host='10.170.0.12',port=5000, debug=True)
