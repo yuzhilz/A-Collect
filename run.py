@@ -1,6 +1,7 @@
 from selenium import webdriver
 import lianzhong_api
 import requests,json,time,os,random,re,choice
+from base64 import b64decode
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 import pyperclip
@@ -18,71 +19,88 @@ def p_main(invitecode):
         if r.status_code == 200:
             result_json = r.json()
             email = result_json['mail_get_mail']
+        if email:
+            print('邮箱已获取！')
         url='https://pjj.one/share?userid='+invitecode
-        #option = webdriver.ChromeOptions()
-        #option.add_argument('headless')
-        driver=webdriver.Chrome()
+        option = webdriver.ChromeOptions()
+        option.add_argument('--headless')
+        driver = webdriver.Chrome(options=option)
+        #driver=webdriver.Chrome()
         driver.get(url)
-        driver.implicitly_wait(3)
+        driver.implicitly_wait(8)
+        time.sleep(1)
         #输入邮箱
         driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[1]/div[2]/div/span/span/input').send_keys(email)
+        print('正在输入邮箱！')
         #获取验证码url
-        pic=driver.find_elements_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/span/img')
-        pic_urls = [i.get_attribute('src') for i in pic]  # 得到图片的urls 列表
-        pic_names = [i.split('/')[-1:][0] for i in pic_urls]  # 得到图片的 图片名列表
-        pic_root = os.path.abspath(os.path.dirname(os.getcwd()))  # 得到当前根目录的 上一级目录
-        print(pic_root)
-        image_file = os.path.join(pic_root, 'image')  # 新建一个文件夹 ，和当前项目同级目录
-        if not os.path.exists(image_file):
-            os.makedirs(image_file)
-        pic_rejoin_path = [os.path.join(image_file, i) for i in pic_names]  # 新建
-        #print(pic_rejoin_path)
-        for i in range(len(pic)):
-            actions = ActionChains(driver)
-            # 找到图片后右键单击图片
-            actions.move_to_element(pic[i])  # 定位到元素
-            actions.context_click(pic[i])  # 点击右键
-            actions.perform()  # 执行
-            pyautogui.typewrite(['v'])  # v 是保存的快捷键
-            time.sleep(1)  # 等待一秒
-            pyperclip.copy(pic_rejoin_path[i])  # 把 指定的路径拷贝到过来
-            time.sleep(1)  # 等待一秒
-            pyautogui.hotkey('ctrlleft', 'v')  # 粘贴
-            time.sleep(0.5)  # 等待一秒
-            pyautogui.press('enter')
-            time.sleep(0.5)  # 等待一秒
-            #print("图片下载完成:%s" % pic_urls[i])
-            time.sleep(1)
-            im=pic_root+'//image//'+pic_names[0]+'.gif'
+        img_str = driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/span/img').get_attribute('src')
+        print('找到图片！')
+        img_str = img_str.split(",")[-1]  # 删除前面的 “data:image/jpeg;base64,”
+        img_str = img_str.replace("%0A", '\n')  # 将"%0A"替换为换行符
+        img_data = b64decode(img_str)  # b64decode 解码
+        with open('./captcha.gif', 'wb') as fout:
+            fout.write(img_data)
+            fout.close()
+        time.sleep(2)
+        print('验证码图片已保存！')
+        im='./captcha.gif'
+        if im:
             s=lianzhong_api.main('lz378904298','zxc123@',im,'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload','','','1008','d425c5c6135b7542c994bde770dfd340')
             code=s.json()['data']['val']
-        driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/input').send_keys(code)
-        driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/span/button').click()
-        time.sleep(5)
-        os.remove(im)
-        url2 = 'https://10minutemail.net/address.api.php?sessionid=76ade80fb2d3b0f9'+str(email_random)+'e8b0e93bbcb&_=1585393885861'
-        r = requests.get(url2).json()
-        mail_id=r['mail_list'][0]['mail_id']
-        mail_id_url='https://10minutemail.net//mail.api.php?mailid='+mail_id+'&sessionid=76ade80fb2d3b0f9'+str(email_random)+'e8b0e93bbcb'
-        #print(mail_id_url)
-        result=requests.get(url=mail_id_url).json()
-        #print(result)
-        yanzhenma=result['body'][1]['body']
-        im_code=re.findall(r'(?<=验证码为 <b>).+(?=</b>，有效)', yanzhenma)
-        #print(im_code)
-        driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/input').send_keys(im_code[0])
-        driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[4]/div[2]/div/span/span/input').send_keys('qwer1234')
-        time.sleep(1)
-        driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/div/p[1]/button').click()
-        time.sleep(1)
-        driver.switch_to.frame("tcaptcha_iframe")
-        driver.find_element_by_xpath('//*[@id="captcha_close"]/div').click()
-        print('邀请成功1次！')
-        time.sleep(2)
-        driver.close()
+            print('图片已识别！')
+            driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/input').send_keys(code)
+            print('正在输入图片验证码！')
+            time.sleep(1)
+            driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/span/button').click()
+            print('正在发送邮箱验证码！')
+            time.sleep(8)
+            print('等待邮箱验证码！')
+            os.remove(im)
+            print('正在移除保存的图片！')
+            url2 = 'https://10minutemail.net/address.api.php?sessionid=76ade80fb2d3b0f9'+str(email_random)+'e8b0e93bbcb&_=1585393885861'
+            mail_id=get_emailid(url2)
+            mail_id_url='https://10minutemail.net//mail.api.php?mailid='+mail_id+'&sessionid=76ade80fb2d3b0f9'+str(email_random)+'e8b0e93bbcb'
+            #print(mail_id_url)
+            result=requests.get(url=mail_id_url).json()
+            #print(result)
+            yanzhenma=result['body'][1]['body']
+
+            im_code=re.findall(r'(?<=验证码为 <b>).+(?=</b>，有效)', yanzhenma)
+            #print(im_code)
+            driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/input').send_keys(im_code[0])
+            print('正在输入邮箱验证码！')
+            driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[4]/div[2]/div/span/span/input').send_keys('qwer1234')
+            print('正在输入密码！')
+            time.sleep(1)
+            driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/div/p[1]/button').click()
+            print('正在点击注册完成！')
+            time.sleep(1)
+            driver.switch_to.frame("tcaptcha_iframe")
+            driver.find_element_by_xpath('//*[@id="captcha_close"]/div').click()
+            print('正在关闭滑块！')
+
+            time.sleep(2)
+            driver.quit()
+            return True
+
     except:
         print('程序有错误，跳出！')
-        driver.close()
+        driver.quit()
+def get_emailid(url2):
+    r = requests.get(url2).json()
+    #print(r)
+
+    mail_id = r['mail_list'][0]['mail_id']
+    print(mail_id)
+    if mail_id == 'welcome':
+        time.sleep(20)
+        r = requests.get(url2).json()
+        print(r)
+        mail_id = r['mail_list'][0]['mail_id']
+        return mail_id
+    else:
+        return mail_id
+
 def get_invietecode():
     s = open('invitecode.txt', 'r')
     k = s.readlines()
@@ -101,14 +119,26 @@ def get_invietecode():
     invitecode = k[a]
     # print(invitecode)
     s.close()
+    print('挑选邀请码！')
     return invitecode.replace('\n','')
+def get_num():
+    with open('num.txt','r')as f :
+        return f.read().replace('\n','')
 def main():
-    # num=input('请输入次数：')
-    m = 0
-    while m < int(100):
-        m = m + 1
-        invitecode = get_invietecode()
-        p_main(invitecode)
+    #num=input('请输入次数：')
+    num=get_num()
+    if num.isdigit():
+        if num==0:
+            print('请在NUM。txt中修改！')
+        else:
+            m = 0
+            while m < int(num):
+                m = m + 1
+                invitecode = get_invietecode()
+                if p_main(invitecode):
+                    print(invitecode+'--邀请成功：'+str(m)+'次！--')
+                    print('-'*50)
+    else:print('Num。txt不是整数！')
 
 if __name__ == '__main__':
     main()
