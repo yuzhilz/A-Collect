@@ -1,16 +1,9 @@
-from selenium import webdriver
-import lianzhong_api
-import requests,json,time,os,random,re,choice
 from base64 import b64decode
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 import pyperclip
 import pyautogui
-chrome_options = Options()
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--disable-dev-shm-usage')
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_experimental_option('useAutomationExtension', False)
+
 def p_main(invitecode,user,pass1,token2):
     try:
         email_random=random.randint(10000,99999)
@@ -22,9 +15,13 @@ def p_main(invitecode,user,pass1,token2):
         if email:
             print('邮箱已获取！')
         url='https://pjj.one/share?userid='+invitecode
-        option = webdriver.ChromeOptions()
-        option.add_argument('--headless')
-        driver = webdriver.Chrome(options=option)
+        chrome_opt = Options()  # 创建参数设置对象.
+        chrome_opt = webdriver.ChromeOptions()
+        chrome_opt.add_argument('--headless')  # 无界面化.
+        chrome_opt.add_argument('--disable-gpu')  # 配合上面的无界面化.
+        chrome_opt.add_argument('--window-size=1366,768')  # 设置窗口大小, 窗口大小会有影响.
+        chrome_opt.add_argument("--no-sandbox")  
+        driver = webdriver.Chrome(options=chrome_opt)
         #driver=webdriver.Chrome()
         driver.get(url)
         driver.implicitly_wait(8)
