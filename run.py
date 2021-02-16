@@ -11,7 +11,7 @@ chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--disable-dev-shm-usage')
 chrome_options.add_argument('--disable-gpu')
 chrome_options.add_experimental_option('useAutomationExtension', False)
-def p_main(invitecode):
+def p_main(invitecode,user,pass1,token2):
     try:
         email_random=random.randint(10000,99999)
         url2 = 'https://10minutemail.net/address.api.php?sessionid=76ade80fb2d3b0f9'+str(email_random)+'e8b0e93bbcb&_=1585393885861'
@@ -45,7 +45,7 @@ def p_main(invitecode):
         print('验证码图片已保存！')
         im='./captcha.gif'
         if im:
-            s=lianzhong_api.main('lz378904298','zxc123@',im,'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload','','','1008','d425c5c6135b7542c994bde770dfd340')
+            s=lianzhong_api.main(user,pass1,im,'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload','','','1008',token2)
             code=s.json()['data']['val']
             print('图片已识别！')
             driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/input').send_keys(code)
@@ -53,7 +53,7 @@ def p_main(invitecode):
             time.sleep(1)
             driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/span/button').click()
             print('正在发送邮箱验证码！')
-            time.sleep(8)
+            time.sleep(5)
             print('等待邮箱验证码！')
             os.remove(im)
             print('正在移除保存的图片！')
@@ -124,9 +124,17 @@ def get_invietecode():
 def get_num():
     with open('num.txt','r')as f :
         return f.read().replace('\n','')
+def get_seetting():
+    with open('setting.txt','r') as f:
+        f=f.readlines()
+        user=f[0].replace('user:','').replace('\n','')
+        pass1=f[1].replace('pass:','').replace('\n','')
+        token2=f[2].replace('token:', '').replace('\n', '')
+        return user,pass1,token2
 def main():
     #num=input('请输入次数：')
     num=get_num()
+    user,pass1,token2=get_seetting();
     if num.isdigit():
         if num==0:
             print('请在NUM.txt中修改！')
@@ -135,7 +143,7 @@ def main():
             while m < int(num):
                 m = m + 1
                 invitecode = get_invietecode()
-                if p_main(invitecode):
+                if p_main(invitecode,user,pass1,token2):
                     print(invitecode+'--邀请成功：'+str(m)+'次！--')
                     print('-'*50)
     else:print('Num.txt不是整数！')
