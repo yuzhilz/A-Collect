@@ -129,7 +129,7 @@ def main():
     num=get_num()
     if num.isdigit():
         if num==0:
-            print('请在NUM。txt中修改！')
+            print('请在NUM.txt中修改！')
         else:
             m = 0
             while m < int(num):
@@ -138,7 +138,7 @@ def main():
                 if p_main(invitecode):
                     print(invitecode+'--邀请成功：'+str(m)+'次！--')
                     print('-'*50)
-    else:print('Num。txt不是整数！')
+    else:print('Num.txt不是整数！')
 
 if __name__ == '__main__':
     main()
