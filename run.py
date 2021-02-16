@@ -170,19 +170,20 @@ def get_seetting():#联众账户
 def main():
     #num=input('请输入次数：')
     num=get_num()
-    user,pass1,token2=get_seetting();
+    user,pass1,token2=get_seetting()
     if num.isdigit():
         if num==0:
-            print('请在NUM.txt中修改！')
+            print('Num.txt不是整数！请在NUM.txt中修改！')
         else:
             m = 0
             while m < int(num):
                 m = m + 1
+                print('正在运行第：'+str(m)+'次!')
                 invitecode = get_invietecode()
                 if p_main(invitecode,user,pass1,token2):
-                    print(invitecode+'--邀请成功：'+str(m)+'次！--')
+                    print(invitecode+'--邀请成功：1次！--')
                     print('-'*50)
-    else:print('Num.txt不是整数！')
+    else:print('Num.txt不是整数！请在NUM.txt中修改！')
 
 if __name__ == '__main__':
     main()
