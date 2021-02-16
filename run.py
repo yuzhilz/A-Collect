@@ -4,8 +4,8 @@ import requests,json,time,os,random,re,choice
 from base64 import b64decode
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
-import pyperclip
-import pyautogui
+#import pyperclip
+#import pyautogui
 
 def p_main(invitecode,user,pass1,token2):
     try:
