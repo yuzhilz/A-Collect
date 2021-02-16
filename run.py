@@ -78,7 +78,7 @@ def p_main(invitecode,user,pass1,token2):
             driver.switch_to.frame("tcaptcha_iframe")
             driver.find_element_by_xpath('//*[@id="captcha_close"]/div').click()
             print('正在关闭滑块！')
-
+            invite_log_write(invitecode)
             time.sleep(2)
             driver.quit()
             return True
@@ -100,8 +100,44 @@ def get_emailid(url2):
         return mail_id
     else:
         return mail_id
-
-def get_invietecode():
+def frist_write(invitecode): #判断是否第一次写入
+     f=open('111.txt','r')
+     s1=f.read()
+     f.close()
+     if invitecode in s1:
+         return  True
+     else:
+         f=open('111.txt','a')
+         f.write(invitecode+'邀请成功:1次!\n')
+         f.close()
+def find_invite(invitecode):
+    #找到需要替换的
+    f=open('111.txt','r')
+    s=f.readlines()
+    for line in s:
+        if invitecode in line:
+        #print('find')
+            d=re.findall(r'(?<=邀请成功:).*(?=次!\n)',line)
+            d=int(d[0])+1
+            break
+    return line,d
+    f.close()
+def re_line(line,d,invitecode):
+    f=open('111.txt','r')
+    s1=f.read()
+    newline=invitecode+'邀请成功:'+str(d)+'次!\n'
+    line=s1.replace(line,newline)
+    #print(line)
+    f.close()
+    f=open('111.txt','w')
+    f.write(line)
+    f.close()
+def invite_log_write(invitecode):#写入LOG
+    if frist_write(invitecode):
+        #print('not frist')
+        line,d=find_invite(invitecode)
+        re_line(line,d,invitecode)
+def get_invietecode():#随机邀请码
     s = open('invitecode.txt', 'r')
     k = s.readlines()
     i = len(k)
@@ -121,10 +157,10 @@ def get_invietecode():
     s.close()
     print('挑选邀请码！')
     return invitecode.replace('\n','')
-def get_num():
+def get_num(): #每次运行的次数
     with open('num.txt','r')as f :
         return f.read().replace('\n','')
-def get_seetting():
+def get_seetting():#联众账户
     with open('setting.txt','r') as f:
         f=f.readlines()
         user=f[0].replace('user:','').replace('\n','')
