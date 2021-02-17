@@ -1,21 +1,20 @@
-# coding=utf-8
-import invite,os
 from  flask import Flask,jsonify,request
 app = Flask(__name__)
 @app.route("/pjj/<invitecode>",methods=["GET"])
 def disco(invitecode):
-    a=invite.write_code(invitecode)
-    if a:
-        return jsonify({'code' :200, 'msg': '已提交！请勿重复提交！'})
-    else:
-        return jsonify({'code': 404, 'msg': '提交错误！'})           
+    invitecode=invitecode+'\n'
+    with open('setting.txt','r') as f:
+        if invitecode in f.read():
+            return jsonify({'code' :400, 'msg': '已提交！请勿重复提交！'})
+        else:
+            with open('setting.txt','a') as s:
+                s.write(invitecode)
+                return jsonify({'code' :200, 'msg': '提交成功！请勿重复提交！'})
 @app.route("/pjj/delete",methods=["GET"])
 def delete_code():
-    a=invite.delete_code()
-    if a:
+    with open('setting.txt','w') as f:
+        f.write('')
         return jsonify({'msg':'True'})
-    else:
-        return jsonify({'msg':'False'})
 @app.route("/invite_log",methods=["GET"])
 def disco_log():
     log=open('111.txt','r')
@@ -30,13 +29,8 @@ def logg():
         return log.read()
 @app.route("/invitecode",methods=["GET"])
 def invitelog():
-    log = open('invitecode.txt', 'r')
+    log = open('setting.txt', 'r')
     return log.read()
-@app.route('/invite/<num>',methods=['GET'])
-def mun(num):
-    if invite.code_num(num):
-        return jsonify({'msg':'true','num':num})
-    else:
-        return jsonify({'msg':'false'})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=5000, debug=True)
