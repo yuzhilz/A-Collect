@@ -4,10 +4,9 @@ import requests,json,time,os,random,re,choice
 from base64 import b64decode
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
-#import pyperclip
-#import pyautogui
 
-def p_main(invitecode,user,pass1,token2):
+
+def p_main(invitecode,user,pass1):
     try:
         email_random=random.randint(10000,99999)
         url2 = 'https://10minutemail.net/address.api.php?sessionid=76ade80fb2d3b0f9'+str(email_random)+'e8b0e93bbcb&_=1585393885861'
@@ -45,7 +44,7 @@ def p_main(invitecode,user,pass1,token2):
         print('验证码图片已保存！')
         im='./captcha.gif'
         if im:
-            s=lianzhong_api.main(user,pass1,im,'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload','','','1008',token2)
+            s=lianzhong_api.main(user,pass1,im,'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload','','','1008','8dc962b56f1968a844450834ef91bfd0')
             code=s.json()['data']['val']
             print('图片已识别！')
             driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/input').send_keys(code)
@@ -165,12 +164,12 @@ def get_seetting():#联众账户
         f=f.readlines()
         user=f[0].replace('user:','').replace('\n','')
         pass1=f[1].replace('pass:','').replace('\n','')
-        token2=f[2].replace('token:', '').replace('\n', '')
+        
         return user,pass1,token2
 def main():
     #num=input('请输入次数：')
     num=get_num()
-    user,pass1,token2=get_seetting()
+    user,pass1=get_seetting()
     if num.isdigit():
         if num==0:
             print('Num.txt不是整数！请在NUM.txt中修改！')
@@ -178,9 +177,14 @@ def main():
             m = 0
             while m < int(num):
                 m = m + 1
+                if m%70==0:
+                    with open('log.log','w')as f:
+                        f.write('')
+                    print('wait 3600S!')
+                    time.sleep(3600)
                 print('正在运行第：'+str(m)+'次!')
                 invitecode = get_invietecode()
-                if p_main(invitecode,user,pass1,token2):
+                if p_main(invitecode,user,pass1):
                     print(invitecode+'--邀请成功：1次！--')
                     print('-'*50)
     else:print('Num.txt不是整数！请在NUM.txt中修改！')
