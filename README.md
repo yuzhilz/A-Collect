@@ -3,7 +3,7 @@
 准备工作：
 1.一台部署了ubuntu 18.04系统的VPS
 2.可以使用简单的SHELL命令符
-手残认识不建议继续往下看！！
+手残人士不建议继续往下看！！
 
 运行环境
 python 3.7
@@ -22,12 +22,15 @@ git clone git@github.com:U188/PJJ.git
 4.安装依赖:
 pip install -r requirements.txt
 
-6.运行
+6.运行flask
 nohup python3.7 -u main.py >log .log 2>&1 &
+
+
+7.运行主程序
 nohup python3.7 -u run.py >log .log 2>&1 &
 
 
-7.API使用
+8.API使用
 http://location:5000/pjj/user=联众账号pass=联众密码invitecode=邀请码   （提交各项信息）
 http://location:5000/invitecode    (提交情况）
 http://location:5000/invite_log    (完成情况）
