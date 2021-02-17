@@ -22,20 +22,19 @@ git clone git@github.com:U188/PJJ.git
 4.安装依赖:
 pip install -r requirements.txt
 
-5.配置文件
-vim setting.txt
-填入联众识图的账号与密码
-
-
 6.运行
+nohup python3.7 -u main.py >log .log 2>&1 &
 nohup python3.7 -u run.py >log .log 2>&1 &
 
 
+7.API使用
+http://location:5000/pjj/user=联众账号pass=联众密码invitecode=邀请码   （提交各项信息）
+http://location:5000/invitecode    (提交情况）
+http://location:5000/invite_log    (完成情况）
+http://location:5000/log1          (运行情况）
 
-API使用
 
-LAST
-欢迎Fork|Star|Issue 三连😘
+
 
 
 
