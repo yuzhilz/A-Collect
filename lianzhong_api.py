@@ -34,7 +34,7 @@ def main(api_username, api_password, file_name, api_post_url, yzm_min, yzm_max, 
             tools_token     （V1软件Token）     --可空提供
     '''
     # api_username =
-    # api_password = 
+    # api_password =
     # file_name = 'c:/temp/lianzhong_vcode.png'
     # api_post_url = "http://v1-http-api.jsdama.com/api.php?mod=php&act=upload"
     # yzm_min = '1'
@@ -72,6 +72,86 @@ def main(api_username, api_password, file_name, api_post_url, yzm_min, yzm_max, 
 
     return r
 
+def re_err( username, password, yzm_id):
+    '''
+            请求参数说明:
+softwareId：同 接⼝1
+softwareSecret：同 接⼝1
+username：同 接⼝1
+password：同 接⼝1
+captchaId：由 接⼝1 返回的 captchaId 识别ID
+    '''
+    # api_username =
+    # api_password =
+    # file_name = 'c:/temp/lianzhong_vcode.png'
+    # api_post_url = "http://v1-http-api.jsdama.com/api.php?mod=php&act=upload"
+    # yzm_min = '1'
+    # yzm_max = '8'
+    # yzm_type = '1303'
+    # tools_token = api_username
+
+    # proxies = {'http': 'http://127.0.0.1:8888'}
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
+        'Accept-Encoding': 'gzip, deflate',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0',
+        # 'Content-Type': 'multipart/form-data; boundary=---------------------------227973204131376',
+        'Connection': 'keep-alive',
+        'Host': 'v1-http-api.jsdama.com',
+        'Upgrade-Insecure-Requests': '1'
+    }
+
+
+    data = {
+        'user_name': username,
+        'user_pw': password,
+        'yzm_id': yzm_id
+    }
+    s = requests.session()
+    # r = s.post(api_post_url, headers=headers, data=data, files=files, verify=False, proxies=proxies)
+    r = s.post(url='http://v1-http-api.jsdama.com/api.php?mod=php&act=error', headers=headers, data=data, verify=False)
+
+    return r
+
+def get_points(username, password):#获取点数
+    '''
+    softwareId：同 接⼝1
+softwareSecret：同 接⼝1
+username：同 接⼝1
+password：同 接⼝1
+    '''
+    # api_username =
+    # api_password =
+    # file_name = 'c:/temp/lianzhong_vcode.png'
+    # api_post_url = "http://v1-http-api.jsdama.com/api.php?mod=php&act=upload"
+    # yzm_min = '1'
+    # yzm_max = '8'
+    # yzm_type = '1303'
+    # tools_token = api_username
+
+    # proxies = {'http': 'http://127.0.0.1:8888'}
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
+        'Accept-Encoding': 'gzip, deflate',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0',
+        # 'Content-Type': 'multipart/form-data; boundary=---------------------------227973204131376',
+        'Connection': 'keep-alive',
+        'Host': 'v1-http-api.jsdama.com',
+        'Upgrade-Insecure-Requests': '1'
+    }
+
+
+    data = {
+        'user_name': username,
+        'user_pw': password,
+    }
+    s = requests.session()
+    # r = s.post(api_post_url, headers=headers, data=data, files=files, verify=False, proxies=proxies)
+    r = s.post(url='http://v1-http-api.jsdama.com/api.php?mod=php&act=point', headers=headers, data=data, verify=False)
+
+    return r
 
 def download_vcode(url):
     try:
