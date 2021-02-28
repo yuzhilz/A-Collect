@@ -10,7 +10,7 @@
 ============Quantumultx===============
 [task_local]
 #闪购盲盒
-20 8 * * * https://gitee.com/lxk0301/jd_scripts/raw/master/jd_sgmh.js, tag=闪购盲盒, img-url=https://raw.githubusercontent.com/Orz-3/task/master/jd.png, enabled=true
+20 8 * * * https://gitee.com/lxk0301/jd_scripts/raw/master/jd_sgmh.js, tag=闪购盲盒, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 
 ================Loon==============
 [Script]
@@ -29,8 +29,8 @@ const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let appId = '1EFRRxA', homeDataFunPrefix = 'interact_template', collectScoreFunPrefix = 'harmony', message = ''
 let lotteryResultFunPrefix = homeDataFunPrefix, browseTime = 6
 const inviteCodes = [
-    'T0225KkcR0pI_F3VJE79lqYIJwCjVWmIaW5kRrbA',
-    'T0225KkcR0pI_F3VJE79lqYIJwCjVWmIaW5kRrbA'
+    'T019-aknAFRllhyoQlyI46gCjVWmIaW5kRrbA@T027Zm_olqSxIOtH97BATGmKoWraLawCjVWmIaW5kRrbA',
+    'T019-aknAFRllhyoQlyI46gCjVWmIaW5kRrbA@T0225KkcRk1N_FeCJhv3xvdfcQCjVWmIaW5kRrbA'
 ];
 const randomCount = $.isNode() ? 20 : 5;
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -43,13 +43,7 @@ if ($.isNode()) {
     })
     if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => { };
 } else {
-    let cookiesData = $.getdata('CookiesJD') || "[]";
-    cookiesData = jsonParse(cookiesData);
-    cookiesArr = cookiesData.map(item => item.cookie);
-    cookiesArr.reverse();
-    cookiesArr.push(...[$.getdata('CookieJD2'), $.getdata('CookieJD')]);
-    cookiesArr.reverse();
-    cookiesArr = cookiesArr.filter(item => item !== "" && item !== null && item !== undefined);
+    cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
 }
 
 const JD_API_HOST = `https://api.m.jd.com/client.action`;
