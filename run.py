@@ -19,14 +19,13 @@ def get_email():
     b = random.randint(0, 20)
     email = 'varytmp+{}uu{}d@gmail.com'.format(a, b)
     return email
-def p_main(invitecode, user, pass1):
+def p_main():
         try:
             user=os.environ["USER"]
             pass1=os.environ["PASS"]
             invitecode=os.environ["INVITECODE"]
             url = 'https://pjj.one/share?userid=' + invitecode
             email=get_email()
-            print(email)
             chrome_opt = Options()  # 创建参数设置对象.
             chrome_opt = webdriver.ChromeOptions()
             #chrome_opt.add_argument("'--proxy-server={}".format(porxies))
@@ -248,8 +247,6 @@ def move_to(index):
 
 
 def main():
-    user, pass1, invitecode = get_setting()
-    # print(user,pass1,invitecode)
     points=lianzhong_api.get_points(user,pass1)
     points=points.json()['data']
     print(invitecode+'剩余点数：'+str(points))
@@ -258,7 +255,7 @@ def main():
         time.sleep(5)
         exit()
     else:
-        p_main(invitecode, user, pass1)
+        p_main()
 
 
 if __name__ == '__main__':
