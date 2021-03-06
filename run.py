@@ -260,6 +260,7 @@ def main():
         telegram_bot("p++", '点数不足！')
         exit()
     else:
+        print('start')
         p_main()
 
 
