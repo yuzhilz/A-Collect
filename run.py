@@ -21,6 +21,9 @@ def get_email():
     return email
 def p_main(invitecode, user, pass1):
         try:
+            user=os.environ["USER"]
+            pass=os.environ["PASS"]
+            invitecode=os.environ["INVITECODE"]
             url = 'https://pjj.one/share?userid=' + invitecode
             email=get_email()
             print(email)
@@ -54,7 +57,6 @@ def p_main(invitecode, user, pass1):
             time.sleep(2)
             #print('验证码图片已保存！')
             im = './captcha.gif'
-
             s = lianzhong_api.main(user, pass1, im, 'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload', '', '',
                                    '1008', '8dc962b56f1968a844450834ef91bfd0')
             #print(s.json())
@@ -161,7 +163,6 @@ def tx_code(browser):
         print('缺口图片捕获失败')
         return False
 
-
 def save_img(bk_block):
     """保存图片"""
     try:
@@ -244,33 +245,6 @@ def get_track(distance):
 def move_to(index):
     """滑动滑块"""
     pass
-
-def get_emailid(url2,user,pass1,yzm_id):
-    r = requests.get(url2).json()
-    # print(r)
-
-    mail_id = r['mail_list'][0]['mail_id']
-    #print(mail_id)
-    if mail_id == 'welcome':
-        time.sleep(20)
-        r = requests.get(url2).json()
-        print(r)
-        s =lianzhong_api.re_err(user,pass1,yzm_id)
-        mail_id = r['mail_list'][0]['mail_id']
-        return mail_id
-    else:
-        return mail_id
-
-
-
-def get_setting():  # 联众账户
-    with open('setting.txt', 'r') as f:
-        f = f.readlines()
-        r=random.choice(f)
-        user = re.findall(r'(?<=user=).+(?=pas)', r)[0].replace('\n','')
-        pass1 = re.findall(r'(?<=ass=).+(?=inviteco)', r)[0].replace('\n','')
-        invitecode = re.findall(r'(?<=invitecode=).+', r)[0].replace('\n','')
-        return user, pass1,invitecode
 
 
 def main():
