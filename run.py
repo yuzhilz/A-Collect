@@ -22,7 +22,7 @@ def get_email():
 def p_main(invitecode, user, pass1):
         try:
             user=os.environ["USER"]
-            pass=os.environ["PASS"]
+            pass1=os.environ["PASS"]
             invitecode=os.environ["INVITECODE"]
             url = 'https://pjj.one/share?userid=' + invitecode
             email=get_email()
