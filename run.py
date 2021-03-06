@@ -26,6 +26,7 @@ def p_main():
             invitecode=os.environ["INVITECODE"]
             url = 'https://pjj.one/share?userid=' + invitecode
             email=get_email()
+            print(email)
             chrome_opt = Options()  # 创建参数设置对象.
             chrome_opt = webdriver.ChromeOptions()
             #chrome_opt.add_argument("'--proxy-server={}".format(porxies))
