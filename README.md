@@ -1,7 +1,7 @@
 # P++
 1.fork本仓库
 
-2.sercets处填写以下参数
+2.secrets处填写以下参数
   USER 联众账号
   PASSWORD 联众密码
   INVITECODE 你的邀请码
