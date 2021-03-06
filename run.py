@@ -92,6 +92,7 @@ def p_main(user,pass1,invitecode):
                 telegram_bot("p++", '邀请成功！')
                 driver.quit()
             else:
+                telegram_bot("梯子", '邀请成功！')
                 print('邀请失败！')
 def telegram_bot(title, content):
     print("\n")
