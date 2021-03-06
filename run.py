@@ -10,8 +10,6 @@ from selenium.webdriver.common.by import By
 import cv2 as cv
 TG_BOT_TOKEN = ''           # telegram bot token 自行申请
 TG_USER_ID = ''             # telegram 用户ID
-USER=os.environ["USER"]
-PASS1=os.environ["PASS1"]
 if "TG_BOT_TOKEN" in os.environ and os.environ["TG_BOT_TOKEN"] and "TG_USER_ID" in os.environ and os.environ["TG_USER_ID"]:
         TG_BOT_TOKEN = os.environ["TG_BOT_TOKEN"]
         TG_USER_ID = os.environ["TG_USER_ID"]
@@ -249,7 +247,10 @@ def move_to(index):
 
 
 def main():
-    points=lianzhong_api.get_points(USER,PASS1)
+    user=os.environ["USER"]
+    print(user)
+    pass1=os.environ["PASSWORD"]
+    points=lianzhong_api.get_points(user,pass1)
     points=points.json()['data']
     print('剩余点数：'+str(points))
     if int(points)<=2:
