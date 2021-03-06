@@ -48,3 +48,9 @@ jobs:
       - name: 'Working'
         run: |
           python3.7 run.py
+        env:
+          TG_BOT_TOKEN: ${{secrets.TG_BOT_TOKEN}} # tg通知token
+          TG_USER_ID:  ${{secrets.TG_USER_ID}}    # tg通知id
+          USER: ${{secrets.USER}}
+          PASSWORD: ${{secrets.PASSWORD}}
+          INVITECODE: ${{secrets.INVITECODE}}
