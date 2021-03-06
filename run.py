@@ -19,11 +19,7 @@ def get_email():
     b = random.randint(0, 20)
     email = 'varytmp+{}uu{}d@gmail.com'.format(a, b)
     return email
-def p_main():
-        try:
-            user=os.environ["USER"]
-            pass1=os.environ["PASS"]
-            invitecode=os.environ["INVITECODE"]
+def p_main(user,pass1,invitecode):
             url = 'https://pjj.one/share?userid=' + invitecode
             email=get_email()
             print(email)
@@ -97,9 +93,6 @@ def p_main():
                 driver.quit()
             else:
                 print('邀请失败！')
-
-        except Exception as e:
-            print(e)
 def telegram_bot(title, content):
     print("\n")
     tg_bot_token = TG_BOT_TOKEN
@@ -249,8 +242,8 @@ def move_to(index):
 
 def main():
     user=os.environ["USER"]
-    print(user)
     pass1=os.environ["PASSWORD"]
+    invitecode=os.environ["INVITECODE"]
     points=lianzhong_api.get_points(user,pass1)
     points=points.json()['data']
     print('剩余点数：'+str(points))
@@ -261,7 +254,7 @@ def main():
         exit()
     else:
         print('start')
-        p_main()
+        p_main(user,pass1,invitecode)
 
 
 if __name__ == '__main__':
