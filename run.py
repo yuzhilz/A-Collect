@@ -15,8 +15,8 @@ if "TG_BOT_TOKEN" in os.environ and os.environ["TG_BOT_TOKEN"] and "TG_USER_ID" 
         TG_USER_ID = os.environ["TG_USER_ID"]
         print("Telegram 推送打开")
 def get_email():
-    a = random.randint(11, 99)
-    b = random.randint(0, 20)
+    a = random.randint(11, 999)
+    b = random.randint(0, 200)
     email = 'varytmp+{}uu{}d@gmail.com'.format(a, b)
     return email
 def p_main(user,pass1,invitecode):
