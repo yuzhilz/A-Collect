@@ -1,262 +1,195 @@
-import lianzhong_api
-import requests, time, os, random, re, json
-from base64 import b64decode
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver import ActionChains
-from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC  # 显性等待
-from selenium.webdriver.common.by import By
-import cv2 as cv
-TG_BOT_TOKEN = ''           # telegram bot token 自行申请
-TG_USER_ID = ''             # telegram 用户ID
-if "TG_BOT_TOKEN" in os.environ and os.environ["TG_BOT_TOKEN"] and "TG_USER_ID" in os.environ and os.environ["TG_USER_ID"]:
-        TG_BOT_TOKEN = os.environ["TG_BOT_TOKEN"]
-        TG_USER_ID = os.environ["TG_USER_ID"]
-        print("Telegram 推送打开")
-def get_email():
-    a = random.randint(11, 999)
-    b = random.randint(0, 200)
-    email = 'varytmp+{}uu{}d@gmail.com'.format(a, b)
-    return email
-def p_main(user,pass1,invitecode):
-            url = 'https://pjj.one/share?userid=' + invitecode
-            email=get_email()
-            print(email)
-            chrome_opt = Options()  # 创建参数设置对象.
-            chrome_opt = webdriver.ChromeOptions()
-            #chrome_opt.add_argument("'--proxy-server={}".format(porxies))
-            chrome_opt.add_argument('--headless')  # 无界面化.
-            chrome_opt.add_argument('--disable-gpu')  # 配合上面的无界面化.
-            #chrome_opt.add_argument('--window-size=1366,768')  # 设置窗口大小, 窗口大小会有影响.
-            chrome_opt.add_argument("--no-sandbox")
-            driver = webdriver.Chrome(options=chrome_opt)
-            #driver=webdriver.Chrome()
-            driver.get(url)
-            driver.implicitly_wait(10)
-            time.sleep(1)
-            # 输入邮箱
-            driver.find_element_by_xpath(
-                '//*[@id="app"]/section/main/div/div/div[2]/form/div[1]/div[2]/div/span/span/input').send_keys(email)
-            #print('正在输入邮箱！')
-            # 获取验证码url
-            img_str = driver.find_element_by_xpath(
-                '//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/span/img').get_attribute(
-                'src')
-            #print('找到图片！')
-            img_str = img_str.split(",")[-1]  # 删除前面的 “data:image/jpeg;base64,”
-            img_str = img_str.replace("%0A", '\n')  # 将"%0A"替换为换行符
-            img_data = b64decode(img_str)  # b64decode 解码
-            with open('./captcha.gif', 'wb') as fout:
-                fout.write(img_data)
-                fout.close()
-            time.sleep(2)
-            #print('验证码图片已保存！')
-            im = './captcha.gif'
-            s = lianzhong_api.main(user, pass1, im, 'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload', '', '',
-                                   '1008', '8dc962b56f1968a844450834ef91bfd0')
-            #print(s.json())
-            code = s.json()['data']['val']
-            yzm_id=s.json()['data']['id']
-            print('图片已识别:'+code)
-            driver.find_element_by_xpath(
-                '//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/input').send_keys(
-                code)
-            #print('正在输入图片验证码！')
-            time.sleep(1)
-            driver.find_element_by_xpath(
-                '//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/span/button').click()
-            #print('正在发送邮箱验证码！')
-            time.sleep(10)
-            #print('等待邮箱验证码！')
-            os.remove(im)
-            #print('正在移除保存的图片！')
-            im_code=get_num(email)
-            print(im_code)
-            print('验证码已识别：'+im_code[0])
-            driver.find_element_by_xpath(
-                '//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/input').send_keys(
-                im_code[0])
-            #print('正在输入邮箱验证码！')
-            driver.find_element_by_xpath(
-                '//*[@id="app"]/section/main/div/div/div[2]/form/div[4]/div[2]/div/span/span/input').send_keys(
-                'qwer1234')
-            #print('正在输入密码！')
-            time.sleep(1)
-            driver.find_element_by_xpath('//*[@id="app"]/section/main/div/div/div[2]/div/p[1]/button').click()
-            print('正在点击注册完成！')
-            time.sleep(2)
-            tx_code(driver)
-            time.sleep(4)
-            if driver.current_url=='https://pjj.one/home':
-                telegram_bot("p++", '邀请成功！')
-                driver.quit()
-            else:
-                telegram_bot("P++", '邀请失败！')
-                print('邀请失败！')
-def telegram_bot(title, content):
-    print("\n")
-    tg_bot_token = TG_BOT_TOKEN
-    tg_user_id = TG_USER_ID
-    if "TG_BOT_TOKEN" in os.environ and "TG_USER_ID" in os.environ:
-        tg_bot_token = os.environ["TG_BOT_TOKEN"]
-        tg_user_id = os.environ["TG_USER_ID"]
-    if not tg_bot_token or not tg_user_id:
-        print("Telegram推送的tg_bot_token或者tg_user_id未设置!!\n取消推送")
-        return
-    print("Telegram 推送开始")
-    send_data = {"chat_id": tg_user_id, "text": title +
-                 '\n\n'+content, "disable_web_page_preview": "true"}
-    response = requests.post(
-        url='https://api.telegram.org/bot%s/sendMessage' % (tg_bot_token), data=send_data)
-    print(response.text)
-def get_num(email):
-    global Driver
-    #print(email)
-    head = {
-        'Cookie': 'csrf_gmailnator_cookie=9283eccf4672e233327c1d07cbde2fbe; __gads=ID=808c92a03a3667c7-2268f1463cc6007d:T=1614844196:RT=1614845007:S=ALNI_MaEB-hZfUPTo6kHkEmOBLzPe4nqTQ; cto_bundle=AGHOXV9XSVpTNzY3TlRHbldjMDY5RFhQTlU4Y2J1cUpIWGNLVU0xa3ZiWGRKV1duNHo5cXpJYSUyQm5mZ0ROVDJBRFlIa211cG85JTJCOElMV0ZGQUIzVCUyRjg4NTdQZmZSSW9xMzZmMVY5dXdXeDViUUFYeG51SWNibEhqZGxqWGU5NjBQZHpxMg; _ga=GA1.2.1618068840.1614844229; _gid=GA1.2.103981802.1614844229; ci_session=15d382f04f7b998cecd0f9158bfe3db2c8f32629; __cfduid=d1f9a21dd34e5060cfd24ea55f37149961614844181'}
-    data = {'csrf_gmailnator_token': '9283eccf4672e233327c1d07cbde2fbe', 'action': 'LoadMailList',
-            'Email_address': email}
-    try:
-        s = requests.post(url='https://www.gmailnator.com/mailbox/mailboxquery', data=data, headers=head).text
-        id = re.findall(r'(?<=messageid\\/#).+(?=\\">\\n\\t\\t\\t\\t\\t<table class=\\"message_container)', s)[0]
-        #print(id)
-        data1 = {'csrf_gmailnator_token': '9283eccf4672e233327c1d07cbde2fbe', 'action': 'get_message', 'message_id': id,'email': 'varytmp'}
-        mess = requests.post(url='https://www.gmailnator.com/mailbox/get_single_message/', headers=head, data=data1).json()
-        #print(mess)
-        yanzhenma = mess['content']
-
-        im_code = re.findall(r'(?<=验证码为 <b>).+(?=</b>，有效)', yanzhenma)
-        return im_code
-    except Exception as e:
-        print(e)
-def tx_code(browser):
-    """这里需要访问，带有滑动验证码的页面，然后会获取滑块对其进行滑动"""
-    browser.implicitly_wait(10)
-    browser.switch_to.frame("tcaptcha_iframe")  # 等待 iframe
-    #browser.switch_to.frame(browser.find_element_by_id('tcaptcha_iframe'))  # 加载 iframe
-    time.sleep(0.5)
-    bk_block = browser.find_element_by_xpath('//img[@id="slideBg"]').get_attribute('src')
-    print(bk_block)
-    if save_img(bk_block):
-        dex = get_pos()
-        track_list = get_track(dex)
-        time.sleep(0.5)
-        slid_ing = browser.find_element_by_xpath('// *[ @ id = "tcaptcha_drag_thumb"]')  # 滑块定位
-        ActionChains(browser).click_and_hold(on_element=slid_ing).perform()  # 鼠标按下
-        time.sleep(0.2)
-        print('轨迹', track_list)
-        for track in track_list:
-            ActionChains(browser).move_by_offset(xoffset=track, yoffset=0).perform()  # 鼠标移动到距离当前位置（x,y）
-        time.sleep(1)
-        ActionChains(browser).release(on_element=slid_ing).perform()  # print('第三步,释放鼠标')
-        time.sleep(5)
-        # 识别图片
-        return True
-    else:
-        print('缺口图片捕获失败')
-        return False
-
-def save_img(bk_block):
-    """保存图片"""
-    try:
-        img = requests.get(bk_block).content
-        with open('bg.jpeg', 'wb') as f:
-            f.write(img)
-        return True
-    except:
-        return False
-
-
-def get_pos():
-    """识别缺口
-    注意：网页上显示的图片为缩放图片，缩放 50% 所以识别坐标需要 0.5
-    """
-    image = cv.imread('bg.jpeg')
-    blurred = cv.GaussianBlur(image, (5, 5), 0)
-    canny = cv.Canny(blurred, 200, 400)
-    contours, hierarchy = cv.findContours(canny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    for i, contour in enumerate(contours):
-        m = cv.moments(contour)
-        if m['m00'] == 0:
-            cx = cy = 0
-        else:
-            cx, cy = m['m10'] / m['m00'], m['m01'] / m['m00']
-        if 6000 < cv.contourArea(contour) < 8000 and 370 < cv.arcLength(contour, True) < 390:
-            if cx < 400:
-                continue
-            x, y, w, h = cv.boundingRect(contour)  # 外接矩形
-            cv.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 2)
-            # cv.imshow('image', image)  # 显示识别结果
-            print('【缺口识别】 {x}px'.format(x=x/2))
-            return x/2
-    return 0
-
-
-def get_track(distance):
-    """模拟轨迹
-    """
-    distance -= 37  # 初始位置
-    # 初速度
-    v = 0
-    # 单位时间为0.2s来统计轨迹，轨迹即0.2内的位移
-    t = 0.2
-    # 位移/轨迹列表，列表内的一个元素代表0.2s的位移
-    tracks = []
-    # 当前的位移
-    current = 0
-    # 到达mid值开始减速
-    mid = distance * 7 / 8
-
-    distance += 10  # 先滑过一点，最后再反着滑动回来
-    # a = random.randint(1,3)
-    while current < distance:
-        if current < mid:
-            # 加速度越小，单位时间的位移越小,模拟的轨迹就越多越详细
-            a = random.randint(2, 4)  # 加速运动
-        else:
-            a = -random.randint(3, 5)  # 减速运动
-
-        # 初速度
-        v0 = v
-        # 0.2秒时间内的位移
-        s = v0 * t + 0.5 * a * (t ** 2)
-        # 当前的位置
-        current += s
-        # 添加到轨迹列表
-        tracks.append(round(s))
-
-        # 速度已经达到v,该速度作为下次的初速度
-        v = v0 + a * t
-
-    # 反着滑动到大概准确位置
-    for i in range(4):
-        tracks.append(-random.randint(2, 3))
-    for i in range(4):
-        tracks.append(-random.randint(1, 3))
-    return tracks
-
-def move_to(index):
-    """滑动滑块"""
-    pass
-
-
-def main():
-    user=os.environ["USER"]
-    pass1=os.environ["PASSWORD"]
-    invitecode=os.environ["INVITECODE"]
-    points=lianzhong_api.get_points(user,pass1)
-    points=points.json()['data']
-    print('剩余点数：'+str(points))
-    if int(points)<=2:
-        print('点数不足！！')
-        time.sleep(5)
-        telegram_bot("p++", '点数不足！')
-        exit()
-    else:
-        print('start')
-        p_main(user,pass1,invitecode)
-
-
-if __name__ == '__main__':
-    main()
+import lianzhong_api #line:1
+import requests ,time ,os ,random ,re ,json #line:2
+from base64 import b64decode #line:3
+from selenium .webdriver .chrome .options import Options #line:4
+from selenium .webdriver import ActionChains #line:5
+from selenium import webdriver #line:6
+from selenium .webdriver .support .wait import WebDriverWait #line:7
+from selenium .webdriver .support import expected_conditions as EC #line:8
+from selenium .webdriver .common .by import By #line:9
+import cv2 as cv #line:10
+TG_BOT_TOKEN =''#line:11
+TG_USER_ID =''#line:12
+if "TG_BOT_TOKEN"in os .environ and os .environ ["TG_BOT_TOKEN"]and "TG_USER_ID"in os .environ and os .environ ["TG_USER_ID"]:#line:13
+        TG_BOT_TOKEN =os .environ ["TG_BOT_TOKEN"]#line:14
+        TG_USER_ID =os .environ ["TG_USER_ID"]#line:15
+        print ("Telegram 推送打开")#line:16
+def get_email ():#line:17
+    OO000O0000O0O0O00 =random .randint (11 ,999 )#line:18
+    OOOO0OOO00O0OO0O0 =random .randint (0 ,200 )#line:19
+    OO00O00O0000O000O ='varytmp+{}uu{}d@gmail.com'.format (OO000O0000O0O0O00 ,OOOO0OOO00O0OO0O0 )#line:20
+    return OO00O00O0000O000O #line:21
+def p_main (O00O0OOOO0O000000 ,OO000OO00OO00O00O ,OOOOOO000OO00O000 ):#line:22
+            OOOOO0OO0000OOOO0 ='https://pjj.one/share?userid='+OOOOOO000OO00O000 #line:23
+            OO0OOOO000O0O000O =get_email ()#line:24
+            print (OO0OOOO000O0O000O )#line:25
+            O0O0OO00OO00O0O00 =Options ()#line:26
+            O0O0OO00OO00O0O00 =webdriver .ChromeOptions ()#line:27
+            O0O0OO00OO00O0O00 .add_argument ('--headless')#line:29
+            O0O0OO00OO00O0O00 .add_argument ('--disable-gpu')#line:30
+            O0O0OO00OO00O0O00 .add_argument ("--no-sandbox")#line:32
+            O0O0O0000O0O0O00O =webdriver .Chrome (options =O0O0OO00OO00O0O00 )#line:33
+            O0O0O0000O0O0O00O .get (OOOOO0OO0000OOOO0 )#line:35
+            O0O0O0000O0O0O00O .implicitly_wait (10 )#line:36
+            time .sleep (1 )#line:37
+            O0O0O0000O0O0O00O .find_element_by_xpath ('//*[@id="app"]/section/main/div/div/div[2]/form/div[1]/div[2]/div/span/span/input').send_keys (OO0OOOO000O0O000O )#line:40
+            O000O0O000OO0000O =O0O0O0000O0O0O00O .find_element_by_xpath ('//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/span/img').get_attribute ('src')#line:45
+            O000O0O000OO0000O =O000O0O000OO0000O .split (",")[-1 ]#line:47
+            O000O0O000OO0000O =O000O0O000OO0000O .replace ("%0A",'\n')#line:48
+            O00OOOOO0O00O00OO =b64decode (O000O0O000OO0000O )#line:49
+            with open ('./captcha.gif','wb')as O000OO0OOOO0OOOO0 :#line:50
+                O000OO0OOOO0OOOO0 .write (O00OOOOO0O00O00OO )#line:51
+                O000OO0OOOO0OOOO0 .close ()#line:52
+            time .sleep (2 )#line:53
+            O0O000OO0O0OOO00O ='./captcha.gif'#line:55
+            O0O00OOOOO00O000O =lianzhong_api .main (O00O0OOOO0O000000 ,OO000OO00OO00O00O ,O0O000OO0O0OOO00O ,'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload','','','1008','8dc962b56f1968a844450834ef91bfd0')#line:57
+            O00OOOO000O0OO00O =O0O00OOOOO00O000O .json ()['data']['val']#line:59
+            OOOOOOOOOO0OO00O0 =O0O00OOOOO00O000O .json ()['data']['id']#line:60
+            print ('图片已识别:'+O00OOOO000O0OO00O )#line:61
+            O0O0O0000O0O0O00O .find_element_by_xpath ('//*[@id="app"]/section/main/div/div/div[2]/form/div[2]/div[2]/div/span/span/span/input').send_keys (O00OOOO000O0OO00O )#line:64
+            time .sleep (1 )#line:66
+            O0O0O0000O0O0O00O .find_element_by_xpath ('//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/span/button').click ()#line:68
+            time .sleep (10 )#line:70
+            os .remove (O0O000OO0O0OOO00O )#line:72
+            O0OO00OO0O00OO00O =get_num (OO0OOOO000O0O000O )#line:74
+            print (O0OO00OO0O00OO00O )#line:75
+            print ('验证码已识别：'+O0OO00OO0O00OO00O [0 ])#line:76
+            O0O0O0000O0O0O00O .find_element_by_xpath ('//*[@id="app"]/section/main/div/div/div[2]/form/div[3]/div[2]/div/span/span/span/input').send_keys (O0OO00OO0O00OO00O [0 ])#line:79
+            O0O0O0000O0O0O00O .find_element_by_xpath ('//*[@id="app"]/section/main/div/div/div[2]/form/div[4]/div[2]/div/span/span/input').send_keys ('qwer1234')#line:83
+            time .sleep (1 )#line:85
+            O0O0O0000O0O0O00O .find_element_by_xpath ('//*[@id="app"]/section/main/div/div/div[2]/div/p[1]/button').click ()#line:86
+            print ('正在点击注册完成！')#line:87
+            time .sleep (2 )#line:88
+            tx_code (O0O0O0000O0O0O00O )#line:89
+            time .sleep (4 )#line:90
+            if O0O0O0000O0O0O00O .current_url =='https://pjj.one/home':#line:91
+                telegram_bot ("p++",'邀请成功！')#line:92
+                O0O0O0000O0O0O00O .quit ()#line:93
+            else :#line:94
+                telegram_bot ("P++",'邀请失败！')#line:95
+                print ('邀请失败！')#line:96
+def telegram_bot (O0OOOO00O00O0OOO0 ,O000O00OO0OO00000 ):#line:97
+    print ("\n")#line:98
+    OO0O0OOOO0OO00O0O =TG_BOT_TOKEN #line:99
+    O0O00O0O000O0O0O0 =TG_USER_ID #line:100
+    if "TG_BOT_TOKEN"in os .environ and "TG_USER_ID"in os .environ :#line:101
+        OO0O0OOOO0OO00O0O =os .environ ["TG_BOT_TOKEN"]#line:102
+        O0O00O0O000O0O0O0 =os .environ ["TG_USER_ID"]#line:103
+    if not OO0O0OOOO0OO00O0O or not O0O00O0O000O0O0O0 :#line:104
+        print ("Telegram推送的tg_bot_token或者tg_user_id未设置!!\n取消推送")#line:105
+        return #line:106
+    print ("Telegram 推送开始")#line:107
+    O00O00OO0OO00OO0O ={"chat_id":O0O00O0O000O0O0O0 ,"text":O0OOOO00O00O0OOO0 +'\n\n'+O000O00OO0OO00000 ,"disable_web_page_preview":"true"}#line:109
+    O0OOOO0OOO0000O00 =requests .post (url ='https://api.telegram.org/bot%s/sendMessage'%(OO0O0OOOO0OO00O0O ),data =O00O00OO0OO00OO0O )#line:111
+    print (O0OOOO0OOO0000O00 .text )#line:112
+def get_num (O00OO0O0OOOOO000O ):#line:113
+    global Driver #line:114
+    OO0000000O000O0OO ={'Cookie':'csrf_gmailnator_cookie=9283eccf4672e233327c1d07cbde2fbe; __gads=ID=808c92a03a3667c7-2268f1463cc6007d:T=1614844196:RT=1614845007:S=ALNI_MaEB-hZfUPTo6kHkEmOBLzPe4nqTQ; cto_bundle=AGHOXV9XSVpTNzY3TlRHbldjMDY5RFhQTlU4Y2J1cUpIWGNLVU0xa3ZiWGRKV1duNHo5cXpJYSUyQm5mZ0ROVDJBRFlIa211cG85JTJCOElMV0ZGQUIzVCUyRjg4NTdQZmZSSW9xMzZmMVY5dXdXeDViUUFYeG51SWNibEhqZGxqWGU5NjBQZHpxMg; _ga=GA1.2.1618068840.1614844229; _gid=GA1.2.103981802.1614844229; ci_session=15d382f04f7b998cecd0f9158bfe3db2c8f32629; __cfduid=d1f9a21dd34e5060cfd24ea55f37149961614844181'}#line:117
+    O0O0O000O00OOO000 ={'csrf_gmailnator_token':'9283eccf4672e233327c1d07cbde2fbe','action':'LoadMailList','Email_address':O00OO0O0OOOOO000O }#line:119
+    try :#line:120
+        OO0O0O0O000O000OO =requests .post (url ='https://www.gmailnator.com/mailbox/mailboxquery',data =O0O0O000O00OOO000 ,headers =OO0000000O000O0OO ).text #line:121
+        OO00O0O00OO0000OO =re .findall (r'(?<=messageid\\/#).+(?=\\">\\n\\t\\t\\t\\t\\t<table class=\\"message_container)',OO0O0O0O000O000OO )[0 ]#line:122
+        O0O0O0O00000OOO0O ={'csrf_gmailnator_token':'9283eccf4672e233327c1d07cbde2fbe','action':'get_message','message_id':OO00O0O00OO0000OO ,'email':'varytmp'}#line:124
+        OOO0O0O000OOOOO0O =requests .post (url ='https://www.gmailnator.com/mailbox/get_single_message/',headers =OO0000000O000O0OO ,data =O0O0O0O00000OOO0O ).json ()#line:125
+        OO0OO00O0O000OO00 =OOO0O0O000OOOOO0O ['content']#line:127
+        OO00OO0000O0OO0O0 =re .findall (r'(?<=验证码为 <b>).+(?=</b>，有效)',OO0OO00O0O000OO00 )#line:129
+        return OO00OO0000O0OO0O0 #line:130
+    except Exception as OOOOOOOO0000OOOOO :#line:131
+        print (OOOOOOOO0000OOOOO )#line:132
+def tx_code (OOOOO00000OO0OOOO ):#line:133
+    ""#line:134
+    OOOOO00000OO0OOOO .implicitly_wait (10 )#line:135
+    OOOOO00000OO0OOOO .switch_to .frame ("tcaptcha_iframe")#line:136
+    time .sleep (0.5 )#line:138
+    O0OOOO00OO0OOOOOO =OOOOO00000OO0OOOO .find_element_by_xpath ('//img[@id="slideBg"]').get_attribute ('src')#line:139
+    print (O0OOOO00OO0OOOOOO )#line:140
+    if save_img (O0OOOO00OO0OOOOOO ):#line:141
+        O0O00OOO0OO000OO0 =get_pos ()#line:142
+        O0OO0OO00OOO0000O =get_track (O0O00OOO0OO000OO0 )#line:143
+        time .sleep (0.5 )#line:144
+        O0O0O0O0O00O0OOOO =OOOOO00000OO0OOOO .find_element_by_xpath ('// *[ @ id = "tcaptcha_drag_thumb"]')#line:145
+        ActionChains (OOOOO00000OO0OOOO ).click_and_hold (on_element =O0O0O0O0O00O0OOOO ).perform ()#line:146
+        time .sleep (0.2 )#line:147
+        print ('轨迹',O0OO0OO00OOO0000O )#line:148
+        for OO00O0O00O0OO0OO0 in O0OO0OO00OOO0000O :#line:149
+            ActionChains (OOOOO00000OO0OOOO ).move_by_offset (xoffset =OO00O0O00O0OO0OO0 ,yoffset =0 ).perform ()#line:150
+        time .sleep (1 )#line:151
+        ActionChains (OOOOO00000OO0OOOO ).release (on_element =O0O0O0O0O00O0OOOO ).perform ()#line:152
+        time .sleep (5 )#line:153
+        return True #line:155
+    else :#line:156
+        print ('缺口图片捕获失败')#line:157
+        return False #line:158
+def save_img (O0000O00OOO0O000O ):#line:160
+    ""#line:161
+    try :#line:162
+        OOOO00OOO0O00OO0O =requests .get (O0000O00OOO0O000O ).content #line:163
+        with open ('bg.jpeg','wb')as O00O00OO0O000O0O0 :#line:164
+            O00O00OO0O000O0O0 .write (OOOO00OOO0O00OO0O )#line:165
+        return True #line:166
+    except :#line:167
+        return False #line:168
+def get_pos ():#line:171
+    ""#line:174
+    O0OOOOOO00O00O00O =cv .imread ('bg.jpeg')#line:175
+    OOOO0000O000OO00O =cv .GaussianBlur (O0OOOOOO00O00O00O ,(5 ,5 ),0 )#line:176
+    O00O0000O0OOO0000 =cv .Canny (OOOO0000O000OO00O ,200 ,400 )#line:177
+    OOO0O000O0O0OOOOO ,OO0OOOOO00OO00O0O =cv .findContours (O00O0000O0OOO0000 ,cv .RETR_EXTERNAL ,cv .CHAIN_APPROX_SIMPLE )#line:178
+    for OO00O0OOOOOOO0OO0 ,OO0OOO0O0OO0OO0OO in enumerate (OOO0O000O0O0OOOOO ):#line:179
+        O0OO0OO0O00OOO00O =cv .moments (OO0OOO0O0OO0OO0OO )#line:180
+        if O0OO0OO0O00OOO00O ['m00']==0 :#line:181
+            O0O0000OOOOO00OOO =O0OO000O0O00000O0 =0 #line:182
+        else :#line:183
+            O0O0000OOOOO00OOO ,O0OO000O0O00000O0 =O0OO0OO0O00OOO00O ['m10']/O0OO0OO0O00OOO00O ['m00'],O0OO0OO0O00OOO00O ['m01']/O0OO0OO0O00OOO00O ['m00']#line:184
+        if 6000 <cv .contourArea (OO0OOO0O0OO0OO0OO )<8000 and 370 <cv .arcLength (OO0OOO0O0OO0OO0OO ,True )<390 :#line:185
+            if O0O0000OOOOO00OOO <400 :#line:186
+                continue #line:187
+            O00OO0OOO000O0O00 ,OOOOO0OO00O0OOO00 ,O00OO0000OOO00O00 ,O0O0OOOO00O0OOO00 =cv .boundingRect (OO0OOO0O0OO0OO0OO )#line:188
+            cv .rectangle (O0OOOOOO00O00O00O ,(O00OO0OOO000O0O00 ,OOOOO0OO00O0OOO00 ),(O00OO0OOO000O0O00 +O00OO0000OOO00O00 ,OOOOO0OO00O0OOO00 +O0O0OOOO00O0OOO00 ),(0 ,0 ,255 ),2 )#line:189
+            print ('【缺口识别】 {x}px'.format (x =O00OO0OOO000O0O00 /2 ))#line:191
+            return O00OO0OOO000O0O00 /2 #line:192
+    return 0 #line:193
+def get_track (OOOO0O0OO00O0OO00 ):#line:196
+    ""#line:198
+    OOOO0O0OO00O0OO00 -=37 #line:199
+    O000O00OO0OO0O00O =0 #line:201
+    O0OOO00000O00OO0O =0.2 #line:203
+    O0OOOOO0OO00OOO0O =[]#line:205
+    O00OOOOOO0O000O00 =0 #line:207
+    O000OOO0O000000OO =OOOO0O0OO00O0OO00 *7 /8 #line:209
+    OOOO0O0OO00O0OO00 +=10 #line:211
+    while O00OOOOOO0O000O00 <OOOO0O0OO00O0OO00 :#line:213
+        if O00OOOOOO0O000O00 <O000OOO0O000000OO :#line:214
+            OO000OOOOOOO00OOO =random .randint (2 ,4 )#line:216
+        else :#line:217
+            OO000OOOOOOO00OOO =-random .randint (3 ,5 )#line:218
+        O0O00O0O00O0O0OO0 =O000O00OO0OO0O00O #line:221
+        OOO00000O0OO00O00 =O0O00O0O00O0O0OO0 *O0OOO00000O00OO0O +0.5 *OO000OOOOOOO00OOO *(O0OOO00000O00OO0O **2 )#line:223
+        O00OOOOOO0O000O00 +=OOO00000O0OO00O00 #line:225
+        O0OOOOO0OO00OOO0O .append (round (OOO00000O0OO00O00 ))#line:227
+        O000O00OO0OO0O00O =O0O00O0O00O0O0OO0 +OO000OOOOOOO00OOO *O0OOO00000O00OO0O #line:230
+    for OO00O0OOO0OO00OOO in range (4 ):#line:233
+        O0OOOOO0OO00OOO0O .append (-random .randint (2 ,3 ))#line:234
+    for OO00O0OOO0OO00OOO in range (4 ):#line:235
+        O0OOOOO0OO00OOO0O .append (-random .randint (1 ,3 ))#line:236
+    return O0OOOOO0OO00OOO0O #line:237
+def move_to (O0O0OOO0OO0O000O0 ):#line:239
+    ""#line:240
+    pass #line:241
+def main ():#line:244
+    O0000000OO0000O00 =os .environ ["USER"]#line:245
+    OOOOOO0OO0O0OO000 =os .environ ["PASSWORD"]#line:246
+    O00O0O0O0OO00OO00 =os .environ ["INVITECODE"]#line:247
+    O0O0OOO0O00000O00 =lianzhong_api .get_points (O0000000OO0000O00 ,OOOOOO0OO0O0OO000 )#line:248
+    O0O0OOO0O00000O00 =O0O0OOO0O00000O00 .json ()['data']#line:249
+    print ('剩余点数：'+str (O0O0OOO0O00000O00 ))#line:250
+    if int (O0O0OOO0O00000O00 )<=2 :#line:251
+        print ('点数不足！！')#line:252
+        time .sleep (5 )#line:253
+        telegram_bot ("p++",'点数不足！')#line:254
+        exit ()#line:255
+    else :#line:256
+        print ('start')#line:257
+        p_main (O0000000OO0000O00 ,OOOOOO0OO0O0OO000 ,O00O0O0O0OO00OO00 )#line:258
+if __name__ =='__main__':#line:261
+    main ()#line:262
