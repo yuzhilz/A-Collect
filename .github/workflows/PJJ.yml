@@ -24,6 +24,6 @@ jobs:
         if: env.PAT
         with:
           source_repo: "https://github.com/U188/PJJ.git"
-          source_branch: "master"
-          destination_branch: "master"
+          source_branch: "main"
+          destination_branch: "U188_PJJ"
           github_token: ${{ secrets.PAT }}
