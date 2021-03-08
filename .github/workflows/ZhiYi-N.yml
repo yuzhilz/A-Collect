@@ -1,0 +1,28 @@
+name: ZhiYi-N
+on:
+  schedule:
+    - cron: '9 9 * * 2,5'
+  workflow_dispatch:
+  watch:
+    types: started
+  repository_dispatch:
+    types: sync-ZhiYi-N-Private-Script
+jobs:
+  repo-sync:
+    env:
+      PAT: ${{ secrets.PAT }} 
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: sync ZhiYi-N-Private-Script
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://github.com/ZhiYi-N/Private-Script.git"
+          source_branch: "master"
+          destination_branch: "ZhiYi-N"
+          github_token: ${{ secrets.PAT }}
