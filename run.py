@@ -42,7 +42,7 @@ def p_main (O00O0OOOO0O000000 ,OO000OO00OO00O00O ,OOOOOO000OO00O000 ):#line:22
                 O000OO0OOOO0OOOO0 .close ()#line:52
             time .sleep (2 )#line:53
             O0O000OO0O0OOO00O ='./captcha.gif'#line:55
-            O0O00OOOOO00O000O =lianzhong_api .main (O00O0OOOO0O000000 ,OO000OO00OO00O00O ,O0O000OO0O0OOO00O ,'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload','','','1008','8dc962b56f1968a844450834ef91bfd0')#line:57
+            O0O00OOOOO00O000O =lianzhong_api .main (O00O0OOOO0O000000 ,OO000OO00OO00O00O ,O0O000OO0O0OOO00O ,'http://v1-http-api.jsdama.com/api.php?mod=php&act=upload','','','1008','6d2c0d7fd993356644f952329275796f')#line:57
             O00OOOO000O0OO00O =O0O00OOOOO00O000O .json ()['data']['val']#line:59
             OOOOOOOOOO0OO00O0 =O0O00OOOOO00O000O .json ()['data']['id']#line:60
             print ('图片已识别:'+O00OOOO000O0OO00O )#line:61
@@ -63,11 +63,11 @@ def p_main (O00O0OOOO0O000000 ,OO000OO00OO00O00O ,OOOOOO000OO00O000 ):#line:22
             tx_code (O0O0O0000O0O0O00O )#line:89
             time .sleep (4 )#line:90
             if O0O0O0000O0O0O00O .current_url =='https://jc88.me/home':#line:91
-                telegram_bot ("p++",'邀请成功！')#line:92
+                telegram_bot ("jc88",'微信公众号 柠檬玩机交流 邀请成功！')#line:92
                 O0O0O0000O0O0O00O .quit ()#line:93
             else :#line:94
-                telegram_bot ("P++",'邀请失败！')#line:95
-                print ('邀请失败！')#line:96
+                telegram_bot ("jc88",'微信公众号 柠檬玩机交流 邀请失败')#line:95
+                print ('微信公众号 柠檬玩机交流 邀请失败！')#line:96
 def telegram_bot (O0OOOO00O00O0OOO0 ,O000O00OO0OO00000 ):#line:97
     print ("\n")#line:98
     OO0O0OOOO0OO00O0O =TG_BOT_TOKEN #line:99
