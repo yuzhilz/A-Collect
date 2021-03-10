@@ -62,7 +62,7 @@
             "addons": "https://public.nameidi.top:7443/Quantumult-X/subscribe/rewrite/jd_rewrite_subscribe.conf"
         },
         {
-            "config": "10 * * * * https://public.nameidi.top:7443/Quantumult-X/script/JD/jd_jdfactory.js, tag=东东工厂, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jd_factory.png, enabled=true",
+            "config": "10 * * * * https://public.nameidi.top:7443/Quantumult-X/script/JD/jd_factory.js, tag=东东工厂, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jd_factory.png, enabled=true",
             "addons": "https://public.nameidi.top:7443/Quantumult-X/subscribe/rewrite/jd_rewrite_subscribe.conf"
         },
         {
@@ -207,10 +207,6 @@
         },
         {
             "config": "55 23 * * * https://public.nameidi.top:7443/Quantumult-X/script/JD/jd_unsubscribe.js, tag=取关京东店铺商品, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true",
-            "addons": "https://public.nameidi.top:7443/Quantumult-X/subscribe/rewrite/jd_rewrite_subscribe.conf"
-        },
-        {
-            "config": "30 7 * * * https://public.nameidi.top:7443/Quantumult-X/script/JD/jd_xgyl.js, tag=小鸽有礼2, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jd_xgyl.png, enabled=true",
             "addons": "https://public.nameidi.top:7443/Quantumult-X/subscribe/rewrite/jd_rewrite_subscribe.conf"
         },
         {
