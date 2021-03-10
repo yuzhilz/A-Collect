@@ -1,8 +1,8 @@
 # File: .github/workflows/repo-sync.yml
-name: 同步上游仓库  #workflows处显示名称
+name: BILIBILI  #workflows处显示名称
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 7 * * *'
   workflow_dispatch:
   watch:
     types: started
