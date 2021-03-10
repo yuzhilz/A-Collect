@@ -50,7 +50,7 @@
             "addons": "https://public.nameidi.top:7443/Quantumult-X/subscribe/rewrite/jd_rewrite_subscribe.conf"
         },
         {
-            "config": "10 12 * * * https://public.nameidi.top:7443/Quantumult-X/script/JD/jd_crazy_joy_bonus.js, tag=c监控crazyJoy分红, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jd_crazy_joy.png, enabled=true",
+            "config": "10 12 * * * https://public.nameidi.top:7443/Quantumult-X/script/JD/jd_crazy_joy_bonus.js, tag=监控crazyJoy分红, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jd_crazy_joy.png, enabled=true",
             "addons": "https://public.nameidi.top:7443/Quantumult-X/subscribe/rewrite/jd_rewrite_subscribe.conf"
         },
         {
