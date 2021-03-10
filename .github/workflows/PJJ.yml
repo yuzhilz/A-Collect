@@ -28,11 +28,11 @@ jobs:
           destination_branch: "U188_PJJ"
           github_token: ${{ secrets.PAT }}
 
-      - name: sync U188/P88
+      - name: sync panghu999/jc88
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
-          source_repo: "https://github.com/U188/P88.git"
+          source_repo: "https://github.com/panghu999/jc88.git"
           source_branch: "main"
           destination_branch: "U188_P88"
           github_token: ${{ secrets.PAT }}
