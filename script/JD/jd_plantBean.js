@@ -1,6 +1,6 @@
 /*
 种豆得豆 脚本更新地址：https://gitee.com/lxk0301/jd_scripts/raw/master/jd_plantBean.js
-更新时间：2021-1-16
+更新时间：2021-2-27
 活动入口：京东APP我的-更多工具-种豆得豆
 已支持IOS京东双账号,云端N个京东账号
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
@@ -39,6 +39,7 @@ let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好�
     //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
     '4npkonnsy7xi2bhmcrgudl4ts6zsps6lbhs3g3a'
 ]
+let allMessage = ``;
 let currentRoundId = null;//本期活动id
 let lastRoundId = null;//上期id
 let roundList = [];
@@ -74,6 +75,9 @@ let randomCount = $.isNode() ? 20 : 5;
             await jdPlantBean();
             await showMsg();
         }
+    }
+    if ($.isNode() && allMessage) {
+        await notify.sendNotify(`${$.name}`, `${allMessage}`)
     }
 })().catch((e) => {
     $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -127,9 +131,10 @@ async function doGetReward() {
             console.log('京豆领取成功');
             message += `【上期兑换京豆】${$.getReward.data.awardBean}个\n`;
             $.msg($.name, subTitle, message);
-            if ($.isNode()) {
-                await notify.sendNotify(`${$.name} - 账号${$.index} - ${$.nickName || $.UserName}`, `京东账号${$.index} ${$.nickName}\n${message}`);
-            }
+            allMessage += `京东账号${$.index} ${$.nickName}\n${message}${$.index !== cookiesArr.length ? '\n\n' : ''}`
+            // if ($.isNode()) {
+            //   await notify.sendNotify(`${$.name} - 账号${$.index} - ${$.nickName || $.UserName}`, `京东账号${$.index} ${$.nickName}\n${message}`);
+            // }
         }
     } else if (awardState === '6') {
         //京豆已领取
@@ -687,7 +692,11 @@ function TotalBean() {
                             $.isLogin = false; //cookie过期
                             return
                         }
-                        $.nickName = data['base'].nickname;
+                        if (data['retcode'] === 0) {
+                            $.nickName = (data['base'] && data['base'].nickname) || $.UserName;
+                        } else {
+                            $.nickName = $.UserName
+                        }
                     } else {
                         console.log(`京东服务器返回空数据`)
                     }
