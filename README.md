@@ -24,6 +24,26 @@
 | 0638 | 传播脚本 | tg |
 |  |  |  |
 
+-------
+**通过修改config.json的taskNum键值可达到运行特定任务目的**
+
+### 任务列表
+| 任务名称 | 键值 | 说明 |
+|---|---|---|
+| DailyCollectflow.py | 0 | 流量 |
+| DailyGamecenter.py | 1 | 积分 |
+| DailyOneG.py | 2 | 流量 |
+| DailyLuck.py | 3 | 流量,积分,实物 |
+| DailyOpenbox.py | 4 | 流量 |
+| DailyPoints.py | 5 | 积分 |
+| DailyPointsluck.py | 6 | 积分 |
+| DailySignin.py | 7 | 积分 |
+| DailyWotree.py | 8 | 流量 |
+| ShortOlympic.py | 9 | 积分 |
+| ToolSupport.py | 10 | 激活即将过期流量包 |
+
+-------
+
 ### 免责声明
 **请不要把我仓库脚本用在淘宝、咸鱼等平台进行商业谋利，否则我会删库跑路.**
 
