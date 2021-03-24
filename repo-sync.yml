@@ -1,8 +1,8 @@
 # File: .github/workflows/repo-sync.yml
-name: 同步上游仓库  #workflows处显示名称
+name: 同步whyour上游仓库  #workflows处显示名称
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '5 */8 * * *'
   workflow_dispatch:
   watch:
     types: started
@@ -19,11 +19,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: sync Zero-S1/JD_tools  #类似注释
+      - name: sync whyour/hundun  #类似注释
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
-          source_repo: "https://github.com/Zero-S1/JD_tools.git"
+          source_repo: "https://github.com/whyour/hundun.git"
           source_branch: "master"
-          destination_branch: "master"
+          destination_branch: "whyour"
           github_token: ${{ secrets.PAT }}
