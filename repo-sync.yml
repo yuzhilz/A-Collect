@@ -1,5 +1,5 @@
 # File: .github/workflows/repo-sync.yml
-name: 同步肥宅上游仓库  #workflows处显示名称
+name: 同步和尚上游仓库  #workflows处显示名称
 on:
   schedule:
     - cron: '5 */8 * * *'
@@ -19,11 +19,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: sync age174/-  #类似注释
+      - name: sync monk-coder/dust  #类似注释
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
-          source_repo: "https://github.com/age174/-.git"
-          source_branch: "main"
-          destination_branch: "age174"
+          source_repo: "https://github.com/monk-coder/dust.git"
+          source_branch: "dust"
+          destination_branch: "monk"
           github_token: ${{ secrets.PAT }}
