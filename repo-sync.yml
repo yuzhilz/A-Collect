@@ -1,8 +1,8 @@
 # File: .github/workflows/repo-sync.yml
-name: 同步tom上游仓库  #workflows处显示名称
+name: 同步sunert上游仓库  #workflows处显示名称
 on:
   schedule:
-    - cron: '10 8 * * *'
+    - cron: '15 8 * * *'
   workflow_dispatch:
   watch:
     types: started
@@ -19,11 +19,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: sync xl2101200/-  #类似注释
+      - name: sync GoodHolidays/Scripts  #类似注释
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
-          source_repo: "https://github.com/xl2101200/-.git"
-          source_branch: "main"
-          destination_branch: "tom"
+          source_repo: "https://github.com/GoodHolidays/Scripts.git"
+          source_branch: "master"
+          destination_branch: "sunert"
           github_token: ${{ secrets.PAT }}
