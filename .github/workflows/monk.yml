@@ -2,7 +2,7 @@
 name: 同步和尚上游仓库  #workflows处显示名称
 on:
   schedule:
-    - cron: '5 */8 * * *'
+    - cron: '5 */6 * * *'
   workflow_dispatch:
   watch:
     types: started
