@@ -1,7 +1,7 @@
 name: ZhiYi-N
 on:
   schedule:
-    - cron: '9 9 * * 2,5'
+    - cron: '9 9 * * *'
   workflow_dispatch:
   watch:
     types: started
@@ -22,7 +22,7 @@ jobs:
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
-          source_repo: "https://github.com/Ariszy/script.git"
+          source_repo: "https://github.com/Ariszy/Private-Script.git"
           source_branch: "master"
           destination_branch: "ZhiYi-N"
           github_token: ${{ secrets.PAT }}
