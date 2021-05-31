@@ -6,7 +6,7 @@
 const $ = new Env('沸腾之夜');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-$.inviteCodeList = [];
+$.inviteCodeList = ['oMZeXLIZqYJVB7Y4NeFyrA'];
 let cookiesArr = [
 ];
 
