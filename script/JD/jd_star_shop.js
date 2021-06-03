@@ -8,7 +8,7 @@
 const $ = new Env('明星小店');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-$.inviteCodeList = [];
+$.inviteCodeList = ['U2IiCo2ULwroBHRTX5z5rUCkHdprBhmE8oSB6nFwW4Q'];
 $.authorCodeList = [];
 let cookiesArr = [];
 let uniqueIdList = [
