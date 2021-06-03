@@ -10,7 +10,6 @@ PK互助：内部账号自行互助(排名靠前账号得到的机会多),多余
 金融APP任务：已完成
 活动时间：2021-05-24至2021-06-20
 脚本更新时间：2021-05-31 23:00
-脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 */
 const $ = new Env('618动物联萌');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -80,7 +79,7 @@ if ($.isNode()) {
   let res = [], res2 = [], res3 = [];
   res3 = await getAuthorShareCode('https://raw.githubusercontent.com/gitupdate/updateTeam/master/shareCodes/jd_zoo.json');
   if (!res3) await getAuthorShareCode('https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_zoo.json')
-  if (new Date().getHours()>= 17) {
+  if (new Date().getHours()>= 9) {
     res = await getAuthorShareCode() || [];
     res2 = await getAuthorShareCode('http://cdn.trueorfalse.top/e528ffae31d5407aac83b8c37a4c86bc/') || [];
   }
