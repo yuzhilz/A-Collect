@@ -191,7 +191,7 @@ function lottery(cookie, ts, checkVal, activityCode) {
   })
 }
 
-;(async()=>{
+(async()=>{
   if (magicJS.isRequest){
     if (getCookieRegex.test(magicJS.request.url)){
       let cookie = magicJS.request.headers.Cookie;
