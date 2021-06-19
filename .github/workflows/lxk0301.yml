@@ -1,5 +1,5 @@
 # File: .github/workflows/repo-sync.yml
-name: 同步sunert上游仓库  #workflows处显示名称
+name: 柠檬代维护lxk0301  #workflows处显示名称
 on:
   schedule:
     - cron: '18 */6 * * *'
