@@ -2,7 +2,7 @@
 name: 同步sunert上游仓库  #workflows处显示名称
 on:
   schedule:
-    - cron: '15 8 * * *'
+    - cron: '15 */8 * * *'
   workflow_dispatch:
   watch:
     types: started
@@ -19,11 +19,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: sync GoodHolidays/Scripts  #类似注释
+      - name: sync panghu999/jd_scripts  #类似注释
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
-          source_repo: "https://github.com/GoodHolidays/Scripts.git"
+          source_repo: "https://github.com/panghu999/jd_scripts.git"
           source_branch: "master"
-          destination_branch: "sunert"
+          destination_branch: "lxk0301"
           github_token: ${{ secrets.PAT }}
