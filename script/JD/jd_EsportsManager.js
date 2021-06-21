@@ -28,7 +28,7 @@
 
  const $ = new Env('东东电竞经理');
  let cookiesArr = [], cookie = '', isBox = false, notify, newShareCodes, allMessage = '';
- let tasks = [], shareCodes = [], first = true;
+ let tasks = [], shareCodes = ['YnKZNR1AYeo='], first = true;
 
  !(async () => {
    await requireConfig();
