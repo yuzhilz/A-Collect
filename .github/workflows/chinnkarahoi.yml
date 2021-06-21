@@ -1,0 +1,29 @@
+# File: .github/workflows/repo-sync.yml
+name: chinnkarahoi——jd_scripts  #workflows处显示名称
+on:
+  schedule:
+    - cron: '18 */8 * * *'
+  workflow_dispatch:
+  watch:
+    types: started
+  repository_dispatch:
+    types: sync-repo
+jobs:
+  repo-sync:
+    env:
+      PAT: ${{ secrets.PAT }} #此处PAT需要申请，教程详见：https://www.jianshu.com/p/bb82b3ad1d11
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: sync chinnkarahoi/jd_scripts  #类似注释
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://github.com/chinnkarahoi/jd_scripts.git"
+          source_branch: "master"
+          destination_branch: "chinnkarahoi_jd_scripts_lxk0301"
+          github_token: ${{ secrets.PAT }}
