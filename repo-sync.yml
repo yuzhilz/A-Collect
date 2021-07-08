@@ -1,8 +1,8 @@
 # File: .github/workflows/repo-sync.yml
-name: smiek2221_scripts  #workflows处显示名称
+name: JDHelloWorld_jd_scripts  #workflows处显示名称
 on:
   schedule:
-    - cron: '20 */8 * * *'
+    - cron: '22 */8 * * *'
   workflow_dispatch:
   watch:
     types: started
@@ -23,7 +23,7 @@ jobs:
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
-          source_repo: "https://github.com/smiek2221/scripts.git"
-          source_branch: "master"
-          destination_branch: "smiek2221"
+          source_repo: "https://github.com/JDHelloWorld/jd_scripts.git"
+          source_branch: "main"
+          destination_branch: "JDHelloWorld"
           github_token: ${{ secrets.PAT }}
