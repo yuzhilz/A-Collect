@@ -1,8 +1,8 @@
 # File: .github/workflows/repo-sync.yml
-name: JDHelloWorld_jd_scripts  #workflows处显示名称
+name: Ninja  #workflows处显示名称
 on:
   schedule:
-    - cron: '22 */8 * * *'
+    - cron: '26 */8 * * *'
   workflow_dispatch:
   watch:
     types: started
@@ -19,11 +19,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: sync smiek2221/scripts  #类似注释
+      - name: sync MoonBegonia/ninja  #类似注释
         uses: repo-sync/github-sync@v2
         if: env.PAT
         with:
-          source_repo: "https://github.com/JDHelloWorld/jd_scripts.git"
+          source_repo: "https://github.com/MoonBegonia/ninja.git"
           source_branch: "main"
-          destination_branch: "JDHelloWorld"
+          destination_branch: "MoonBegonia-ninja"
           github_token: ${{ secrets.PAT }}
